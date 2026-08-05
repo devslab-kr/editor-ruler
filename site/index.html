@@ -248,7 +248,7 @@ new FroalaEditor('#editor', {
         <h2>자주 묻는 것</h2>
         <p><strong>탭 스톱은요?</strong> HTML에는 탭 스톱 모델이 없어 의도적으로 범위 밖입니다. 여백·들여쓰기는 CSS와 1:1이라 어디서나 안전하게 동작합니다.</p>
         <p><strong>결과물 HTML은 어떻게 나오나요?</strong> 순수 인라인 CSS입니다 — <code>&lt;p style="margin-left: 75px; text-indent: 38px"&gt;</code>. 어디로 내보내도(메일·다른 페이지·CMS) 레이아웃이 유지됩니다.</p>
-        <p><strong>테이블·이미지는요?</strong> Word처럼 다 밀립니다 — 테이블 안에 커서를 두고 드래그하면 <strong>테이블 전체</strong>가 이동하고, 셀 안 문단은 개별 들여쓰기, 이미지는 소속 블록과 함께 움직입니다. 줄자에서 테이블 컬럼 폭을 끄는 마커는 로드맵에 있습니다.</p>
+        <p><strong>테이블·이미지는요?</strong> Word처럼 다 밀립니다 — 테이블 안에 커서를 두고 드래그하면 <strong>테이블 전체</strong>가 이동하고, 셀 안 문단은 개별 들여쓰기, 이미지는 소속 블록과 함께 움직입니다. 테이블 안에서는 줄자에 <strong>컬럼 경계 마커</strong>가 떠서 드래그로 컬럼 폭도 조절됩니다 (병합 셀 테이블 제외).</p>
         <p><strong>가이드선은 문서에 남나요?</strong> 아니요 — 순수 시각 오버레이라 내보내는 HTML에 전혀 남지 않습니다. 정렬 참고용이며, 드롭다운에서 잠그거나 한 번에 지울 수 있습니다.</p>
         <p><strong>다른 에디터는요?</strong> 코어가 에디터 불문이라 Tiptap·CKEditor 5 어댑터가 로드맵에 있습니다. 어댑터는 "선택 문단 읽기/스타일 쓰기/undo 연결"만 하면 됩니다 — <a href="https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-froala">Froala 어댑터</a>가 예시입니다.</p>
       </section>

@@ -3,6 +3,7 @@ export {
   type Ruler,
   type RulerChange,
   type RulerChangePhase,
+  type RulerColumns,
   type RulerLabels,
   type RulerMetrics,
   type RulerOptions,

@@ -18,6 +18,7 @@ import 'ckeditor5/ckeditor5.css';
 ClassicEditor.create(document.querySelector('#editor'), {
   licenseKey: 'GPL',
   plugins: [Essentials, Paragraph, Heading, Bold, Italic, EditorRulerPlugin],
+  toolbar: ['heading', '|', 'bold', 'italic', '|', 'editorRuler'], // 줄자 아이콘 드롭다운
   editorRuler: {
     unit: 'cm',     // 'cm' | 'in' | 'px'
     guides: true,   // 줄자에서 아래로 드래그 → 가이드선
@@ -29,7 +30,7 @@ ClassicEditor.create(document.querySelector('#editor'), {
 
 들여쓰기는 모델 속성(`rulerMarginLeft` / `rulerMarginRight` / `rulerTextIndent`)으로 저장되고 **순수 인라인 CSS**(`<p style="margin-left:75px">`)로 다운캐스트됩니다 — `getData()` 출력이 그대로 이식 가능하고, 기존 인라인 들여쓰기도 업캐스트되어 들어옵니다. 드래그 제스처 전체가 정확히 **undo 1스텝**입니다.
 
-줄자 API는 `editor.plugins.get('EditorRuler').ruler`(`refresh`/`setUnit`/…), 가이드는 `.guides`로 접근합니다.
+플러그인이 **`editorRuler` 툴바 항목**을 등록합니다 — 줄자 아이콘 드롭다운 하나에 보이기/숨기기·가이드 잠금·가이드 지우기·cm/인치/px 전환 (활성 상태 체크 표시, 라벨은 에디터 UI 언어 추종 — ko/en 내장). 전체 API는 `editor.plugins.get('EditorRuler')`에도 있습니다 (`ruler`, `guides`, `show`/`hide`/`toggle`, `setUnit`, `setGuidesLocked`, `clearGuides`).
 
 `ckeditor5 >= 42` (통합 npm 패키지) 필요.
 

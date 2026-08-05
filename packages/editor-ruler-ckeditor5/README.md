@@ -18,6 +18,7 @@ import 'ckeditor5/ckeditor5.css';
 ClassicEditor.create(document.querySelector('#editor'), {
   licenseKey: 'GPL',
   plugins: [Essentials, Paragraph, Heading, Bold, Italic, EditorRulerPlugin],
+  toolbar: ['heading', '|', 'bold', 'italic', '|', 'editorRuler'], // ruler-icon dropdown
   editorRuler: {
     unit: 'cm',     // 'cm' | 'in' | 'px'
     guides: true,   // drag down from the ruler for guide lines
@@ -29,7 +30,7 @@ ClassicEditor.create(document.querySelector('#editor'), {
 
 Indentation is stored as model attributes (`rulerMarginLeft` / `rulerMarginRight` / `rulerTextIndent`) and down-cast to **plain inline CSS** (`<p style="margin-left:75px">`), so `getData()` output is portable and existing inline indentation up-casts back in. A whole drag gesture is exactly **one undo step**.
 
-The ruler API is available at `editor.plugins.get('EditorRuler').ruler` (`refresh`/`setUnit`/…) and guides at `.guides`.
+The plugin registers an **`editorRuler` toolbar item** — a ruler-icon dropdown holding Show/Hide, Lock Guides, Clear Guides, and the cm/inch/px unit switch (active states checkmarked; labels localize to the editor UI language, ko/en built in). The full API also lives at `editor.plugins.get('EditorRuler')` (`ruler`, `guides`, `show`/`hide`/`toggle`, `setUnit`, `setGuidesLocked`, `clearGuides`).
 
 Requires `ckeditor5 >= 42` (the unified npm package).
 

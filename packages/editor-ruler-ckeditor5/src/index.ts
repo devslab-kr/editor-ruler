@@ -1,4 +1,4 @@
-import { Plugin } from 'ckeditor5';
+import { addListToDropdown, Collection, createDropdown, Plugin, UIModel } from 'ckeditor5';
 import {
   createGuides,
   createRuler,
@@ -19,6 +19,40 @@ const ATTRS = [
 ] as const;
 
 const UPCAST_TAGS = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'li', 'div'];
+
+const RULER_ICON =
+  '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 8a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3zm1 2h1.5v3H4v-3zm3.5 0H9v2H7.5v-2zm3.5 0h1.5v3H11v-3zm3.5 0H16v2h-1.5v-2zm3.5 0h1.5v3H18v-3z"/></svg>';
+
+interface CkRulerStrings {
+  ruler: string;
+  showHide: string;
+  lockGuides: string;
+  clearGuides: string;
+  cm: string;
+  in: string;
+  px: string;
+}
+
+const STRINGS: Record<string, CkRulerStrings> = {
+  en: {
+    ruler: 'Ruler',
+    showHide: 'Show / Hide',
+    lockGuides: 'Lock Guides',
+    clearGuides: 'Clear Guides',
+    cm: 'cm',
+    in: 'inch',
+    px: 'px',
+  },
+  ko: {
+    ruler: '줄자',
+    showHide: '보이기 / 숨기기',
+    lockGuides: '가이드 잠금',
+    clearGuides: '가이드 지우기',
+    cm: 'cm',
+    in: '인치',
+    px: 'px',
+  },
+};
 
 export interface CkRulerConfig {
   unit?: RulerUnit;
@@ -64,6 +98,47 @@ export class EditorRulerPlugin extends Plugin {
     return this._guides;
   }
 
+  private _visible = true;
+
+  public show(): void {
+    if (this._mountEl) this._mountEl.style.display = '';
+    this._visible = true;
+    this._ruler?.refresh();
+  }
+
+  public hide(): void {
+    if (this._mountEl) this._mountEl.style.display = 'none';
+    this._visible = false;
+  }
+
+  public toggle(): void {
+    this._visible ? this.hide() : this.show();
+  }
+
+  public isVisible(): boolean {
+    return this._visible;
+  }
+
+  public setUnit(unit: RulerUnit): void {
+    this._ruler?.setUnit(unit);
+  }
+
+  public getUnit(): RulerUnit {
+    return this._ruler?.getUnit() ?? this._config().unit;
+  }
+
+  public setGuidesLocked(locked: boolean): void {
+    this._guides?.setLocked(locked);
+  }
+
+  public isGuidesLocked(): boolean {
+    return this._guides?.isLocked() === true;
+  }
+
+  public clearGuides(): void {
+    this._guides?.clear();
+  }
+
   public init(): void {
     const editor = this.editor as any;
     const schema = editor.model.schema;
@@ -85,7 +160,67 @@ export class EditorRulerPlugin extends Plugin {
       }
     }
 
+    this._registerToolbarDropdown();
     editor.once('ready', () => this._mount());
+  }
+
+  /** `'editorRuler'` toolbar item: a ruler-icon dropdown (show/hide, guides, units). */
+  private _registerToolbarDropdown(): void {
+    const editor = this.editor as any;
+    const plugin = this;
+    editor.ui.componentFactory.add('editorRuler', (locale: any) => {
+      const config = this._config();
+      const language = detectLanguage(
+        config.language || editor.config.get('language.ui') || editor.config.get('language'),
+        typeof document !== 'undefined' ? document : undefined,
+      );
+      const t = STRINGS[language] ?? STRINGS.en!;
+      const labels: Record<string, string> = {
+        toggle: t.showHide,
+        lockGuides: t.lockGuides,
+        clearGuides: t.clearGuides,
+        cm: t.cm,
+        in: t.in,
+        px: t.px,
+      };
+
+      const dropdown = createDropdown(locale);
+      dropdown.buttonView.set({ label: t.ruler, icon: RULER_ICON, tooltip: true });
+
+      const models = new Map<string, any>();
+      const items = new Collection<any>();
+      const push = (id: string) => {
+        const model = new UIModel({ id, label: labels[id], withText: true });
+        models.set(id, model);
+        items.add({ type: 'button', model });
+      };
+      push('toggle');
+      push('lockGuides');
+      push('clearGuides');
+      items.add({ type: 'separator' });
+      push('cm');
+      push('in');
+      push('px');
+      addListToDropdown(dropdown, items);
+
+      dropdown.on('execute', (evt: any) => {
+        const id = evt.source?.id;
+        if (id === 'toggle') plugin.toggle();
+        else if (id === 'lockGuides') plugin.setGuidesLocked(!plugin.isGuidesLocked());
+        else if (id === 'clearGuides') plugin.clearGuides();
+        else if (id === 'cm' || id === 'in' || id === 'px') plugin.setUnit(id);
+      });
+
+      dropdown.on('change:isOpen', (_evt: any, _name: string, isOpen: boolean) => {
+        if (!isOpen) return;
+        const unit = plugin.getUnit();
+        models.get('toggle')?.set('isOn', plugin.isVisible());
+        models.get('lockGuides')?.set('isOn', plugin.isGuidesLocked());
+        for (const u of ['cm', 'in', 'px']) models.get(u)?.set('isOn', unit === u);
+      });
+
+      return dropdown;
+    });
   }
 
   public override destroy(): void {

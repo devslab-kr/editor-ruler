@@ -9,6 +9,21 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-08-06
+
+### Added
+
+- `@devslab/editor-ruler-ckeditor5` — **`editorRuler` toolbar item**: a
+  ruler-icon dropdown holding Show/Hide, Lock Guides, Clear Guides, and the
+  cm/inch/px unit switch, with active states checkmarked on open and labels
+  following the editor UI language (ko/en built in). The plugin API gains
+  `show`/`hide`/`toggle`/`isVisible`, `setUnit`/`getUnit`,
+  `setGuidesLocked`/`isGuidesLocked`/`clearGuides`.
+- Landing demo polish: the Tiptap tab now carries a hand-wired mini toolbar
+  (Tiptap is headless — this makes the difference from the bare-core tab
+  visible) plus loading placeholders for the CDN-loaded Tiptap and CKEditor
+  tabs; the CKEditor demo toolbar includes the new `editorRuler` dropdown.
+
 ## [0.11.0] - 2026-08-06
 
 ### Added
@@ -168,7 +183,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.8.0...v0.9.0

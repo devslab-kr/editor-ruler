@@ -9,6 +9,20 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-08-05
+
+### Changed (breaking)
+
+- Guide orientation now follows the design-tool convention (Photoshop/Figma):
+  dragging from the **horizontal ruler creates a horizontal guide**, and the
+  **vertical ruler creates a vertical guide** — 0.4.0 had this inverted and the
+  vertical ruler could not create guides at all. Releasing a guide back on its
+  source ruler still deletes it.
+- `Guides.list()`, the `onChange` payload, and the Froala adapter's
+  `getGuides()` now return `{ x: number[], y: number[] }` instead of a flat
+  array; `Guides.set()` takes the same shape. `Guides.beginCreate()` takes an
+  explicit axis. `createVRuler` accepts a `guides` controller.
+
 ## [0.4.0] - 2026-08-05
 
 ### Added
@@ -78,7 +92,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.1.1...v0.2.0

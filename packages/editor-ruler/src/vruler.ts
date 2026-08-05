@@ -1,5 +1,6 @@
 import { computeTicks, type RulerUnit } from './units';
 import { ensureStyles } from './styles';
+import type { Guides } from './guides';
 
 export interface VRulerMetrics {
   /** Height of the writable area in px (between the editor's padding edges). */
@@ -9,6 +10,11 @@ export interface VRulerMetrics {
 export interface VRulerOptions {
   getMetrics: () => VRulerMetrics;
   unit?: RulerUnit;
+  /**
+   * A guides controller (from createGuides). When present, pressing the strip
+   * and dragging right creates a *vertical* guide line.
+   */
+  guides?: Guides;
 }
 
 export interface VRuler {
@@ -39,6 +45,13 @@ export function createVRuler(mount: HTMLElement, options: VRulerOptions): VRuler
   scale.setAttribute('class', 'edr-vscale');
   scale.setAttribute('width', String(RULER_WIDTH));
   root.appendChild(scale);
+
+  if (options.guides) {
+    root.classList.add('edr-has-guides');
+    root.addEventListener('pointerdown', (event: PointerEvent) => {
+      options.guides!.beginCreate(event, root, 'x');
+    });
+  }
 
   mount.appendChild(root);
 

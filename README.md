@@ -90,7 +90,7 @@ Froala options: `rulerVertical: true` shows the vertical ruler on init; `rulerGu
 
 - Left margin / right margin / first-line indent handles (hanging indent supported)
 - **Vertical ruler** (`createVRuler`) — a scale strip for the editor's left edge
-- **Guide lines** (`createGuides`) — drag down from the ruler to drop vertical guides (draggable, lockable, deletable; purely visual, never in the document HTML)
+- **Guide lines** (`createGuides`) — design-tool convention: drag down from the horizontal ruler for a horizontal guide, right from the vertical ruler for a vertical guide (draggable, lockable, deleted by dropping back on the ruler; purely visual, never in the document HTML)
 - Live drag preview + a single undo boundary per gesture (`commit` phase)
 - Keyboard accessible: handles are focusable sliders (`←`/`→`, `Shift` for 10px, `Home`/`End`)
 - cm / in / px scales, switchable at runtime

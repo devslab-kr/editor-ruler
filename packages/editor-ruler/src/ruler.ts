@@ -42,7 +42,8 @@ export interface RulerOptions {
   labels?: Partial<RulerLabels>;
   /**
    * A guides controller (from createGuides). When present, pressing on an empty
-   * part of the ruler strip and dragging down creates a vertical guide line.
+   * part of the ruler strip and dragging down creates a *horizontal* guide line
+   * (the design-tool convention: a guide is parallel to its source ruler).
    */
   guides?: Guides;
 }
@@ -160,7 +161,7 @@ export function createRuler(mount: HTMLElement, options: RulerOptions): Ruler {
       'pointerdown',
       (event: PointerEvent) => {
         if ((event.target as HTMLElement | null)?.closest?.('.edr-handle')) return;
-        options.guides!.beginCreate(event, root);
+        options.guides!.beginCreate(event, root, 'y');
       },
       { signal },
     );

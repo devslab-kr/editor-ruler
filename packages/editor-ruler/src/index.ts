@@ -17,5 +17,11 @@ export {
   type Tick,
 } from './units';
 export { createVRuler, type VRuler, type VRulerMetrics, type VRulerOptions } from './vruler';
-export { createGuides, type Guides, type GuidesOptions } from './guides';
+export {
+  createGuides,
+  type GuideAxis,
+  type Guides,
+  type GuideSet,
+  type GuidesOptions,
+} from './guides';
 export { ensureStyles } from './styles';

@@ -18,7 +18,7 @@ Every classic WYSIWYG editor (Froala, TinyMCE, CKEditor 5, Quill, …) ships wit
 | [`@devslab/editor-ruler`](packages/editor-ruler) | Core: ruler UI, drag/keyboard handles, unit scales, guides, column markers. Zero dependencies, framework-free. |
 | [`@devslab/editor-ruler-froala`](packages/editor-ruler-froala) | [Froala WYSIWYG editor](https://froala.com) plugin adapter. |
 | [`@devslab/editor-ruler-tiptap`](packages/editor-ruler-tiptap) | [Tiptap](https://tiptap.dev) extension (v2/v3). |
-| `@devslab/editor-ruler-ckeditor5` | Planned. |
+| [`@devslab/editor-ruler-ckeditor5`](packages/editor-ruler-ckeditor5) | [CKEditor 5](https://ckeditor.com/ckeditor-5/) plugin (`ckeditor5 >= 42`). |
 
 ## Quick start (core, any contenteditable)
 
@@ -95,6 +95,25 @@ new Editor({ element, extensions: [StarterKit, EditorRuler], content });
 
 Indentation is stored as node attributes and rendered as plain inline CSS; a whole drag is one undo step. See the [package README](packages/editor-ruler-tiptap) for options.
 
+## Quick start (CKEditor 5)
+
+```bash
+npm install @devslab/editor-ruler-ckeditor5 ckeditor5
+```
+
+```ts
+import { ClassicEditor, Essentials, Paragraph, Heading } from 'ckeditor5';
+import { EditorRulerPlugin } from '@devslab/editor-ruler-ckeditor5';
+
+ClassicEditor.create(element, {
+  licenseKey: 'GPL',
+  plugins: [Essentials, Paragraph, Heading, EditorRulerPlugin],
+  editorRuler: { unit: 'cm' },
+});
+```
+
+Model attributes down-cast to plain inline CSS; one undo step per drag. See the [package README](packages/editor-ruler-ckeditor5).
+
 `defineRulerPlugin` registers the `ruler` plugin **and** toolbar commands — add what you need to `toolbarButtons`:
 
 - `rulerOptions` — **recommended single button**: one ruler-icon dropdown holding Show/Hide, Vertical Ruler, Lock Guides, Clear Guides, plus cm / inch / px (active states checkmarked)
@@ -127,6 +146,7 @@ One-click sandboxes:
 - [Vanilla contenteditable on StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/vanilla)
 - [Froala on StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/froala)
 - [Tiptap on StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/tiptap)
+- [CKEditor 5 on StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/ckeditor5)
 
 Locally:
 

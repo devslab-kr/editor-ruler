@@ -9,6 +9,21 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-06
+
+### Added
+
+- **`@devslab/editor-ruler-ckeditor5`** — new package: a CKEditor 5 plugin
+  (`ckeditor5 >= 42`) mounting the ruler above the editable. Indentation is
+  stored as model attributes (`rulerMarginLeft`/`rulerMarginRight`/
+  `rulerTextIndent`) and down-cast to plain inline CSS; existing inline
+  indentation up-casts back in. Guide lines, guide snapping, and one undo
+  step per drag gesture included. Configure via the `editorRuler` editor
+  config (`unit`, `guides`, `guideSnap`, `language` — defaults to the
+  editor's UI language, then the browser).
+- Landing page gains a CKEditor 5 demo tab (CDN modules) and
+  `examples/ckeditor5` for one-click StackBlitz.
+
 ## [0.10.0] - 2026-08-06
 
 ### Added
@@ -153,7 +168,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.7.0...v0.8.0

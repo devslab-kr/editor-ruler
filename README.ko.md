@@ -89,6 +89,8 @@ new FroalaEditor('#editor', {
 - cm / in / px 눈금, 런타임 전환 가능
 - CSS 커스텀 프로퍼티(`--edr-*`)로 테마링, 다크 모드 대응
 - 탭 스톱은 현재 **범위 밖** — HTML에는 네이티브 탭 스톱 모델이 없음
+- 테이블: 셀 **안의** 문단은 정상 들여쓰기; 셀 자체에는 스타일을 쓰지 않음(CSS가 셀 margin을 무시). Word식 컬럼 폭 마커는 로드맵
+- 출력은 순수 인라인 CSS — `<p style="margin-left: 75px; text-indent: 38px">` — 어디로 내보내도 레이아웃 유지
 
 ## 데모
 

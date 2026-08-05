@@ -15,9 +15,9 @@ Every classic WYSIWYG editor (Froala, TinyMCE, CKEditor 5, Quill, …) ships wit
 
 | Package | Description |
 |---|---|
-| [`@devslab/editor-ruler`](packages/editor-ruler) | Core: ruler UI, drag/keyboard handles, unit scales. Zero dependencies, framework-free. |
+| [`@devslab/editor-ruler`](packages/editor-ruler) | Core: ruler UI, drag/keyboard handles, unit scales, guides, column markers. Zero dependencies, framework-free. |
 | [`@devslab/editor-ruler-froala`](packages/editor-ruler-froala) | [Froala WYSIWYG editor](https://froala.com) plugin adapter. |
-| `@devslab/editor-ruler-tiptap` | Planned. |
+| [`@devslab/editor-ruler-tiptap`](packages/editor-ruler-tiptap) | [Tiptap](https://tiptap.dev) extension (v2/v3). |
 | `@devslab/editor-ruler-ckeditor5` | Planned. |
 
 ## Quick start (core, any contenteditable)
@@ -78,6 +78,22 @@ new FroalaEditor('#editor', {
 });
 // if you set pluginsEnabled explicitly, include 'ruler'
 ```
+
+## Quick start (Tiptap)
+
+```bash
+npm install @devslab/editor-ruler-tiptap @tiptap/core
+```
+
+```ts
+import { Editor } from '@tiptap/core';
+import StarterKit from '@tiptap/starter-kit';
+import { EditorRuler } from '@devslab/editor-ruler-tiptap';
+
+new Editor({ element, extensions: [StarterKit, EditorRuler], content });
+```
+
+Indentation is stored as node attributes and rendered as plain inline CSS; a whole drag is one undo step. See the [package README](packages/editor-ruler-tiptap) for options.
 
 `defineRulerPlugin` registers the `ruler` plugin **and** toolbar commands — add what you need to `toolbarButtons`:
 

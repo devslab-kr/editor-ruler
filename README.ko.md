@@ -15,9 +15,9 @@ Froala·TinyMCE·CKEditor 5·Quill 등 범용 WYSIWYG 에디터에는 줄자가 
 
 | 패키지 | 설명 |
 |---|---|
-| [`@devslab/editor-ruler`](packages/editor-ruler) | 코어: 줄자 UI, 드래그/키보드 핸들, 단위 눈금. 의존성 0, 프레임워크 무관. |
+| [`@devslab/editor-ruler`](packages/editor-ruler) | 코어: 줄자 UI, 드래그/키보드 핸들, 단위 눈금, 가이드선, 컬럼 마커. 의존성 0, 프레임워크 무관. |
 | [`@devslab/editor-ruler-froala`](packages/editor-ruler-froala) | [Froala WYSIWYG 에디터](https://froala.com) 플러그인 어댑터. |
-| `@devslab/editor-ruler-tiptap` | 예정. |
+| [`@devslab/editor-ruler-tiptap`](packages/editor-ruler-tiptap) | [Tiptap](https://tiptap.dev) 확장 (v2/v3). |
 | `@devslab/editor-ruler-ckeditor5` | 예정. |
 
 ## 빠른 시작 (코어 — 아무 contenteditable)
@@ -78,6 +78,22 @@ new FroalaEditor('#editor', {
 });
 // pluginsEnabled를 직접 지정한다면 'ruler'를 포함하세요
 ```
+
+## 빠른 시작 (Tiptap)
+
+```bash
+npm install @devslab/editor-ruler-tiptap @tiptap/core
+```
+
+```ts
+import { Editor } from '@tiptap/core';
+import StarterKit from '@tiptap/starter-kit';
+import { EditorRuler } from '@devslab/editor-ruler-tiptap';
+
+new Editor({ element, extensions: [StarterKit, EditorRuler], content });
+```
+
+들여쓰기는 노드 속성으로 저장되고 순수 인라인 CSS로 렌더되며, 드래그 전체가 undo 1스텝입니다. 옵션은 [패키지 README](packages/editor-ruler-tiptap) 참조.
 
 `defineRulerPlugin`은 `ruler` 플러그인과 **함께** 툴바 커맨드들을 등록합니다 — 필요한 것을 `toolbarButtons`에 추가하세요:
 

@@ -1,24 +1,24 @@
 {
-  "name": "@devslab/editor-ruler",
+  "name": "@devslab/editor-ruler-tiptap",
   "version": "0.10.0",
-  "description": "A Word-like horizontal ruler for web rich-text editors: margins, first-line indent, drag handles. Editor-agnostic core.",
+  "description": "Tiptap extension for @devslab/editor-ruler — a Word-like horizontal ruler with margins, first-line indent, and guide lines.",
   "license": "Apache-2.0",
   "author": "devslab",
   "homepage": "https://devslab-kr.github.io/editor-ruler/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/devslab-kr/editor-ruler.git",
-    "directory": "packages/editor-ruler"
+    "directory": "packages/editor-ruler-tiptap"
   },
   "bugs": "https://github.com/devslab-kr/editor-ruler/issues",
   "keywords": [
+    "tiptap",
+    "tiptap-extension",
+    "prosemirror",
     "ruler",
     "wysiwyg",
-    "editor",
     "indent",
-    "margin",
-    "contenteditable",
-    "rich-text"
+    "margin"
   ],
   "type": "module",
   "main": "./dist/index.cjs",
@@ -42,5 +42,16 @@
     "build": "tsup",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@devslab/editor-ruler": "workspace:^"
+  },
+  "peerDependencies": {
+    "@tiptap/core": ">=2.0.0"
+  },
+  "devDependencies": {
+    "@tiptap/core": "^3.6.5",
+    "@tiptap/pm": "^3.6.5",
+    "@tiptap/starter-kit": "^3.6.5"
   }
 }

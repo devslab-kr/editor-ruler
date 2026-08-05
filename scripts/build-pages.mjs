@@ -21,6 +21,15 @@ await cp(
   path.join(root, 'packages/editor-ruler-froala/dist/index.global.js'),
   path.join(outDir, 'vendor', 'editor-ruler-froala.global.js'),
 );
+// ESM copies for the import-map-based Tiptap demo.
+await cp(
+  path.join(root, 'packages/editor-ruler/dist/index.js'),
+  path.join(outDir, 'vendor', 'editor-ruler.mjs'),
+);
+await cp(
+  path.join(root, 'packages/editor-ruler-tiptap/dist/index.js'),
+  path.join(outDir, 'vendor', 'editor-ruler-tiptap.mjs'),
+);
 
 const indexPath = path.join(outDir, 'index.html');
 const index = await readFile(indexPath, 'utf8');

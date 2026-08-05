@@ -9,6 +9,19 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-08-06
+
+### Added
+
+- **`@devslab/editor-ruler-tiptap`** — new package: a Tiptap extension (v2/v3)
+  mounting the ruler above the editor. Indentation lives in a `rulerIndent`
+  node attribute on configurable `types` (paragraph/heading by default) and
+  renders as plain inline CSS, so `getHTML()` stays portable and existing
+  inline indentation parses back in. Guide lines and guide snapping included.
+  A whole drag gesture is exactly one undo step (drag transactions skip
+  history; release records baseline → final). Options: `types`, `unit`,
+  `guides`, `guideSnap`, `language`, `element`.
+
 ## [0.9.0] - 2026-08-06
 
 ### Added
@@ -140,7 +153,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.6.0...v0.7.0

@@ -120,7 +120,13 @@ Froala options: `rulerVertical: true` shows the vertical ruler on init; `rulerGu
 
 ## Demo
 
-Live playground: **https://devslab-kr.github.io/editor-ruler/**
+Live playground (tabbed per-editor demos): **https://devslab-kr.github.io/editor-ruler/**
+
+One-click sandboxes:
+
+- [Vanilla contenteditable on StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/vanilla)
+- [Froala on StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/froala)
+- [Tiptap on StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/tiptap)
 
 Locally:
 

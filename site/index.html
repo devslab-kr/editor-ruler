@@ -6,7 +6,7 @@
     <title>editor-ruler — 웹 에디터를 위한 Word 스타일 줄자</title>
     <meta
       name="description"
-      content="웹 리치텍스트 에디터를 위한 Word 스타일 가로 줄자. 여백·첫 줄 들여쓰기 드래그 핸들, cm/in/px 눈금, Froala 플러그인 어댑터. 의존성 0."
+      content="웹 리치텍스트 에디터를 위한 Word 스타일 가로 줄자. 여백·첫 줄 들여쓰기 드래그 핸들, 가이드선·스냅, 테이블 컬럼 마커. Froala·Tiptap 어댑터. 의존성 0."
     />
     <style>
       :root {
@@ -47,14 +47,23 @@
         border-radius: 999px; padding: 1px 10px; font-size: 12px; font-weight: 600;
       }
       .top-links { margin-left: auto; display: flex; gap: 14px; }
-      .hero { padding: 56px 0 28px; }
+      .hero { padding: 56px 0 32px; }
       .hero h1 { font-size: clamp(24px, 4vw, 34px); line-height: 1.35; margin: 0 0 12px; }
       .hero p.lead { color: var(--muted); font-size: 16px; margin: 0 0 18px; max-width: 46em; }
-      .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+      .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
       .badge {
         background: var(--panel); border: 1px solid var(--line);
         border-radius: 999px; padding: 3px 12px; font-size: 12.5px; color: var(--muted);
       }
+      .hero-cta { display: flex; gap: 10px; flex-wrap: wrap; }
+      .btn {
+        display: inline-block; padding: 8px 18px; border-radius: 8px;
+        font-size: 14px; font-weight: 600; border: 1px solid var(--line);
+        background: var(--panel); color: var(--ink); cursor: pointer;
+      }
+      .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+      .btn.primary:hover { background: #1d4ed8; text-decoration: none; }
+      .btn:hover { text-decoration: none; border-color: var(--accent); }
       section { padding: 30px 0; }
       section h2 { font-size: 21px; margin: 0 0 14px; }
       .panel {
@@ -68,42 +77,59 @@
       }
       pre + pre { margin-top: 10px; }
       code { font-family: 'Cascadia Code', Consolas, 'SF Mono', Menlo, monospace; }
-      p code, li code {
+      p code, li code, .note code {
         background: var(--accent-soft); color: var(--ink);
         padding: 0 5px; border-radius: 4px; font-size: 0.92em;
       }
       .note { color: var(--muted); font-size: 13.5px; margin-top: 10px; }
-      /* ---- playground ---- */
-      .playground-bar {
-        display: flex; align-items: center; gap: 10px;
-        padding: 10px 16px; border-bottom: 1px solid var(--line);
-        font-size: 13px; color: var(--muted);
+      /* ---- demo tabs ---- */
+      .tabs { display: flex; gap: 6px; border-bottom: 2px solid var(--line); margin-bottom: 14px; }
+      .tabs button {
+        appearance: none; border: 0; background: transparent; cursor: pointer;
+        font: inherit; font-size: 14.5px; font-weight: 600; color: var(--muted);
+        padding: 9px 16px; border-bottom: 2px solid transparent; margin-bottom: -2px;
       }
-      .playground-bar select {
-        font: inherit; padding: 2px 8px; border: 1px solid var(--line);
+      .tabs button:hover { color: var(--ink); }
+      .tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
+      .tab-panel[hidden] { display: none; }
+      .demo-bar {
+        display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        margin-bottom: 10px; font-size: 13px;
+      }
+      .chip {
+        appearance: none; cursor: pointer; font: inherit; font-size: 13px;
+        background: var(--panel); border: 1px solid var(--line); color: var(--ink);
+        border-radius: 999px; padding: 4px 14px;
+      }
+      .chip:hover { border-color: var(--accent); color: var(--accent); }
+      .chip.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+      .demo-bar .spacer { margin-left: auto; }
+      .demo-bar select {
+        font: inherit; font-size: 13px; padding: 3px 8px; border: 1px solid var(--line);
         border-radius: 6px; background: var(--panel); color: var(--ink);
       }
-      #ruler-mount { padding: 0 44px; background: #f6f7f8; }
+      .sb-link { font-size: 13px; white-space: nowrap; }
+      /* ---- editors ---- */
+      #core-ruler-mount { padding: 0 44px; background: #f6f7f8; }
+      #core-page {
+        padding: 24px 44px 36px; min-height: 260px; outline: none; font-size: 15px;
+      }
+      #core-page :is(p, h3) { margin-top: 0; }
+      #core-page table, #froala-panel table { border-collapse: collapse; width: 100%; }
+      #core-page td, #core-page th { border: 1px solid var(--line); padding: 6px 10px; }
+      #core-page img { max-width: 100%; }
       #tiptap-editor .tiptap {
-        padding: 24px 44px 32px;
-        min-height: 160px;
-        outline: none;
-        font-size: 15px;
+        padding: 24px 44px 32px; min-height: 220px; outline: none; font-size: 15px;
       }
       #tiptap-editor .tiptap :is(p, h3) { margin-top: 0; }
+      #tiptap-editor .tiptap img { max-width: 100%; }
+      #tiptap-editor .tiptap img.ProseMirror-selectednode { outline: 2px solid var(--accent); }
       #tiptap-panel .edr-tiptap-mount { background: #f6f7f8; }
-      /* The page is light-only; pin the ruler's theme vars so an OS dark
-         preference doesn't switch just the ruler to dark. */
-      #ruler-mount, #froala-panel, #tiptap-panel {
+      #core-ruler-mount, #froala-panel, #tiptap-panel {
         --edr-bg: #f6f7f8;
         --edr-border: #d8dbe0;
         --edr-fg: #5f6570;
       }
-      #playground-page {
-        padding: 28px 44px 40px; min-height: 260px; outline: none;
-        font-size: 15px;
-      }
-      #playground-page :is(p, h3) { margin-top: 0; }
       table.api { width: 100%; border-collapse: collapse; font-size: 14px; }
       table.api th, table.api td {
         text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line);
@@ -142,31 +168,75 @@
         <span class="badge">의존성 0</span>
         <span class="badge">TypeScript</span>
         <span class="badge">cm · in · px</span>
-        <span class="badge">키보드 접근성</span>
-        <span class="badge">Froala 어댑터</span>
+        <span class="badge">가이드선 + 스냅</span>
+        <span class="badge">테이블 컬럼 마커</span>
+        <span class="badge">Froala · Tiptap</span>
         <span class="badge">Apache-2.0</span>
+      </div>
+      <div class="hero-cta">
+        <a class="btn primary" href="#demo">라이브 데모 보기</a>
+        <a class="btn" href="#start">시작하기</a>
       </div>
     </div>
 
     <div class="wrap">
-      <section id="playground">
-        <h2>바로 만져보기</h2>
-        <div class="panel">
-          <div class="playground-bar">
-            <span>문단을 클릭한 뒤 ▼(첫 줄 들여쓰기) · ▲(좌/우 여백) 핸들을 드래그하세요. 줄자의 빈 곳을 누르고 <strong>아래로 끌면 가로 가이드선</strong>이 생깁니다 (Photoshop과 같은 방향 — 다시 줄자 위로 끌면 삭제).</span>
-            <select id="unit" aria-label="눈금 단위" style="margin-left:auto">
+      <section id="demo">
+        <h2>라이브 데모 — 에디터별로 보기</h2>
+        <div class="tabs" role="tablist">
+          <button type="button" data-tab="froala" class="active">Froala</button>
+          <button type="button" data-tab="tiptap">Tiptap</button>
+          <button type="button" data-tab="core">코어 (contenteditable)</button>
+        </div>
+
+        <div class="tab-panel" id="tab-froala">
+          <div class="demo-bar">
+            <button type="button" class="chip active" data-preset="paragraphs">문단</button>
+            <button type="button" class="chip" data-preset="table">테이블</button>
+            <button type="button" class="chip" data-preset="image">이미지</button>
+            <button type="button" class="chip" data-preset="mixed">복합</button>
+            <span class="spacer"></span>
+            <a class="sb-link" href="https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/froala" target="_blank" rel="noopener">StackBlitz에서 열기 ↗</a>
+          </div>
+          <div class="panel" id="froala-panel">
+            <div id="froala-editor"></div>
+          </div>
+          <p class="note">문단을 클릭하면 그 문단의 여백, <strong>테이블 셀을 클릭하면 컬럼 마커 + 테이블 통째 이동</strong>, 이미지를 선택하면 소속 블록이 밀립니다. 줄자 빈 곳에서 아래로 끌면 가로 가이드, 툴바 드롭다운으로 세로 줄자·단위 전환. "Unlicensed" 표시는 Froala 트라이얼 워터마크로 이 플러그인과 무관합니다.</p>
+        </div>
+
+        <div class="tab-panel" id="tab-tiptap" hidden>
+          <div class="demo-bar">
+            <button type="button" class="chip active" data-preset="paragraphs">문단</button>
+            <button type="button" class="chip" data-preset="image">이미지</button>
+            <button type="button" class="chip" data-preset="mixed">복합</button>
+            <span class="spacer"></span>
+            <a class="sb-link" href="https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/tiptap" target="_blank" rel="noopener">StackBlitz에서 열기 ↗</a>
+          </div>
+          <div class="panel" id="tiptap-panel">
+            <div id="tiptap-editor"></div>
+          </div>
+          <p class="note" id="tiptap-note">Tiptap 모듈을 CDN(esm.sh)에서 불러옵니다 — 네트워크에 따라 잠시 걸릴 수 있습니다. 테이블은 Tiptap table 확장을 설치하면 동일하게 동작합니다.</p>
+        </div>
+
+        <div class="tab-panel" id="tab-core" hidden>
+          <div class="demo-bar">
+            <button type="button" class="chip active" data-preset="paragraphs">문단</button>
+            <button type="button" class="chip" data-preset="table">테이블</button>
+            <button type="button" class="chip" data-preset="image">이미지</button>
+            <button type="button" class="chip" data-preset="mixed">복합</button>
+            <span class="spacer"></span>
+            <label for="core-unit">단위</label>
+            <select id="core-unit" aria-label="눈금 단위">
               <option value="cm" selected>cm</option>
               <option value="in">in</option>
               <option value="px">px</option>
             </select>
+            <a class="sb-link" href="https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/vanilla" target="_blank" rel="noopener">StackBlitz에서 열기 ↗</a>
           </div>
-          <div id="ruler-mount"></div>
-          <div id="playground-page" contenteditable="true" spellcheck="false">
-            <h3>Word처럼 끌어서 정렬하기</h3>
-            <p>이 문단을 선택하고 위 삼각형 핸들을 움직여 보세요. 왼쪽 아래 삼각형은 왼쪽 여백, 위 삼각형은 첫 줄 들여쓰기, 오른쪽 아래 삼각형은 오른쪽 여백입니다.</p>
-            <p>문단마다 들여쓰기가 따로 유지됩니다. 위 삼각형을 아래 삼각형보다 왼쪽으로 끌면 내어쓰기(hanging indent)도 됩니다.</p>
-            <p>이 플레이그라운드는 순수 contenteditable 위에서 코어만으로 동작합니다 — Froala 어댑터도 같은 코어를 씁니다.</p>
+          <div class="panel">
+            <div id="core-ruler-mount"></div>
+            <div id="core-page" contenteditable="true" spellcheck="false"></div>
           </div>
+          <p class="note">프레임워크 없이 <code>createRuler</code> + <code>createGuides</code>만으로 만든 순수 contenteditable 데모 — 어댑터들이 쓰는 코어 그대로입니다.</p>
         </div>
       </section>
 
@@ -199,28 +269,7 @@ ruler.setUnit('in');  // 눈금 전환</code></pre>
   });
 &lt;/script&gt;</code></pre>
         <p class="note">Froala 어댑터도 동일합니다: <code>@devslab/editor-ruler-froala/dist/index.global.js</code>를 로드하면 전역 <code>EditorRulerFroala.defineRulerPlugin</code>이 노출됩니다 (코어 포함 단일 파일).</p>
-        <p class="note">버전 지정: <code>@0.1.0</code>(정확 고정) · <code>@0.1</code>(패치 자동 반영 — 권장) · <code>@latest</code>(항상 최신 — 메이저 포함이라 브레이킹 체인지 위험, jsDelivr가 별칭을 최대 12시간 캐시).</p>
-      </section>
-
-      <section id="tiptap-live">
-        <h2>Tiptap에서 실제로</h2>
-        <p><strong>Tiptap 확장</strong>(<code>@devslab/editor-ruler-tiptap</code>)도 같은 코어를 씁니다 — 아래는 실제 Tiptap 에디터입니다. 들여쓰기는 노드 속성으로 저장되어 <code>getHTML()</code>에 순수 인라인 CSS로 나오고, 드래그 전체가 undo 한 단계입니다.</p>
-        <div class="panel" id="tiptap-panel">
-          <div id="tiptap-editor"></div>
-        </div>
-        <p class="note" id="tiptap-note">Tiptap 모듈을 CDN(esm.sh)에서 불러옵니다 — 네트워크에 따라 잠시 걸릴 수 있습니다.</p>
-      </section>
-
-      <section id="froala-live">
-        <h2>Froala에서 실제로</h2>
-        <p>아래는 <strong>진짜 Froala 에디터</strong>에 어댑터를 붙인 모습입니다. 문단을 클릭하고 줄자 핸들을 드래그해 보세요 — 툴바의 줄자 드롭다운(<code>rulerOptions</code>) 하나로 줄자 켜기/끄기 · <strong>세로 줄자</strong> · <strong>가이드 잠금/지우기</strong> · cm / inch / px 전환을 모두 할 수 있습니다. 디자인 툴 관례대로 <strong>가로 줄자에서 아래로 끌면 가로 가이드</strong>, <strong>세로 줄자에서 오른쪽으로 끌면 세로 가이드</strong>가 생깁니다.</p>
-        <div class="panel" id="froala-panel">
-          <div id="froala-editor">
-            <p>이 문단을 선택하고 줄자 핸들을 드래그해 보세요.</p>
-            <p>문단마다 여백과 첫 줄 들여쓰기가 따로 유지되고, 드래그 한 번이 undo 한 단계로 기록됩니다 (Ctrl+Z로 확인).</p>
-          </div>
-        </div>
-        <p class="note">에디터 안의 "Unlicensed" 표시는 Froala 트라이얼 빌드의 워터마크입니다 (Froala는 상용 에디터로 별도 라이선스가 필요합니다) — 이 플러그인과는 무관합니다.</p>
+        <p class="note">버전 지정: <code>@0.10.0</code>(정확 고정) · <code>@0.10</code>(패치 자동 반영 — 권장) · <code>@latest</code>(항상 최신 — 메이저 포함이라 브레이킹 체인지 위험, jsDelivr가 별칭을 최대 12시간 캐시).</p>
       </section>
 
       <section id="froala">
@@ -234,40 +283,55 @@ defineRulerPlugin(FroalaEditor); // 인스턴스 생성 전에 1회
 new FroalaEditor('#editor', {
   rulerEnabled: true, // 기본 true
   rulerUnit: 'cm',
-  // 줄자 옵션 통합 드롭다운 (보이기/숨기기 + 단위):
+  // 줄자 옵션 통합 드롭다운 (보이기/숨기기 + 세로 줄자 + 가이드 + 단위):
   toolbarButtons: ['bold', 'italic', '|', 'rulerOptions'],
   // 따로 쓰고 싶으면 'toggleRuler', 'rulerUnit'도 각각 등록돼 있습니다
 });</code></pre>
         <p class="note">
-          <code>defineRulerPlugin</code>은 표준 Froala 플러그인(<code>ruler</code>)과 함께
-          줄자 아이콘이 달린 <code>toggleRuler</code> 툴바 커맨드를 등록합니다 — 버튼이 활성 상태(fr-active)로
-          현재 표시 여부를 보여줍니다. <code>pluginsEnabled</code>를 직접 지정한다면 <code>'ruler'</code>를 포함하세요.
+          <code>defineRulerPlugin</code>은 표준 Froala 플러그인(<code>ruler</code>)과 함께 줄자 아이콘 드롭다운
+          <code>rulerOptions</code>를 등록합니다 — 보이기/숨기기·세로 줄자·가이드 잠금/지우기·cm/inch/px가 한 버튼에 있고
+          활성 상태가 체크로 표시됩니다. <code>pluginsEnabled</code>를 직접 지정한다면 <code>'ruler'</code>를 포함하세요.
           드래그는 선택 문단의 <code>margin-left/right</code>·<code>text-indent</code>를 갱신하고 제스처당 undo 스텝을 1회 기록합니다.
         </p>
+      </section>
+
+      <section id="tiptap">
+        <h2>Tiptap 연동</h2>
+<pre><code>npm install @devslab/editor-ruler-tiptap @tiptap/core</code></pre>
+<pre><code>import { Editor } from '@tiptap/core';
+import StarterKit from '@tiptap/starter-kit';
+import { EditorRuler } from '@devslab/editor-ruler-tiptap';
+
+new Editor({
+  element,
+  extensions: [StarterKit, EditorRuler.configure({ unit: 'cm' })],
+  content: '&lt;p&gt;Hello&lt;/p&gt;',
+});</code></pre>
+        <p class="note">들여쓰기는 <code>rulerIndent</code> 노드 속성으로 저장되어 <code>getHTML()</code>에 순수 인라인 CSS로 나오고, 드래그 전체가 undo 한 단계입니다. Tiptap v2·v3 지원.</p>
       </section>
 
       <section id="api">
         <h2>API 요약</h2>
         <div class="panel table-scroll">
           <table class="api">
-            <tr><th>createRuler(mount, options)</th><td>줄자를 마운트하고 <code>Ruler</code> 핸들을 반환</td></tr>
+            <tr><th>createRuler(mount, options)</th><td>줄자를 마운트하고 <code>Ruler</code> 핸들을 반환 — <code>guides</code>·<code>columns</code>·<code>guideSnap</code> 옵션 포함</td></tr>
             <tr><th>options.getMetrics()</th><td><code>{ contentWidth, leftMargin, rightMargin, firstLineIndent }</code> — 전부 px</td></tr>
             <tr><th>options.onChange(change, phase)</th><td>드래그 중 <code>'drag'</code>, 놓는 순간 <code>'commit'</code> (undo 경계)</td></tr>
-            <tr><th>ruler.refresh()</th><td>선택/내용 변경 시 메트릭 다시 읽기</td></tr>
-            <tr><th>ruler.setUnit(u)</th><td><code>'cm' | 'in' | 'px'</code> 눈금 전환</td></tr>
-            <tr><th>ruler.destroy()</th><td>DOM과 리스너 정리</td></tr>
+            <tr><th>createGuides(container, options)</th><td>가이드선 컨트롤러 — <code>list/set/clear/setLocked/setVisible</code></td></tr>
+            <tr><th>createVRuler(mount, options)</th><td>세로 눈금 스트립 (가이드 생성 지원)</td></tr>
+            <tr><th>ruler.refresh() / setUnit(u) / destroy()</th><td>메트릭 갱신 · 눈금 전환 · 정리</td></tr>
           </table>
         </div>
-        <p class="note">핸들은 ARIA 슬라이더입니다 — <code>←</code>/<code>→</code> 1px, <code>Shift</code> 10px, <code>Home</code>/<code>End</code>. 테마는 <code>--edr-bg</code>·<code>--edr-fg</code>·<code>--edr-handle</code> 등 CSS 변수로 바꿉니다.</p>
+        <p class="note">핸들과 컬럼 마커는 ARIA 슬라이더입니다 — <code>←</code>/<code>→</code> 1px, <code>Shift</code> 10px, <code>Home</code>/<code>End</code>. 테마는 <code>--edr-*</code> CSS 변수, UI 언어는 브라우저를 따릅니다(ko/en 내장).</p>
       </section>
 
       <section id="faq">
         <h2>자주 묻는 것</h2>
-        <p><strong>탭 스톱은요?</strong> HTML에는 탭 스톱 모델이 없어 의도적으로 범위 밖입니다. 여백·들여쓰기는 CSS와 1:1이라 어디서나 안전하게 동작합니다.</p>
         <p><strong>결과물 HTML은 어떻게 나오나요?</strong> 순수 인라인 CSS입니다 — <code>&lt;p style="margin-left: 75px; text-indent: 38px"&gt;</code>. 어디로 내보내도(메일·다른 페이지·CMS) 레이아웃이 유지됩니다.</p>
         <p><strong>테이블·이미지는요?</strong> Word처럼 다 밀립니다 — 테이블 안에 커서를 두고 드래그하면 <strong>테이블 전체</strong>가 이동하고, 셀 안 문단은 개별 들여쓰기, 이미지는 소속 블록과 함께 움직입니다. 테이블 안에서는 줄자에 <strong>컬럼 경계 마커</strong>가 떠서 드래그로 컬럼 폭도 조절됩니다 (병합 셀 테이블 제외).</p>
         <p><strong>가이드선은 문서에 남나요?</strong> 아니요 — 순수 시각 오버레이라 내보내는 HTML에 전혀 남지 않습니다. 정렬 참고용이며, 드롭다운에서 잠그거나 한 번에 지울 수 있고, <strong>드래그 중 핸들과 컬럼 마커가 가이드 근처에서 스냅</strong>됩니다.</p>
-        <p><strong>다른 에디터는요?</strong> 코어가 에디터 불문이라 Tiptap·CKEditor 5 어댑터가 로드맵에 있습니다. 어댑터는 "선택 문단 읽기/스타일 쓰기/undo 연결"만 하면 됩니다 — <a href="https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-froala">Froala 어댑터</a>가 예시입니다.</p>
+        <p><strong>탭 스톱은요?</strong> HTML에는 탭 스톱 모델이 없어 의도적으로 범위 밖입니다. 여백·들여쓰기는 CSS와 1:1이라 어디서나 안전하게 동작합니다.</p>
+        <p><strong>다른 에디터는요?</strong> 코어가 에디터 불문이라 어댑터는 "선택 블록 읽기/스타일 쓰기/undo 연결"만 하면 됩니다 — <a href="https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-froala">Froala</a>·<a href="https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-tiptap">Tiptap</a> 어댑터가 예시이고 CKEditor 5가 다음입니다.</p>
       </section>
     </div>
 
@@ -276,7 +340,8 @@ new FroalaEditor('#editor', {
         <span>Apache-2.0 © <a href="https://github.com/devslab-kr">devslab</a></span>
         <a href="https://github.com/devslab-kr/editor-ruler">GitHub</a>
         <a href="https://www.npmjs.com/package/@devslab/editor-ruler">@devslab/editor-ruler</a>
-        <a href="https://www.npmjs.com/package/@devslab/editor-ruler-froala">@devslab/editor-ruler-froala</a>
+        <a href="https://www.npmjs.com/package/@devslab/editor-ruler-froala">-froala</a>
+        <a href="https://www.npmjs.com/package/@devslab/editor-ruler-tiptap">-tiptap</a>
         <a href="https://github.com/devslab-kr/editor-ruler/blob/main/CHANGELOG.md">CHANGELOG</a>
       </div>
     </footer>
@@ -286,30 +351,10 @@ new FroalaEditor('#editor', {
         "imports": {
           "@tiptap/core": "https://esm.sh/@tiptap/core@3.6.5",
           "@tiptap/starter-kit": "https://esm.sh/@tiptap/starter-kit@3.6.5",
+          "@tiptap/extension-image": "https://esm.sh/@tiptap/extension-image@3.6.5",
           "@devslab/editor-ruler": "./vendor/editor-ruler.mjs",
           "@devslab/editor-ruler-tiptap": "./vendor/editor-ruler-tiptap.mjs"
         }
-      }
-    </script>
-    <script type="module">
-      const note = document.getElementById('tiptap-note');
-      try {
-        const [{ Editor }, { default: StarterKit }, { EditorRuler }] = await Promise.all([
-          import('@tiptap/core'),
-          import('@tiptap/starter-kit'),
-          import('@devslab/editor-ruler-tiptap'),
-        ]);
-        new Editor({
-          element: document.getElementById('tiptap-editor'),
-          extensions: [StarterKit, EditorRuler.configure({ unit: 'cm' })],
-          content:
-            '<h3>Tiptap + editor-ruler</h3>' +
-            '<p>이 문단을 클릭하고 핸들을 드래그해 보세요 — Froala 데모와 똑같이 동작합니다.</p>' +
-            '<p>줄자 빈 곳에서 아래로 끌면 가로 가이드도 생깁니다.</p>',
-        });
-        note.textContent = '들여쓰기 결과는 getHTML()에 순수 인라인 CSS로 담깁니다 — Ctrl+Z로 드래그가 undo 한 단계인 것도 확인해 보세요.';
-      } catch (e) {
-        note.textContent = 'Tiptap CDN 모듈을 불러오지 못했습니다 — 네트워크 상태를 확인한 뒤 새로고침해 주세요.';
       }
     </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@4.5.2/css/froala_editor.pkgd.min.css" />
@@ -317,73 +362,205 @@ new FroalaEditor('#editor', {
     <script src="./vendor/editor-ruler-froala.global.js"></script>
     <script src="./vendor/editor-ruler.global.js"></script>
     <script>
-      const page = document.getElementById('playground-page');
-      const mount = document.getElementById('ruler-mount');
-      const unitSelect = document.getElementById('unit');
+      // ---------- shared demo presets ----------
+      const DEMO_IMG =
+        'data:image/svg+xml;charset=utf-8,' +
+        encodeURIComponent(
+          '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="140">' +
+            '<rect width="240" height="140" rx="10" fill="#dbe7fd"/>' +
+            '<circle cx="70" cy="62" r="26" fill="#93b4f8"/>' +
+            '<path d="M40 112 L96 68 L140 104 L172 80 L208 112 Z" fill="#2563eb" opacity="0.8"/>' +
+            '<text x="120" y="130" font-family="sans-serif" font-size="12" fill="#2563eb" text-anchor="middle">240 × 140</text>' +
+          '</svg>',
+        );
 
-      function currentBlocks() {
-        const sel = document.getSelection();
-        const blocks = [];
-        if (sel && sel.rangeCount > 0) {
-          let node = sel.getRangeAt(0).startContainer;
-          if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
-          while (node && node !== page && node.parentElement !== page) node = node.parentElement;
-          if (node && node !== page) blocks.push(node);
+      const PRESET_TABLE =
+        '<table><tbody>' +
+        '<tr><th>제품</th><th>수량</th><th>가격</th></tr>' +
+        '<tr><td>editor-ruler</td><td>1</td><td>무료</td></tr>' +
+        '<tr><td>Word 줄자</td><td>1</td><td>구독</td></tr>' +
+        '</tbody></table>';
+
+      const PRESETS = {
+        paragraphs:
+          '<h3>문단 들여쓰기</h3>' +
+          '<p style="margin-left: 60px;">이 문단은 왼쪽 여백이 60px입니다 — 핸들을 잡고 바꿔 보세요.</p>' +
+          '<p style="text-indent: 40px;">이 문단은 첫 줄만 40px 들여쓰기되어 있습니다. 위 삼각형 핸들이 담당합니다.</p>' +
+          '<p style="margin-left: 80px; text-indent: -40px;">내어쓰기(hanging indent) 문단 — 첫 줄이 나머지보다 왼쪽으로 나와 있습니다.</p>' +
+          '<p>기본 문단. 여러 문단을 걸쳐 선택하고 드래그하면 한꺼번에 이동합니다.</p>',
+        table:
+          '<h3>테이블</h3>' +
+          '<p>셀에 커서를 두면 줄자에 <strong>컬럼 경계 마커</strong>가 뜨고, 여백 핸들을 끌면 <strong>테이블 전체</strong>가 이동합니다.</p>' +
+          PRESET_TABLE,
+        image:
+          '<h3>이미지</h3>' +
+          '<p>이미지를 클릭해 선택한 뒤 핸들을 드래그하면 이미지가 담긴 블록이 통째로 밀립니다.</p>' +
+          '<p><img src="' + DEMO_IMG + '" width="240" height="140" alt="데모 이미지"></p>',
+        mixed:
+          '<h3>복합 문서</h3>' +
+          '<p style="margin-left: 40px;">들여쓰기된 문단, 테이블, 이미지가 한 문서에 —</p>' +
+          PRESET_TABLE +
+          '<p><img src="' + DEMO_IMG + '" width="240" height="140" alt="데모 이미지"></p>' +
+          '<p>커서를 옮겨 다니며 줄자가 어떤 대상이든 따라오는 것을 확인해 보세요.</p>',
+      };
+
+      // ---------- tabs ----------
+      const tabButtons = document.querySelectorAll('.tabs button');
+      const panels = { froala: document.getElementById('tab-froala'), tiptap: document.getElementById('tab-tiptap'), core: document.getElementById('tab-core') };
+      const activators = { froala: initFroala, tiptap: () => window.__initTiptap?.(), core: initCore };
+      const refreshers = { froala: () => window.__froalaRuler?.refresh(), tiptap: () => window.__tiptapRuler?.refresh(), core: () => window.__coreRuler?.refresh() };
+      const started = {};
+
+      tabButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          tabButtons.forEach((b) => b.classList.toggle('active', b === btn));
+          const key = btn.dataset.tab;
+          for (const [k, panel] of Object.entries(panels)) panel.hidden = k !== key;
+          if (!started[key]) { started[key] = true; activators[key]?.(); }
+          requestAnimationFrame(() => refreshers[key]?.());
+        });
+      });
+
+      function wireChips(panel, apply) {
+        panel.querySelectorAll('.chip').forEach((chip) => {
+          chip.addEventListener('click', () => {
+            panel.querySelectorAll('.chip').forEach((c) => c.classList.toggle('active', c === chip));
+            apply(chip.dataset.preset);
+          });
+        });
+      }
+
+      // ---------- Froala tab (default) ----------
+      function initFroala() {
+        if (!window.FroalaEditor || !window.EditorRulerFroala) {
+          document.getElementById('froala-panel').innerHTML =
+            '<p style="padding:16px 18px;color:var(--muted)">Froala CDN을 불러오지 못했습니다 — 네트워크 상태를 확인한 뒤 새로고침해 주세요.</p>';
+          return;
         }
-        if (blocks.length === 0 && page.firstElementChild) blocks.push(page.firstElementChild);
-        return blocks;
-      }
-
-      function getMetrics() {
-        const pageStyle = getComputedStyle(page);
-        const contentWidth = page.clientWidth
-          - parseFloat(pageStyle.paddingLeft) - parseFloat(pageStyle.paddingRight);
-        const block = currentBlocks()[0];
-        const style = block ? getComputedStyle(block) : null;
-        return {
-          contentWidth,
-          leftMargin: style ? parseFloat(style.marginLeft) || 0 : 0,
-          rightMargin: style ? parseFloat(style.marginRight) || 0 : 0,
-          firstLineIndent: style ? parseFloat(style.textIndent) || 0 : 0,
-        };
-      }
-
-      const guides = EditorRuler.createGuides(page, {
-        getOffsetLeft: () => parseFloat(getComputedStyle(page).paddingLeft) || 0,
-      });
-      const ruler = EditorRuler.createRuler(mount, {
-        unit: 'cm',
-        getMetrics,
-        guides,
-        onChange(change) {
-          for (const block of currentBlocks()) {
-            if (change.leftMargin !== undefined) block.style.marginLeft = change.leftMargin + 'px';
-            if (change.rightMargin !== undefined) block.style.marginRight = change.rightMargin + 'px';
-            if (change.firstLineIndent !== undefined) block.style.textIndent = change.firstLineIndent + 'px';
-          }
-        },
-      });
-
-      document.addEventListener('selectionchange', () => {
-        if (page.contains(document.getSelection()?.anchorNode ?? null)) ruler.refresh();
-      });
-      window.addEventListener('resize', () => ruler.refresh());
-      unitSelect.addEventListener('change', () => ruler.setUnit(unitSelect.value));
-
-      // --- Froala live demo (trial CDN build; the watermark is Froala's) ---
-      if (window.FroalaEditor && window.EditorRulerFroala) {
         EditorRulerFroala.defineRulerPlugin(FroalaEditor);
-        new FroalaEditor('#froala-editor', {
+        const ed = new FroalaEditor('#froala-editor', {
           rulerEnabled: true,
           rulerUnit: 'cm',
-          toolbarButtons: ['bold', 'italic', 'underline', '|', 'formatOL', 'formatUL', '|', 'rulerOptions'],
-          heightMin: 180,
+          toolbarButtons: ['bold', 'italic', 'underline', '|', 'formatOL', 'formatUL', 'insertTable', '|', 'rulerOptions'],
+          heightMin: 220,
           attribution: false,
+          events: {
+            initialized() {
+              this.html.set(PRESETS.paragraphs);
+              window.__froalaRuler = this.ruler;
+            },
+          },
         });
-      } else {
-        document.getElementById('froala-panel').innerHTML =
-          '<p style="padding:16px 18px;color:var(--muted)">Froala CDN을 불러오지 못했습니다 — 네트워크 상태를 확인한 뒤 새로고침해 주세요.</p>';
+        wireChips(document.getElementById('tab-froala'), (key) => {
+          ed.html.set(PRESETS[key]);
+          ed.undo.saveStep();
+          ed.ruler?.refresh();
+        });
       }
+
+      // ---------- core tab ----------
+      function initCore() {
+        const page = document.getElementById('core-page');
+        const mount = document.getElementById('core-ruler-mount');
+        page.innerHTML = PRESETS.paragraphs;
+
+        function currentBlocks() {
+          const sel = document.getSelection();
+          const blocks = [];
+          if (sel && sel.rangeCount > 0) {
+            let node = sel.getRangeAt(0).startContainer;
+            if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+            while (node && node !== page && node.parentElement !== page) node = node.parentElement;
+            if (node && node !== page) blocks.push(node);
+          }
+          if (blocks.length === 0 && page.firstElementChild) blocks.push(page.firstElementChild);
+          return blocks;
+        }
+
+        function getMetrics() {
+          const s = getComputedStyle(page);
+          const contentWidth = page.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight);
+          const block = currentBlocks()[0];
+          const style = block ? getComputedStyle(block) : null;
+          return {
+            contentWidth,
+            leftMargin: style ? parseFloat(style.marginLeft) || 0 : 0,
+            rightMargin: style ? parseFloat(style.marginRight) || 0 : 0,
+            firstLineIndent: style ? parseFloat(style.textIndent) || 0 : 0,
+          };
+        }
+
+        const guides = EditorRuler.createGuides(page, {
+          getOffsetLeft: () => parseFloat(getComputedStyle(page).paddingLeft) || 0,
+        });
+        const ruler = EditorRuler.createRuler(mount, {
+          unit: 'cm',
+          getMetrics,
+          guides,
+          onChange(change) {
+            for (const block of currentBlocks()) {
+              if (change.leftMargin !== undefined) block.style.marginLeft = change.leftMargin + 'px';
+              if (change.rightMargin !== undefined) block.style.marginRight = change.rightMargin + 'px';
+              if (change.firstLineIndent !== undefined) block.style.textIndent = change.firstLineIndent + 'px';
+            }
+          },
+        });
+        window.__coreRuler = ruler;
+
+        document.addEventListener('selectionchange', () => {
+          if (page.contains(document.getSelection()?.anchorNode ?? null)) ruler.refresh();
+        });
+        window.addEventListener('resize', () => ruler.refresh());
+        document.getElementById('core-unit').addEventListener('change', (e) => ruler.setUnit(e.target.value));
+        wireChips(document.getElementById('tab-core'), (key) => {
+          page.innerHTML = PRESETS[key];
+          ruler.refresh();
+        });
+      }
+
+      // start on the default tab
+      initFroala();
+      started.froala = true;
+    </script>
+    <script type="module">
+      const note = document.getElementById('tiptap-note');
+      let editor = null;
+      let modules = null;
+      async function load() {
+        if (modules) return modules;
+        modules = await Promise.all([
+          import('@tiptap/core'),
+          import('@tiptap/starter-kit'),
+          import('@tiptap/extension-image'),
+          import('@devslab/editor-ruler-tiptap'),
+        ]);
+        return modules;
+      }
+      window.__initTiptap = async () => {
+        try {
+          const [{ Editor }, { default: StarterKit }, { default: Image }, { EditorRuler }] = await load();
+          editor = new Editor({
+            element: document.getElementById('tiptap-editor'),
+            extensions: [StarterKit, Image.configure({ inline: true, allowBase64: true }), EditorRuler.configure({ unit: 'cm' })],
+            content: PRESETS.paragraphs,
+          });
+          editor.on('create', () => {
+            window.__tiptapRuler = editor.storage.editorRuler.ruler;
+          });
+          note.textContent =
+            '들여쓰기는 getHTML()에 순수 인라인 CSS로 담기고, 드래그가 undo 한 단계입니다 (Ctrl+Z). 테이블은 Tiptap table 확장을 설치하면 동일하게 동작합니다.';
+          const panel = document.getElementById('tab-tiptap');
+          panel.querySelectorAll('.chip').forEach((chip) => {
+            chip.addEventListener('click', () => {
+              panel.querySelectorAll('.chip').forEach((c) => c.classList.toggle('active', c === chip));
+              editor?.commands.setContent(PRESETS[chip.dataset.preset]);
+              window.__tiptapRuler?.refresh();
+            });
+          });
+        } catch (e) {
+          note.textContent = 'Tiptap CDN 모듈을 불러오지 못했습니다 — 네트워크 상태를 확인한 뒤 새로고침해 주세요.';
+        }
+      };
     </script>
   </body>
 </html>

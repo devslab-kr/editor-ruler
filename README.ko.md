@@ -120,7 +120,13 @@ Froala 옵션: `rulerVertical: true`면 초기화 시 세로 줄자 표시, `rul
 
 ## 데모
 
-라이브 플레이그라운드: **https://devslab-kr.github.io/editor-ruler/**
+라이브 플레이그라운드 (에디터별 탭 데모): **https://devslab-kr.github.io/editor-ruler/**
+
+원클릭 샌드박스:
+
+- [순수 contenteditable — StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/vanilla)
+- [Froala — StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/froala)
+- [Tiptap — StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/tiptap)
 
 로컬:
 

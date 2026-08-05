@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>editor-ruler — Tiptap example</title>
+    <style>
+      body { margin: 0; padding: 32px 16px; background: #f6f7f9; font-family: system-ui, sans-serif; display: flex; justify-content: center; }
+      .sheet { width: min(760px, 100%); background: #fff; border: 1px solid #d8dbe0; border-radius: 10px; overflow: hidden; }
+      .tiptap { padding: 24px 40px 40px; min-height: 280px; outline: none; line-height: 1.6; }
+      .tiptap :is(p, h3) { margin-top: 0; }
+      .edr-tiptap-mount { background: #f6f7f8; }
+    </style>
+  </head>
+  <body>
+    <div class="sheet">
+      <div id="editor"></div>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

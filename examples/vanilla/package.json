@@ -1,0 +1,20 @@
+{
+  "name": "editor-ruler-example-vanilla",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@devslab/editor-ruler": "^0.10.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  },
+  "stackblitz": {
+    "startCommand": "npm run dev"
+  }
+}

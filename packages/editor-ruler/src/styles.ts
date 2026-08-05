@@ -112,6 +112,24 @@ const CSS = `
   height: 1px;
 }
 .edr-vruler.edr-has-guides { cursor: copy; }
+.edr-colmark {
+  position: absolute;
+  bottom: 2px;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  box-sizing: border-box;
+  cursor: col-resize;
+  z-index: 3;
+  background: var(--edr-colmark, #e5e7eb);
+  border: 1px solid var(--edr-fg, #5f6570);
+  border-radius: 1px;
+  padding: 0;
+}
+.edr-colmark:focus-visible {
+  outline: 2px solid var(--edr-accent, #3b82f6);
+  outline-offset: 1px;
+}
 .edr-guide-temp::before { opacity: 0.35; }
 .edr-guides-locked .edr-guide { cursor: default; pointer-events: none; }
 @media (prefers-color-scheme: dark) {

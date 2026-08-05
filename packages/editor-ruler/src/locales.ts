@@ -6,11 +6,13 @@ export const RULER_LABEL_LOCALES: Record<string, RulerLabels> = {
     leftMargin: 'Left margin',
     rightMargin: 'Right margin',
     firstLineIndent: 'First-line indent',
+    columnBoundary: 'Column boundary',
   },
   ko: {
     leftMargin: '왼쪽 여백',
     rightMargin: '오른쪽 여백',
     firstLineIndent: '첫 줄 들여쓰기',
+    columnBoundary: '컬럼 경계',
   },
 };
 

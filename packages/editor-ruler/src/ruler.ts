@@ -25,6 +25,19 @@ export interface RulerLabels {
   leftMargin: string;
   rightMargin: string;
   firstLineIndent: string;
+  columnBoundary: string;
+}
+
+export interface RulerColumns {
+  /**
+   * All column boundaries in ruler px, left→right (n+1 entries for n columns),
+   * or null when the selection is not inside a table.
+   */
+  get: () => number[] | null;
+  /** Inner boundary `index` (1..n-1) moved to `x`. */
+  onChange: (index: number, x: number, phase: RulerChangePhase) => void;
+  /** Minimum column width in px. Default 24. */
+  minWidth?: number;
 }
 
 export interface RulerOptions {
@@ -46,6 +59,8 @@ export interface RulerOptions {
    * (the design-tool convention: a guide is parallel to its source ruler).
    */
   guides?: Guides;
+  /** Table column-boundary markers (Word-style), fed by the host adapter. */
+  columns?: RulerColumns;
 }
 
 export interface Ruler {
@@ -62,7 +77,10 @@ const DEFAULT_LABELS: RulerLabels = {
   leftMargin: 'Left margin',
   rightMargin: 'Right margin',
   firstLineIndent: 'First-line indent',
+  columnBoundary: 'Column boundary',
 };
+
+const DEFAULT_MIN_COLUMN_MARKER_GAP = 24;
 
 const DEFAULT_MIN_COLUMN = 48;
 const KEYBOARD_STEP = 1;
@@ -160,7 +178,7 @@ export function createRuler(mount: HTMLElement, options: RulerOptions): Ruler {
     root.addEventListener(
       'pointerdown',
       (event: PointerEvent) => {
-        if ((event.target as HTMLElement | null)?.closest?.('.edr-handle')) return;
+        if ((event.target as HTMLElement | null)?.closest?.('.edr-handle, .edr-colmark')) return;
         options.guides!.beginCreate(event, root, 'y');
       },
       { signal },
@@ -200,6 +218,95 @@ export function createRuler(mount: HTMLElement, options: RulerOptions): Ruler {
       handle.setAttribute('aria-valuemax', String(Math.round(spec.max(m, minColumn))));
       handle.setAttribute('aria-valuenow', String(Math.round(valueOf(spec.key, m))));
     }
+    syncColumnMarkers();
+  }
+
+  // ---- table column-boundary markers -------------------------------------
+
+  let columnEdges: number[] = [];
+  const columnMarkers: HTMLElement[] = [];
+
+  function syncColumnMarkers(): void {
+    if (!options.columns) return;
+    columnEdges = options.columns.get() ?? [];
+    const innerCount = Math.max(0, columnEdges.length - 2);
+    while (columnMarkers.length > innerCount) columnMarkers.pop()!.remove();
+    while (columnMarkers.length < innerCount) {
+      const marker = doc.createElement('div');
+      marker.className = 'edr-colmark';
+      marker.tabIndex = 0;
+      marker.setAttribute('role', 'slider');
+      marker.setAttribute('aria-orientation', 'horizontal');
+      marker.setAttribute('aria-label', labels.columnBoundary);
+      wireColumnMarker(marker);
+      root.appendChild(marker);
+      columnMarkers.push(marker);
+    }
+    columnMarkers.forEach((marker, i) => {
+      const index = i + 1;
+      marker.dataset.index = String(index);
+      marker.style.left = `${columnEdges[index]!}px`;
+      marker.setAttribute('aria-valuenow', String(Math.round(columnEdges[index]!)));
+    });
+  }
+
+  function columnBounds(index: number): { lo: number; hi: number } {
+    const gap = options.columns?.minWidth ?? DEFAULT_MIN_COLUMN_MARKER_GAP;
+    const lo = (columnEdges[index - 1] ?? 0) + gap;
+    const hi = (columnEdges[index + 1] ?? Number.MAX_SAFE_INTEGER) - gap;
+    return { lo, hi: Math.max(lo, hi) };
+  }
+
+  function applyColumn(marker: HTMLElement, index: number, raw: number, phase: RulerChangePhase): number {
+    const { lo, hi } = columnBounds(index);
+    const next = clamp(raw, lo, hi);
+    marker.style.left = `${next}px`;
+    marker.setAttribute('aria-valuenow', String(Math.round(next)));
+    options.columns!.onChange(index, next, phase);
+    return next;
+  }
+
+  function wireColumnMarker(marker: HTMLElement): void {
+    marker.addEventListener(
+      'pointerdown',
+      (down: PointerEvent) => {
+        down.preventDefault();
+        down.stopPropagation();
+        marker.focus();
+        const index = Number(marker.dataset.index);
+        const startX = down.clientX;
+        const startEdge = columnEdges[index] ?? 0;
+        let last = startEdge;
+        const onMove = (move: PointerEvent) => {
+          last = applyColumn(marker, index, startEdge + (move.clientX - startX), 'drag');
+        };
+        const onUp = () => {
+          doc.defaultView?.removeEventListener('pointermove', onMove);
+          doc.defaultView?.removeEventListener('pointerup', onUp);
+          applyColumn(marker, index, last, 'commit');
+          refresh();
+        };
+        doc.defaultView?.addEventListener('pointermove', onMove, { signal });
+        doc.defaultView?.addEventListener('pointerup', onUp, { signal });
+      },
+      { signal },
+    );
+    marker.addEventListener(
+      'keydown',
+      (event: KeyboardEvent) => {
+        const index = Number(marker.dataset.index);
+        const current = columnEdges[index] ?? 0;
+        const step = event.shiftKey ? KEYBOARD_STEP_LARGE : KEYBOARD_STEP;
+        let next: number | null = null;
+        if (event.key === 'ArrowLeft') next = current - step;
+        else if (event.key === 'ArrowRight') next = current + step;
+        else return;
+        event.preventDefault();
+        applyColumn(marker, index, next, 'commit');
+        refresh();
+      },
+      { signal },
+    );
   }
 
   function renderScale(widthPx: number): void {

@@ -9,6 +9,21 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-08-06
+
+### Added
+
+- **Word-style table column markers**: with the caret inside a table, the
+  horizontal ruler shows a small square marker on every inner column boundary;
+  dragging one (or using arrow keys — the markers are accessible sliders)
+  resizes the two adjacent columns, live, with one undo step per gesture.
+  - Core: `RulerOptions.columns` — `{ get(): number[] | null, onChange(index,
+    x, phase), minWidth? }`. Markers never trigger guide creation.
+  - Froala adapter: feeds boundaries from the selected table's cell rects and
+    writes percentage widths to the affected column's cells in every row.
+    Tables with merged cells (colspan/rowspan) show no markers — boundary math
+    is ambiguous there.
+
 ## [0.7.0] - 2026-08-06
 
 ### Added
@@ -115,7 +130,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.4.0...v0.5.0

@@ -432,6 +432,69 @@ describe('defineRulerPlugin', () => {
     expect(table.style.marginLeft).toBe('1px');
   });
 
+  it('shows column markers for the selected table and resizes the adjacent columns', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor();
+    const el = editor.el;
+    Object.defineProperty(el, 'getBoundingClientRect', {
+      value: () => ({ left: 0, right: 600, top: 0, bottom: 100, width: 600, height: 100, x: 0, y: 0 }),
+    });
+    const table = document.createElement('table');
+    const tr = document.createElement('tr');
+    const cells = [0, 1, 2].map(() => document.createElement('td'));
+    tr.append(...cells);
+    table.appendChild(tr);
+    el.appendChild(table);
+    Object.defineProperty(table, 'getBoundingClientRect', {
+      value: () => ({ left: 0, right: 600, top: 20, bottom: 60, width: 600, height: 40, x: 0, y: 20 }),
+    });
+    const rights = [200, 400, 600];
+    cells.forEach((cell, i) => {
+      Object.defineProperty(cell, 'getBoundingClientRect', {
+        value: () => ({
+          left: i === 0 ? 0 : rights[i - 1]!,
+          right: rights[i]!,
+          top: 20, bottom: 60, width: 200, height: 40, x: 0, y: 20,
+        }),
+      });
+    });
+    editor.selection.blocks = () => [cells[0] as HTMLElement];
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+    api.refresh();
+
+    const markers = container.querySelectorAll('.edr-colmark');
+    expect(markers.length).toBe(2);
+    expect((markers[0] as HTMLElement).style.left).toBe('200px');
+
+    (markers[0] as HTMLElement).dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', shiftKey: true, bubbles: true }),
+    );
+    // boundary 1 moved to 210 → col0 = 210/600 = 35%, col1 = (400-210)/600 ≈ 31.6667%
+    expect(cells[0]!.style.width).toBe('35%');
+    expect(cells[1]!.style.width).toBe('31.6667%');
+    expect(editor.undo.saveStep).toHaveBeenCalled();
+  });
+
+  it('hides column markers for tables with merged cells', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor();
+    const table = document.createElement('table');
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.setAttribute('colspan', '2');
+    tr.append(td, document.createElement('td'));
+    table.appendChild(tr);
+    editor.el.appendChild(table);
+    editor.selection.blocks = () => [td];
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+    api.refresh();
+    expect(container.querySelectorAll('.edr-colmark').length).toBe(0);
+  });
+
   it('pushes the containing block when the selection is a bare image', () => {
     const FE = makeFroalaConstructor();
     defineRulerPlugin(FE);

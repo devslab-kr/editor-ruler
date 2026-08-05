@@ -291,6 +291,63 @@ export function defineRulerPlugin(FroalaEditor: any, defineOptions: DefineRulerP
       };
     }
 
+    function currentTable(): HTMLTableElement | null {
+      const blocks: HTMLElement[] = editor.selection?.blocks?.() ?? [];
+      const el = editorEl();
+      for (const b of blocks) {
+        const t = (b.tagName === 'TABLE' ? b : b.closest?.('table')) as HTMLTableElement | null;
+        if (t && el.contains(t)) return t;
+      }
+      return null;
+    }
+
+    function contentLeft(): number {
+      const el = editorEl();
+      return el.getBoundingClientRect().left + contentPadding('paddingLeft');
+    }
+
+    /** Column boundaries of the selected table in ruler coords, or null. */
+    function columnEdges(): number[] | null {
+      const table = currentTable();
+      if (!table) return null;
+      // Merged cells make boundary math ambiguous — no markers there.
+      if (table.querySelector('td[colspan], th[colspan], td[rowspan], th[rowspan]')) return null;
+      const row = table.querySelector('tr');
+      if (!row) return null;
+      const cells = Array.from(row.children).filter(
+        (c) => c.tagName === 'TD' || c.tagName === 'TH',
+      ) as HTMLElement[];
+      if (cells.length === 0) return null;
+      const origin = contentLeft();
+      const edges = [table.getBoundingClientRect().left - origin];
+      for (const cell of cells) edges.push(cell.getBoundingClientRect().right - origin);
+      return edges;
+    }
+
+    function applyColumnChange(index: number, x: number, phase: RulerChangePhase): void {
+      const table = currentTable();
+      const edges = columnEdges();
+      if (!table || !edges) return;
+      const leftEdge = edges[index - 1];
+      const rightEdge = edges[index + 1];
+      if (leftEdge === undefined || rightEdge === undefined) return;
+      const tableWidth = table.getBoundingClientRect().width;
+      if (!(tableWidth > 0)) return;
+      const pct = (w: number) => `${((w / tableWidth) * 100).toFixed(4)}%`;
+      for (const row of Array.from(table.querySelectorAll('tr'))) {
+        const cells = Array.from(row.children).filter(
+          (c) => c.tagName === 'TD' || c.tagName === 'TH',
+        ) as HTMLElement[];
+        const leftCell = cells[index - 1];
+        const rightCell = cells[index];
+        if (leftCell) leftCell.style.width = pct(x - leftEdge);
+        if (rightCell) rightCell.style.width = pct(rightEdge - x);
+      }
+      if (phase === 'commit') {
+        editor.undo?.saveStep?.();
+      }
+    }
+
     function applyChange(change: RulerChange, phase: RulerChangePhase): void {
       for (const block of selectedBlocks()) {
         if (change.leftMargin !== undefined) block.style.marginLeft = `${change.leftMargin}px`;
@@ -467,6 +524,7 @@ export function defineRulerPlugin(FroalaEditor: any, defineOptions: DefineRulerP
         getMetrics,
         onChange: applyChange,
         labels: resolveRulerLabels(editor.opts.rulerLanguage || editor.opts.language, doc),
+        columns: { get: columnEdges, onChange: applyColumnChange },
         ...(guides ? { guides } : {}),
       });
       alignMount();

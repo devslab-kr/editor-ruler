@@ -9,6 +9,24 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-05
+
+### Added
+
+- `@devslab/editor-ruler` — **vertical ruler** (`createVRuler`): a scale strip
+  for the left edge of the editor (no handles yet — a positional reference like
+  Word's vertical ruler), sharing the unit system with the horizontal ruler.
+- `@devslab/editor-ruler` — **guide lines** (`createGuides`): press an empty
+  spot on the horizontal ruler and drag down to drop a vertical guide over the
+  content area (the design-tool pattern). Guides are draggable, deletable by
+  releasing them back on the ruler, lockable, and purely visual — they never
+  touch the document HTML. `createRuler` accepts a `guides` controller.
+- `@devslab/editor-ruler-froala` — new options `rulerVertical` (default false)
+  and `rulerGuides` (default true); plugin API gains `toggleVRuler`,
+  `isVRulerVisible`, `setGuidesLocked`, `isGuidesLocked`, `clearGuides`,
+  `getGuides`. The `rulerOptions` dropdown grows matching items: Vertical
+  Ruler, Lock Guides, Clear Guides.
+
 ## [0.3.0] - 2026-08-05
 
 ### Added
@@ -60,7 +78,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/devslab-kr/editor-ruler/compare/v0.1.0...v0.1.1

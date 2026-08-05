@@ -16,4 +16,6 @@ export {
   type RulerUnit,
   type Tick,
 } from './units';
+export { createVRuler, type VRuler, type VRulerMetrics, type VRulerOptions } from './vruler';
+export { createGuides, type Guides, type GuidesOptions } from './guides';
 export { ensureStyles } from './styles';

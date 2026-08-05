@@ -1,5 +1,6 @@
 import { clamp, computeTicks, type RulerUnit } from './units';
 import { ensureStyles } from './styles';
+import type { Guides } from './guides';
 
 export interface RulerMetrics {
   /** Width of the writable area in px (between the editor's padding edges). */
@@ -39,6 +40,11 @@ export interface RulerOptions {
   minColumnWidth?: number;
   /** Accessible labels for the three handles (i18n). */
   labels?: Partial<RulerLabels>;
+  /**
+   * A guides controller (from createGuides). When present, pressing on an empty
+   * part of the ruler strip and dragging down creates a vertical guide line.
+   */
+  guides?: Guides;
 }
 
 export interface Ruler {
@@ -146,6 +152,18 @@ export function createRuler(mount: HTMLElement, options: RulerOptions): Ruler {
     root.appendChild(handle);
     handles.set(spec.key, handle);
     wireHandle(handle, spec);
+  }
+
+  if (options.guides) {
+    root.classList.add('edr-has-guides');
+    root.addEventListener(
+      'pointerdown',
+      (event: PointerEvent) => {
+        if ((event.target as HTMLElement | null)?.closest?.('.edr-handle')) return;
+        options.guides!.beginCreate(event, root);
+      },
+      { signal },
+    );
   }
 
   mount.appendChild(root);

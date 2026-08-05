@@ -99,6 +99,7 @@ Froala options: `rulerVertical: true` shows the vertical ruler on init; `rulerGu
 - Tab stops are **out of scope** for now — HTML has no native tab-stop model
 - Tables & images push like Word: a selection in a table indents the **whole table**, paragraphs inside cells indent individually, and images move with their block
 - **Table column markers**: inside a table the ruler shows draggable boundary markers that resize adjacent columns (skipped for tables with merged cells)
+- **Guide snapping**: handles and column markers snap to nearby guides during drags (`guideSnap` option, default 5px)
 - Output is plain inline CSS — `<p style="margin-left: 75px; text-indent: 38px">` — so exported HTML keeps its layout anywhere
 
 ## Demo

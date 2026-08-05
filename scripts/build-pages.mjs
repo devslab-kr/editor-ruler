@@ -1,0 +1,28 @@
+import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+
+const root = process.cwd();
+const outDir = path.join(root, '.pages');
+const siteDir = path.join(root, 'site');
+const corePkg = JSON.parse(
+  await readFile(path.join(root, 'packages/editor-ruler/package.json'), 'utf8'),
+);
+
+await rm(outDir, { recursive: true, force: true });
+await mkdir(path.join(outDir, 'vendor'), { recursive: true });
+await cp(siteDir, outDir, { recursive: true });
+
+// The live playground runs on the freshly built core bundle.
+await cp(
+  path.join(root, 'packages/editor-ruler/dist/index.global.js'),
+  path.join(outDir, 'vendor', 'editor-ruler.global.js'),
+);
+
+const indexPath = path.join(outDir, 'index.html');
+const index = await readFile(indexPath, 'utf8');
+await writeFile(indexPath, index.replaceAll('__PACKAGE_VERSION__', corePkg.version));
+
+await writeFile(
+  path.join(outDir, 'package.json'),
+  JSON.stringify({ name: corePkg.name, version: corePkg.version }, null, 2),
+);

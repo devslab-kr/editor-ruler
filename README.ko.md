@@ -1,6 +1,11 @@
 # editor-ruler
 
-> English: [README.md](README.md)
+[![npm](https://img.shields.io/npm/v/%40devslab%2Feditor-ruler)](https://www.npmjs.com/package/@devslab/editor-ruler)
+[![CI](https://github.com/devslab-kr/editor-ruler/actions/workflows/ci.yml/badge.svg)](https://github.com/devslab-kr/editor-ruler/actions/workflows/ci.yml)
+![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6?logo=typescript&logoColor=white)
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE)
+
+**[문서 & 라이브 데모](https://devslab-kr.github.io/editor-ruler/)** · [English](README.md)
 
 웹 리치텍스트 에디터를 위한 **Word 스타일 가로 줄자** — 좌/우 여백과 첫 줄 들여쓰기를 드래그 핸들·키보드로 조절, cm/in/px 눈금 지원.
 
@@ -34,6 +39,19 @@ const ruler = createRuler(mountElement, {
 ruler.refresh(); // 선택/내용이 바뀔 때마다 호출
 ```
 
+## 빠른 시작 (CDN — 빌드 도구 없이)
+
+iife 빌드가 전역 `EditorRuler`를 노출합니다:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.1/dist/index.global.js"></script>
+<script>
+  const ruler = EditorRuler.createRuler(mountElement, { /* 동일한 옵션 */ });
+</script>
+```
+
+Froala 어댑터도 동일합니다 — `@devslab/editor-ruler-froala/dist/index.global.js`가 전역 `EditorRulerFroala.defineRulerPlugin`을 노출합니다 (코어 포함 단일 파일).
+
 ## 빠른 시작 (Froala)
 
 ```bash
@@ -45,9 +63,15 @@ import FroalaEditor from 'froala-editor';
 import { defineRulerPlugin } from '@devslab/editor-ruler-froala';
 
 defineRulerPlugin(FroalaEditor); // 인스턴스 생성 전에 1회
-new FroalaEditor('#editor', { rulerEnabled: true, rulerUnit: 'cm' });
+new FroalaEditor('#editor', {
+  rulerEnabled: true,
+  rulerUnit: 'cm',
+  toolbarButtons: ['bold', 'italic', '|', 'toggleRuler'], // 툴바 토글 버튼 (선택)
+});
 // pluginsEnabled를 직접 지정한다면 'ruler'를 포함하세요
 ```
+
+`defineRulerPlugin`은 `ruler` 플러그인과 **함께** 줄자 아이콘이 달린 `toggleRuler` 툴바 커맨드를 등록합니다 (버튼 활성 상태가 표시 여부를 반영) — 보이기/숨기기 버튼이 필요하면 `toolbarButtons`에 추가하세요.
 
 ## 기능
 
@@ -59,6 +83,10 @@ new FroalaEditor('#editor', { rulerEnabled: true, rulerUnit: 'cm' });
 - 탭 스톱은 현재 **범위 밖** — HTML에는 네이티브 탭 스톱 모델이 없음
 
 ## 데모
+
+라이브 플레이그라운드: **https://devslab-kr.github.io/editor-ruler/**
+
+로컬:
 
 ```bash
 pnpm install && pnpm build

@@ -16,6 +16,8 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
+    "verify": "pnpm typecheck && pnpm test && pnpm build",
+    "build:pages": "node scripts/build-pages.mjs",
     "changeset": "changeset"
   },
   "devDependencies": {

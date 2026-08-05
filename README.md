@@ -1,6 +1,11 @@
 # editor-ruler
 
-> 한국어 문서: [README.ko.md](README.ko.md)
+[![npm](https://img.shields.io/npm/v/%40devslab%2Feditor-ruler)](https://www.npmjs.com/package/@devslab/editor-ruler)
+[![CI](https://github.com/devslab-kr/editor-ruler/actions/workflows/ci.yml/badge.svg)](https://github.com/devslab-kr/editor-ruler/actions/workflows/ci.yml)
+![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6?logo=typescript&logoColor=white)
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE)
+
+**[Docs & live demo](https://devslab-kr.github.io/editor-ruler/)** · [한국어](README.ko.md)
 
 A **Word-like horizontal ruler** for web rich-text editors — left/right margins and first-line indent with draggable handles, keyboard control, and cm/in/px scales.
 
@@ -34,6 +39,19 @@ const ruler = createRuler(mountElement, {
 ruler.refresh(); // call whenever selection or content changes
 ```
 
+## Quick start (CDN, no build tools)
+
+The iife build exposes an `EditorRuler` global:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.1/dist/index.global.js"></script>
+<script>
+  const ruler = EditorRuler.createRuler(mountElement, { /* same options */ });
+</script>
+```
+
+The Froala adapter ships the same way — `@devslab/editor-ruler-froala/dist/index.global.js` exposes `EditorRulerFroala.defineRulerPlugin` (core bundled, single file).
+
 ## Quick start (Froala)
 
 ```bash
@@ -45,9 +63,15 @@ import FroalaEditor from 'froala-editor';
 import { defineRulerPlugin } from '@devslab/editor-ruler-froala';
 
 defineRulerPlugin(FroalaEditor); // once, before creating instances
-new FroalaEditor('#editor', { rulerEnabled: true, rulerUnit: 'cm' });
+new FroalaEditor('#editor', {
+  rulerEnabled: true,
+  rulerUnit: 'cm',
+  toolbarButtons: ['bold', 'italic', '|', 'toggleRuler'], // optional toolbar toggle
+});
 // if you set pluginsEnabled explicitly, include 'ruler'
 ```
+
+`defineRulerPlugin` registers the `ruler` plugin **and** a `toggleRuler` toolbar command with a ruler icon (active state reflects visibility) — add it to `toolbarButtons` if you want a show/hide button.
 
 ## Features
 
@@ -59,6 +83,10 @@ new FroalaEditor('#editor', { rulerEnabled: true, rulerUnit: 'cm' });
 - Tab stops are **out of scope** for now — HTML has no native tab-stop model
 
 ## Demo
+
+Live playground: **https://devslab-kr.github.io/editor-ruler/**
+
+Locally:
 
 ```bash
 pnpm install && pnpm build

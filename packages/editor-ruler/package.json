@@ -4,7 +4,7 @@
   "description": "A Word-like horizontal ruler for web rich-text editors: margins, first-line indent, drag handles. Editor-agnostic core.",
   "license": "Apache-2.0",
   "author": "devslab",
-  "homepage": "https://github.com/devslab-kr/editor-ruler#readme",
+  "homepage": "https://devslab-kr.github.io/editor-ruler/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/devslab-kr/editor-ruler.git",

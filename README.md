@@ -95,6 +95,7 @@ Froala options: `rulerVertical: true` shows the vertical ruler on init; `rulerGu
 - Keyboard accessible: handles are focusable sliders (`←`/`→`, `Shift` for 10px, `Home`/`End`)
 - cm / in / px scales, switchable at runtime
 - Themeable via CSS custom properties (`--edr-*`), dark-mode aware
+- **UI language follows the browser** (`<html lang>` → `navigator.language`; ko/en built in, overridable via `defineRulerPlugin(FE, { language, strings })` and `rulerLanguage`)
 - Tab stops are **out of scope** for now — HTML has no native tab-stop model
 - Tables: paragraphs **inside** cells indent normally; the ruler never styles table cells themselves (CSS ignores cell margins). Word-style column-width markers are on the roadmap
 - Output is plain inline CSS — `<p style="margin-left: 75px; text-indent: 38px">` — so exported HTML keeps its layout anywhere

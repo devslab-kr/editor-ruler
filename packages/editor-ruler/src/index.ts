@@ -24,4 +24,5 @@ export {
   type GuideSet,
   type GuidesOptions,
 } from './guides';
+export { detectLanguage, resolveRulerLabels, RULER_LABEL_LOCALES } from './locales';
 export { ensureStyles } from './styles';

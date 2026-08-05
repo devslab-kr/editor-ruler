@@ -2,6 +2,8 @@ import {
   createGuides,
   createRuler,
   createVRuler,
+  detectLanguage,
+  resolveRulerLabels,
   type Guides,
   type GuideSet,
   type Ruler,
@@ -43,7 +45,53 @@ interface FroalaRulerApi {
   destroy(): void;
 }
 
-const UNIT_OPTIONS: Record<RulerUnit, string> = { cm: 'cm', in: 'inch', px: 'px' };
+/** UI strings for the toolbar commands. Registered once per FroalaEditor constructor. */
+export interface RulerStrings {
+  ruler: string;
+  toggleRuler: string;
+  rulerUnit: string;
+  showHide: string;
+  verticalRuler: string;
+  lockGuides: string;
+  clearGuides: string;
+  cm: string;
+  in: string;
+  px: string;
+}
+
+const STRINGS: Record<string, RulerStrings> = {
+  en: {
+    ruler: 'Ruler',
+    toggleRuler: 'Toggle Ruler',
+    rulerUnit: 'Ruler Unit',
+    showHide: 'Show / Hide',
+    verticalRuler: 'Vertical Ruler',
+    lockGuides: 'Lock Guides',
+    clearGuides: 'Clear Guides',
+    cm: 'cm',
+    in: 'inch',
+    px: 'px',
+  },
+  ko: {
+    ruler: '줄자',
+    toggleRuler: '줄자 표시/숨기기',
+    rulerUnit: '눈금 단위',
+    showHide: '보이기 / 숨기기',
+    verticalRuler: '세로 줄자',
+    lockGuides: '가이드 잠금',
+    clearGuides: '가이드 지우기',
+    cm: 'cm',
+    in: '인치',
+    px: 'px',
+  },
+};
+
+export interface DefineRulerPluginOptions {
+  /** Language for toolbar strings ('ko', 'en', …). Default: `<html lang>` → browser language → 'en'. */
+  language?: string;
+  /** Override any built-in string. */
+  strings?: Partial<RulerStrings>;
+}
 
 const BLOCK_FALLBACK_SELECTOR = 'p, div, h1, h2, h3, h4, h5, h6, li, blockquote, pre';
 
@@ -73,8 +121,13 @@ const RULER_ICON_SVG =
  * Also registers a `'toggleRuler'` toolbar command with a ruler icon — add it to
  * `toolbarButtons` to let users show/hide the ruler.
  */
-export function defineRulerPlugin(FroalaEditor: any): void {
+export function defineRulerPlugin(FroalaEditor: any, defineOptions: DefineRulerPluginOptions = {}): void {
   if (FroalaEditor.PLUGINS?.ruler) return;
+
+  const doc = typeof document !== 'undefined' ? document : undefined;
+  const language = detectLanguage(defineOptions.language, doc);
+  const t: RulerStrings = { ...(STRINGS[language] ?? STRINGS.en!), ...defineOptions.strings };
+  const UNIT_OPTIONS: Record<RulerUnit, string> = { cm: t.cm, in: t.in, px: t.px };
 
   FroalaEditor.DEFAULTS = Object.assign(
     {
@@ -82,6 +135,7 @@ export function defineRulerPlugin(FroalaEditor: any): void {
       rulerUnit: 'cm' satisfies RulerUnit,
       rulerVertical: false,
       rulerGuides: true,
+      rulerLanguage: null,
     },
     FroalaEditor.DEFAULTS,
   );
@@ -95,17 +149,17 @@ export function defineRulerPlugin(FroalaEditor: any): void {
   if (typeof FroalaEditor.RegisterCommand === 'function') {
     // Recommended single button: one ruler icon, all ruler options inside.
     FroalaEditor.RegisterCommand('rulerOptions', {
-      title: 'Ruler',
+      title: t.ruler,
       icon: 'toggleRuler',
       type: 'dropdown',
       undo: false,
       focus: false,
       plugin: 'ruler',
       options: {
-        toggle: 'Show / Hide',
-        vruler: 'Vertical Ruler',
-        lockGuides: 'Lock Guides',
-        clearGuides: 'Clear Guides',
+        toggle: t.showHide,
+        vruler: t.verticalRuler,
+        lockGuides: t.lockGuides,
+        clearGuides: t.clearGuides,
         ...UNIT_OPTIONS,
       },
       callback(this: any, _cmd: string, value: string) {
@@ -133,7 +187,7 @@ export function defineRulerPlugin(FroalaEditor: any): void {
     });
     // Granular commands for hosts that prefer separate buttons.
     FroalaEditor.RegisterCommand('rulerUnit', {
-      title: 'Ruler Unit',
+      title: t.rulerUnit,
       icon: 'toggleRuler',
       type: 'dropdown',
       undo: false,
@@ -154,7 +208,7 @@ export function defineRulerPlugin(FroalaEditor: any): void {
       },
     });
     FroalaEditor.RegisterCommand('toggleRuler', {
-      title: 'Toggle Ruler',
+      title: t.toggleRuler,
       icon: 'toggleRuler',
       undo: false,
       focus: false,
@@ -390,6 +444,7 @@ export function defineRulerPlugin(FroalaEditor: any): void {
         unit: editor.opts.rulerUnit ?? 'cm',
         getMetrics,
         onChange: applyChange,
+        labels: resolveRulerLabels(editor.opts.rulerLanguage || editor.opts.language, doc),
         ...(guides ? { guides } : {}),
       });
       alignMount();

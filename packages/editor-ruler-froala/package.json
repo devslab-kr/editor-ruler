@@ -1,0 +1,57 @@
+{
+  "name": "@devslab/editor-ruler-froala",
+  "version": "0.1.0",
+  "description": "Froala WYSIWYG editor adapter for @devslab/editor-ruler — a Word-like horizontal ruler plugin.",
+  "license": "Apache-2.0",
+  "author": "devslab",
+  "homepage": "https://github.com/devslab-kr/editor-ruler#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devslab-kr/editor-ruler.git",
+    "directory": "packages/editor-ruler-froala"
+  },
+  "bugs": "https://github.com/devslab-kr/editor-ruler/issues",
+  "keywords": [
+    "froala",
+    "froala-editor",
+    "ruler",
+    "wysiwyg",
+    "plugin",
+    "indent",
+    "margin"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@devslab/editor-ruler": "workspace:^"
+  },
+  "peerDependencies": {
+    "froala-editor": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "froala-editor": {
+      "optional": true
+    }
+  }
+}

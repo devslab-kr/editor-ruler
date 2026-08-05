@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>@devslab/editor-ruler — demo</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0;
+    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: #e8eaed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { background: #1b1d21; color: #e4e6ea; }
+  }
+  header { padding: 24px 16px 8px; text-align: center; }
+  header h1 { font-size: 18px; margin: 0 0 4px; }
+  header p { font-size: 13px; margin: 0; opacity: 0.7; }
+  .toolbar { padding: 8px 16px 16px; display: flex; gap: 8px; align-items: center; font-size: 13px; }
+  .toolbar select { font: inherit; padding: 2px 6px; }
+  .sheet {
+    width: min(794px, calc(100vw - 32px)); /* A4 @96dpi */
+    background: #fff;
+    color: #1f2328;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 48px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .sheet { background: #2a2d31; color: #e4e6ea; }
+  }
+  #ruler-mount { padding: 0 60px; background: var(--edr-bg, #f6f7f8); }
+  @media (prefers-color-scheme: dark) {
+    #ruler-mount { background: #26282c; }
+  }
+  #page {
+    padding: 40px 60px 60px;
+    min-height: 500px;
+    outline: none;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  #page :is(p, h2) { margin-top: 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>@devslab/editor-ruler</h1>
+  <p>Click into a paragraph, then drag the handles: ▼ first-line indent, ▲ left/right margins. Arrow keys work too.</p>
+</header>
+<div class="toolbar">
+  <label for="unit">Unit</label>
+  <select id="unit">
+    <option value="cm" selected>cm</option>
+    <option value="in">in</option>
+    <option value="px">px</option>
+  </select>
+</div>
+<div class="sheet">
+  <div id="ruler-mount"></div>
+  <div id="page" contenteditable="true" spellcheck="false">
+    <h2>A Word-like ruler for the web</h2>
+    <p>Select this paragraph and drag the triangular handles above. The bottom-left triangle moves the left margin, the top triangle moves the first-line indent, and the bottom-right triangle moves the right margin.</p>
+    <p>Each paragraph keeps its own indentation, exactly like a word processor. Try a hanging indent: drag the top triangle to the left of the bottom one.</p>
+    <p>This demo runs on a plain contenteditable element — the same core drives the Froala adapter.</p>
+  </div>
+</div>
+<script src="../packages/editor-ruler/dist/index.global.js"></script>
+<script>
+  const page = document.getElementById('page');
+  const mount = document.getElementById('ruler-mount');
+  const unitSelect = document.getElementById('unit');
+
+  function currentBlocks() {
+    const sel = document.getSelection();
+    const blocks = [];
+    if (sel && sel.rangeCount > 0) {
+      let node = sel.getRangeAt(0).startContainer;
+      if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+      while (node && node !== page && node.parentElement !== page) node = node.parentElement;
+      if (node && node !== page) blocks.push(node);
+    }
+    if (blocks.length === 0 && page.firstElementChild) blocks.push(page.firstElementChild);
+    return blocks;
+  }
+
+  function getMetrics() {
+    const pageStyle = getComputedStyle(page);
+    const contentWidth = page.clientWidth
+      - parseFloat(pageStyle.paddingLeft) - parseFloat(pageStyle.paddingRight);
+    const block = currentBlocks()[0];
+    const style = block ? getComputedStyle(block) : null;
+    return {
+      contentWidth,
+      leftMargin: style ? parseFloat(style.marginLeft) || 0 : 0,
+      rightMargin: style ? parseFloat(style.marginRight) || 0 : 0,
+      firstLineIndent: style ? parseFloat(style.textIndent) || 0 : 0,
+    };
+  }
+
+  const ruler = EditorRuler.createRuler(mount, {
+    unit: 'cm',
+    getMetrics,
+    onChange(change) {
+      for (const block of currentBlocks()) {
+        if (change.leftMargin !== undefined) block.style.marginLeft = change.leftMargin + 'px';
+        if (change.rightMargin !== undefined) block.style.marginRight = change.rightMargin + 'px';
+        if (change.firstLineIndent !== undefined) block.style.textIndent = change.firstLineIndent + 'px';
+      }
+    },
+  });
+
+  document.addEventListener('selectionchange', () => {
+    if (document.activeElement === page || page.contains(document.getSelection()?.anchorNode ?? null)) {
+      ruler.refresh();
+    }
+  });
+  window.addEventListener('resize', () => ruler.refresh());
+  unitSelect.addEventListener('change', () => ruler.setUnit(unitSelect.value));
+</script>
+</body>
+</html>

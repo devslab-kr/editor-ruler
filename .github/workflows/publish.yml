@@ -32,11 +32,12 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           node -e "
-            const core = require('./packages/editor-ruler/package.json');
-            const froala = require('./packages/editor-ruler-froala/package.json');
-            const expected = 'v' + core.version;
+            const fs = require('fs');
+            const dirs = fs.readdirSync('./packages');
+            const versions = dirs.map(d => require('./packages/' + d + '/package.json').version);
+            const expected = 'v' + versions[0];
             const actual = process.env.GITHUB_REF_NAME;
-            if (core.version !== froala.version) { console.error('Package versions diverge: ' + core.version + ' vs ' + froala.version); process.exit(1); }
+            if (new Set(versions).size !== 1) { console.error('Package versions diverge: ' + versions.join(', ')); process.exit(1); }
             if (actual !== expected) { console.error('Tag ' + actual + ' does not match package version ' + expected); process.exit(1); }
           "
 

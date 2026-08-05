@@ -4,7 +4,7 @@
   "commit": false,
   "access": "public",
   "baseBranch": "main",
-  "fixed": [["@devslab/editor-ruler", "@devslab/editor-ruler-froala"]],
+  "fixed": [["@devslab/editor-ruler", "@devslab/editor-ruler-froala", "@devslab/editor-ruler-tiptap"]],
   "updateInternalDependencies": "patch",
   "ignore": []
 }

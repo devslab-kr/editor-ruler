@@ -84,9 +84,17 @@
         border-radius: 6px; background: var(--panel); color: var(--ink);
       }
       #ruler-mount { padding: 0 44px; background: #f6f7f8; }
+      #tiptap-editor .tiptap {
+        padding: 24px 44px 32px;
+        min-height: 160px;
+        outline: none;
+        font-size: 15px;
+      }
+      #tiptap-editor .tiptap :is(p, h3) { margin-top: 0; }
+      #tiptap-panel .edr-tiptap-mount { background: #f6f7f8; }
       /* The page is light-only; pin the ruler's theme vars so an OS dark
          preference doesn't switch just the ruler to dark. */
-      #ruler-mount, #froala-panel {
+      #ruler-mount, #froala-panel, #tiptap-panel {
         --edr-bg: #f6f7f8;
         --edr-border: #d8dbe0;
         --edr-fg: #5f6570;
@@ -194,6 +202,15 @@ ruler.setUnit('in');  // 눈금 전환</code></pre>
         <p class="note">버전 지정: <code>@0.1.0</code>(정확 고정) · <code>@0.1</code>(패치 자동 반영 — 권장) · <code>@latest</code>(항상 최신 — 메이저 포함이라 브레이킹 체인지 위험, jsDelivr가 별칭을 최대 12시간 캐시).</p>
       </section>
 
+      <section id="tiptap-live">
+        <h2>Tiptap에서 실제로</h2>
+        <p><strong>Tiptap 확장</strong>(<code>@devslab/editor-ruler-tiptap</code>)도 같은 코어를 씁니다 — 아래는 실제 Tiptap 에디터입니다. 들여쓰기는 노드 속성으로 저장되어 <code>getHTML()</code>에 순수 인라인 CSS로 나오고, 드래그 전체가 undo 한 단계입니다.</p>
+        <div class="panel" id="tiptap-panel">
+          <div id="tiptap-editor"></div>
+        </div>
+        <p class="note" id="tiptap-note">Tiptap 모듈을 CDN(esm.sh)에서 불러옵니다 — 네트워크에 따라 잠시 걸릴 수 있습니다.</p>
+      </section>
+
       <section id="froala-live">
         <h2>Froala에서 실제로</h2>
         <p>아래는 <strong>진짜 Froala 에디터</strong>에 어댑터를 붙인 모습입니다. 문단을 클릭하고 줄자 핸들을 드래그해 보세요 — 툴바의 줄자 드롭다운(<code>rulerOptions</code>) 하나로 줄자 켜기/끄기 · <strong>세로 줄자</strong> · <strong>가이드 잠금/지우기</strong> · cm / inch / px 전환을 모두 할 수 있습니다. 디자인 툴 관례대로 <strong>가로 줄자에서 아래로 끌면 가로 가이드</strong>, <strong>세로 줄자에서 오른쪽으로 끌면 세로 가이드</strong>가 생깁니다.</p>
@@ -264,6 +281,37 @@ new FroalaEditor('#editor', {
       </div>
     </footer>
 
+    <script type="importmap">
+      {
+        "imports": {
+          "@tiptap/core": "https://esm.sh/@tiptap/core@3.6.5",
+          "@tiptap/starter-kit": "https://esm.sh/@tiptap/starter-kit@3.6.5",
+          "@devslab/editor-ruler": "./vendor/editor-ruler.mjs",
+          "@devslab/editor-ruler-tiptap": "./vendor/editor-ruler-tiptap.mjs"
+        }
+      }
+    </script>
+    <script type="module">
+      const note = document.getElementById('tiptap-note');
+      try {
+        const [{ Editor }, { default: StarterKit }, { EditorRuler }] = await Promise.all([
+          import('@tiptap/core'),
+          import('@tiptap/starter-kit'),
+          import('@devslab/editor-ruler-tiptap'),
+        ]);
+        new Editor({
+          element: document.getElementById('tiptap-editor'),
+          extensions: [StarterKit, EditorRuler.configure({ unit: 'cm' })],
+          content:
+            '<h3>Tiptap + editor-ruler</h3>' +
+            '<p>이 문단을 클릭하고 핸들을 드래그해 보세요 — Froala 데모와 똑같이 동작합니다.</p>' +
+            '<p>줄자 빈 곳에서 아래로 끌면 가로 가이드도 생깁니다.</p>',
+        });
+        note.textContent = '들여쓰기 결과는 getHTML()에 순수 인라인 CSS로 담깁니다 — Ctrl+Z로 드래그가 undo 한 단계인 것도 확인해 보세요.';
+      } catch (e) {
+        note.textContent = 'Tiptap CDN 모듈을 불러오지 못했습니다 — 네트워크 상태를 확인한 뒤 새로고침해 주세요.';
+      }
+    </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@4.5.2/css/froala_editor.pkgd.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/froala-editor@4.5.2/js/froala_editor.pkgd.min.js"></script>
     <script src="./vendor/editor-ruler-froala.global.js"></script>

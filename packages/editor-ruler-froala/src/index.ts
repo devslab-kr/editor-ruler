@@ -96,8 +96,9 @@ export interface DefineRulerPluginOptions {
 const BLOCK_FALLBACK_SELECTOR = 'p, div, h1, h2, h3, h4, h5, h6, li, blockquote, pre';
 
 /**
- * Margins/text-indent are meaningless on table structure elements (CSS ignores
- * margins on table cells), so the ruler never writes styles onto them.
+ * CSS ignores margins on table *cells*, so a selection inside a table targets
+ * the whole `<table>` instead — Word's behavior: the ruler indents the table
+ * as a block. `text-indent` is skipped for tables (meaningless there).
  */
 const TABLE_TAGS = new Set(['TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'TD', 'TH']);
 
@@ -236,15 +237,35 @@ export function defineRulerPlugin(FroalaEditor: any, defineOptions: DefineRulerP
       return editor.el as HTMLElement;
     }
 
+    /**
+     * Resolves a raw selection block to what the ruler should push:
+     * - table structure (td/tr/…) → the whole <table> (Word-style table indent)
+     * - a bare <img> → its closest block container
+     * - anything else → itself
+     */
+    function normalizeBlock(b: HTMLElement, el: HTMLElement): HTMLElement | null {
+      if (b === el || !el.contains(b)) return null;
+      if (b.tagName === 'IMG') {
+        const host = b.closest(BLOCK_FALLBACK_SELECTOR) as HTMLElement | null;
+        return host && host !== el && el.contains(host) ? host : null;
+      }
+      if (TABLE_TAGS.has(b.tagName)) {
+        const table = (b.tagName === 'TABLE' ? b : b.closest('table')) as HTMLElement | null;
+        return table && el.contains(table) ? table : null;
+      }
+      return b;
+    }
+
     function selectedBlocks(): HTMLElement[] {
       const blocks: HTMLElement[] = editor.selection?.blocks?.() ?? [];
       const el = editorEl();
-      const inEditor = blocks.filter((b) => b !== el && el.contains(b));
-      const usable = inEditor.filter((b) => !TABLE_TAGS.has(b.tagName));
-      if (usable.length > 0) return usable;
-      // Selection sits on table structure itself (e.g. a bare td): stay inert
-      // rather than falling back to an unrelated block elsewhere in the editor.
-      if (inEditor.length > 0) return [];
+      const targets: HTMLElement[] = [];
+      for (const raw of blocks) {
+        const target = normalizeBlock(raw, el);
+        if (target && !targets.includes(target)) targets.push(target);
+      }
+      if (targets.length > 0) return targets;
+      if (blocks.some((b) => el.contains(b) && b !== el)) return [];
       const fallback = el.querySelector(BLOCK_FALLBACK_SELECTOR);
       return fallback ? [fallback as HTMLElement] : [];
     }
@@ -274,7 +295,8 @@ export function defineRulerPlugin(FroalaEditor: any, defineOptions: DefineRulerP
       for (const block of selectedBlocks()) {
         if (change.leftMargin !== undefined) block.style.marginLeft = `${change.leftMargin}px`;
         if (change.rightMargin !== undefined) block.style.marginRight = `${change.rightMargin}px`;
-        if (change.firstLineIndent !== undefined)
+        // text-indent is meaningless on a table block.
+        if (change.firstLineIndent !== undefined && block.tagName !== 'TABLE')
           block.style.textIndent = `${change.firstLineIndent}px`;
       }
       if (phase === 'commit') {

@@ -77,23 +77,41 @@ const CSS = `
 }
 .edr-guide {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 7px;
-  margin-left: -3px;
-  cursor: ew-resize;
   pointer-events: auto;
 }
 .edr-guide::before {
   content: '';
   position: absolute;
+  background: var(--edr-guide, #2563eb);
+  opacity: 0.65;
+}
+.edr-guide-x {
+  top: 0;
+  bottom: 0;
+  width: 7px;
+  margin-left: -3px;
+  cursor: ew-resize;
+}
+.edr-guide-x::before {
   left: 3px;
   top: 0;
   bottom: 0;
   width: 1px;
-  background: var(--edr-guide, #2563eb);
-  opacity: 0.65;
 }
+.edr-guide-y {
+  left: 0;
+  right: 0;
+  height: 7px;
+  margin-top: -3px;
+  cursor: ns-resize;
+}
+.edr-guide-y::before {
+  top: 3px;
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.edr-vruler.edr-has-guides { cursor: copy; }
 .edr-guide-temp::before { opacity: 0.35; }
 .edr-guides-locked .edr-guide { cursor: default; pointer-events: none; }
 @media (prefers-color-scheme: dark) {

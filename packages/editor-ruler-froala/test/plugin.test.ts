@@ -202,7 +202,7 @@ describe('defineRulerPlugin', () => {
     expect(api.isGuidesLocked()).toBe(false);
 
     command.callback.call(editor, 'rulerOptions', 'clearGuides');
-    expect(api.getGuides()).toEqual([]);
+    expect(api.getGuides()).toEqual({ x: [], y: [] });
   });
 
   it('mounts vertical ruler on init when rulerVertical is true and unwraps on destroy', () => {
@@ -221,24 +221,32 @@ describe('defineRulerPlugin', () => {
     expect(container.contains(wrapper)).toBe(true); // wrapper restored to its old place
   });
 
-  it('creates a guide by dragging down from the ruler strip', () => {
+  it('drags a horizontal guide from the horizontal ruler, vertical from the vertical', () => {
     const FE = makeFroalaConstructor();
     defineRulerPlugin(FE);
-    const { editor, container } = makeEditor();
+    const { editor, container } = makeEditor({ rulerVertical: true });
     const api = FE.PLUGINS.ruler!(editor);
     api._init();
 
-    const rulerRoot = container.querySelector('.edr-ruler') as HTMLElement;
     const fire = (t: string, x: number, y: number, target: EventTarget) =>
       target.dispatchEvent(new MouseEvent(t, { clientX: x, clientY: y, bubbles: true, cancelable: true }));
-    fire('pointerdown', 120, 0, rulerRoot);
-    fire('pointermove', 150, 40, window);
-    fire('pointerup', 150, 40, window);
 
-    expect(api.getGuides()).toEqual([150]);
-    expect(container.querySelector('.edr-guides .edr-guide')).toBeTruthy();
+    const rulerRoot = container.querySelector('.edr-ruler') as HTMLElement;
+    fire('pointerdown', 120, 0, rulerRoot);
+    fire('pointermove', 120, 40, window);
+    fire('pointerup', 120, 40, window);
+    expect(api.getGuides()).toEqual({ x: [], y: [40] });
+    expect(container.querySelector('.edr-guides .edr-guide-y')).toBeTruthy();
+
+    const vrulerRoot = container.querySelector('.edr-vruler') as HTMLElement;
+    fire('pointerdown', 0, 100, vrulerRoot);
+    fire('pointermove', 90, 100, window);
+    fire('pointerup', 90, 100, window);
+    expect(api.getGuides()).toEqual({ x: [90], y: [40] });
+    expect(container.querySelector('.edr-guides .edr-guide-x')).toBeTruthy();
+
     api.clearGuides();
-    expect(api.getGuides()).toEqual([]);
+    expect(api.getGuides()).toEqual({ x: [], y: [] });
   });
 
   it('does not create guides when rulerGuides is false', () => {
@@ -248,7 +256,7 @@ describe('defineRulerPlugin', () => {
     const api = FE.PLUGINS.ruler!(editor);
     api._init();
     expect(container.querySelector('.edr-guides')).toBeNull();
-    expect(api.getGuides()).toEqual([]);
+    expect(api.getGuides()).toEqual({ x: [], y: [] });
     expect(api.isGuidesLocked()).toBe(false);
   });
 

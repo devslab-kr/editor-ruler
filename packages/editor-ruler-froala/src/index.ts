@@ -3,6 +3,7 @@ import {
   createRuler,
   createVRuler,
   type Guides,
+  type GuideSet,
   type Ruler,
   type RulerChange,
   type RulerChangePhase,
@@ -38,7 +39,7 @@ interface FroalaRulerApi {
   setGuidesLocked(locked: boolean): void;
   isGuidesLocked(): boolean;
   clearGuides(): void;
-  getGuides(): number[];
+  getGuides(): GuideSet;
   destroy(): void;
 }
 
@@ -269,6 +270,7 @@ export function defineRulerPlugin(FroalaEditor: any): void {
         vwrap.appendChild(wrapper);
         vruler = createVRuler(vmount, {
           unit: ruler?.getUnit() ?? editor.opts.rulerUnit ?? 'cm',
+          ...(guides ? { guides } : {}),
           getMetrics: () => {
             const target = editorEl();
             return {
@@ -342,8 +344,8 @@ export function defineRulerPlugin(FroalaEditor: any): void {
       guides?.clear();
     }
 
-    function getGuides(): number[] {
-      return guides?.list() ?? [];
+    function getGuides(): GuideSet {
+      return guides?.list() ?? { x: [], y: [] };
     }
 
     function destroy(): void {
@@ -380,6 +382,7 @@ export function defineRulerPlugin(FroalaEditor: any): void {
       if (editor.opts.rulerGuides !== false) {
         guides = createGuides(wrapper, {
           getOffsetLeft: () => contentPadding('paddingLeft'),
+          getOffsetTop: () => contentPadding('paddingTop'),
         });
       }
 

@@ -1,42 +1,54 @@
 import { ensureStyles } from './styles';
 
+/** 'x' = vertical line positioned along the x axis; 'y' = horizontal line along y. */
+export type GuideAxis = 'x' | 'y';
+
+export interface GuideSet {
+  x: number[];
+  y: number[];
+}
+
 export interface GuidesOptions {
   /** Left offset (px) from the container's border edge to the ruler's 0 point. */
   getOffsetLeft?: () => number;
+  /** Top offset (px) from the container's border edge to the vertical ruler's 0 point. */
+  getOffsetTop?: () => number;
   /** Fired after a guide is added, moved, removed, or the set is cleared. */
-  onChange?: (guides: number[]) => void;
+  onChange?: (guides: GuideSet) => void;
 }
 
 export interface Guides {
   element: HTMLElement;
-  /** Guide positions in ruler coordinates (px from the ruler's 0 point), sorted. */
-  list(): number[];
-  set(xs: number[]): void;
+  /** Guide positions in ruler coordinates, sorted per axis. */
+  list(): GuideSet;
+  set(guides: Partial<GuideSet>): void;
   clear(): void;
   setLocked(locked: boolean): void;
   isLocked(): boolean;
   setVisible(visible: boolean): void;
   isVisible(): boolean;
   /**
-   * Start creating a guide from a pointerdown on the ruler strip. The guide
-   * follows the pointer; releasing below the ruler commits it, releasing on or
-   * above the ruler discards it.
+   * Start creating a guide from a pointerdown on a ruler strip, following the
+   * design-tool convention: the horizontal ruler drags out a *horizontal*
+   * guide (axis 'y'), the vertical ruler drags out a *vertical* guide (axis
+   * 'x'). Releasing back on the source ruler discards the guide.
    */
-  beginCreate(event: PointerEvent, rulerRoot: HTMLElement): void;
+  beginCreate(event: PointerEvent, rulerRoot: HTMLElement, axis: GuideAxis): void;
   /** Reposition guides (call when the container's padding/offset changes). */
   refresh(): void;
   destroy(): void;
 }
 
 interface GuideEntry {
-  x: number;
+  axis: GuideAxis;
+  pos: number;
   el: HTMLElement;
 }
 
 /**
- * Vertical guide lines overlaid on the editor content area — the drag-out-of-
- * the-ruler pattern from design tools. Purely visual: guides never touch the
- * document HTML.
+ * Guide lines overlaid on the editor content area — the drag-out-of-the-ruler
+ * pattern from design tools. Purely visual: guides never touch the document
+ * HTML.
  */
 export function createGuides(container: HTMLElement, options: GuidesOptions = {}): Guides {
   const doc = container.ownerDocument;
@@ -59,28 +71,35 @@ export function createGuides(container: HTMLElement, options: GuidesOptions = {}
   let visible = true;
 
   const offsetLeft = () => options.getOffsetLeft?.() ?? 0;
+  const offsetTop = () => options.getOffsetTop?.() ?? 0;
 
   function notify(): void {
     options.onChange?.(list());
   }
 
-  function list(): number[] {
-    return guides.map((g) => g.x).sort((a, b) => a - b);
+  function list(): GuideSet {
+    const sorted = (axis: GuideAxis) =>
+      guides
+        .filter((g) => g.axis === axis)
+        .map((g) => g.pos)
+        .sort((a, b) => a - b);
+    return { x: sorted('x'), y: sorted('y') };
   }
 
   function position(entry: GuideEntry): void {
-    entry.el.style.left = `${offsetLeft() + entry.x}px`;
+    if (entry.axis === 'x') entry.el.style.left = `${offsetLeft() + entry.pos}px`;
+    else entry.el.style.top = `${offsetTop() + entry.pos}px`;
   }
 
-  function makeGuideEl(temp = false): HTMLElement {
+  function makeGuideEl(axis: GuideAxis, temp = false): HTMLElement {
     const el = doc.createElement('div');
-    el.className = temp ? 'edr-guide edr-guide-temp' : 'edr-guide';
+    el.className = `edr-guide edr-guide-${axis}${temp ? ' edr-guide-temp' : ''}`;
     layer.appendChild(el);
     return el;
   }
 
-  function addGuide(x: number): GuideEntry {
-    const entry: GuideEntry = { x: Math.max(0, x), el: makeGuideEl() };
+  function addGuide(axis: GuideAxis, pos: number): GuideEntry {
+    const entry: GuideEntry = { axis, pos: Math.max(0, pos), el: makeGuideEl(axis) };
     position(entry);
     wireGuideDrag(entry);
     guides.push(entry);
@@ -100,19 +119,21 @@ export function createGuides(container: HTMLElement, options: GuidesOptions = {}
         if (locked) return;
         down.preventDefault();
         down.stopPropagation();
-        const startX = down.clientX;
-        const startValue = entry.x;
-        const containerTop = container.getBoundingClientRect().top;
+        const start = entry.axis === 'x' ? down.clientX : down.clientY;
+        const startPos = entry.pos;
+        const containerRect = container.getBoundingClientRect();
         const onMove = (move: PointerEvent) => {
-          entry.x = Math.max(0, startValue + (move.clientX - startX));
+          const client = entry.axis === 'x' ? move.clientX : move.clientY;
+          entry.pos = Math.max(0, startPos + (client - start));
           position(entry);
         };
         const onUp = (up: PointerEvent) => {
           win.removeEventListener('pointermove', onMove);
           win.removeEventListener('pointerup', onUp);
-          if (up.clientY < containerTop) {
-            removeGuide(entry);
-          }
+          // Released back past the container edge on the source-ruler side → delete.
+          const gone =
+            entry.axis === 'x' ? up.clientX < containerRect.left : up.clientY < containerRect.top;
+          if (gone) removeGuide(entry);
           notify();
         };
         win.addEventListener('pointermove', onMove, { signal });
@@ -125,9 +146,10 @@ export function createGuides(container: HTMLElement, options: GuidesOptions = {}
   return {
     element: layer,
     list,
-    set(xs: number[]) {
+    set(next: Partial<GuideSet>) {
       for (const g of [...guides]) removeGuide(g);
-      for (const x of xs) addGuide(x);
+      for (const x of next.x ?? []) addGuide('x', x);
+      for (const y of next.y ?? []) addGuide('y', y);
       notify();
     },
     clear() {
@@ -145,24 +167,38 @@ export function createGuides(container: HTMLElement, options: GuidesOptions = {}
       layer.style.display = visible ? '' : 'none';
     },
     isVisible: () => visible,
-    beginCreate(event: PointerEvent, rulerRoot: HTMLElement) {
+    beginCreate(event: PointerEvent, rulerRoot: HTMLElement, axis: GuideAxis) {
       if (locked || !visible) return;
       event.preventDefault();
       const rulerRect = rulerRoot.getBoundingClientRect();
-      const temp = makeGuideEl(true);
-      let x = Math.max(0, event.clientX - rulerRect.left);
-      temp.style.left = `${offsetLeft() + x}px`;
+      const containerRect = container.getBoundingClientRect();
+      const temp = makeGuideEl(axis, true);
+      const posFrom = (clientX: number, clientY: number) =>
+        Math.max(
+          0,
+          axis === 'x'
+            ? clientX - containerRect.left - offsetLeft()
+            : clientY - containerRect.top - offsetTop(),
+        );
+      let pos = posFrom(event.clientX, event.clientY);
+      const place = () => {
+        if (axis === 'x') temp.style.left = `${offsetLeft() + pos}px`;
+        else temp.style.top = `${offsetTop() + pos}px`;
+      };
+      place();
       const onMove = (move: PointerEvent) => {
-        x = Math.max(0, move.clientX - rulerRect.left);
-        temp.style.left = `${offsetLeft() + x}px`;
+        pos = posFrom(move.clientX, move.clientY);
+        place();
       };
       const onUp = (up: PointerEvent) => {
         win.removeEventListener('pointermove', onMove);
         win.removeEventListener('pointerup', onUp);
         temp.remove();
-        // Commit only when released below the ruler strip.
-        if (up.clientY > rulerRect.bottom) {
-          addGuide(x);
+        // Commit only when released past the source ruler, over the content.
+        const committed =
+          axis === 'y' ? up.clientY > rulerRect.bottom : up.clientX > rulerRect.right;
+        if (committed) {
+          addGuide(axis, pos);
           notify();
         }
       };

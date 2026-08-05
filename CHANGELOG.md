@@ -9,6 +9,17 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-08-05
+
+### Fixed
+
+- `@devslab/editor-ruler-froala` — the ruler no longer writes meaningless
+  `margin-left`/`margin-right`/`text-indent` inline styles onto table structure
+  elements (`td`/`th`/`tr`/`table`). When the selection sits directly on a bare
+  table cell the ruler stays inert (no fallback to an unrelated block); real
+  block elements *inside* a cell (e.g. a `<p>`) still receive indentation as
+  before. Word-style table column markers remain on the roadmap.
+
 ## [0.1.0] - 2026-08-05
 
 ### Added
@@ -28,5 +39,6 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/devslab-kr/editor-ruler/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/devslab-kr/editor-ruler/releases/tag/v0.1.0

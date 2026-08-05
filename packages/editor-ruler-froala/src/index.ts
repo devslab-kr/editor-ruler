@@ -28,6 +28,12 @@ interface FroalaRulerApi {
 
 const BLOCK_FALLBACK_SELECTOR = 'p, div, h1, h2, h3, h4, h5, h6, li, blockquote, pre';
 
+/**
+ * Margins/text-indent are meaningless on table structure elements (CSS ignores
+ * margins on table cells), so the ruler never writes styles onto them.
+ */
+const TABLE_TAGS = new Set(['TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'TD', 'TH']);
+
 const RULER_ICON_SVG =
   '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 8a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3zm1 2h1.5v3H4v-3zm3.5 0H9v2H7.5v-2zm3.5 0h1.5v3H11v-3zm3.5 0H16v2h-1.5v-2zm3.5 0h1.5v3H18v-3z"/></svg>';
 
@@ -91,7 +97,11 @@ export function defineRulerPlugin(FroalaEditor: any): void {
       const blocks: HTMLElement[] = editor.selection?.blocks?.() ?? [];
       const el = editorEl();
       const inEditor = blocks.filter((b) => b !== el && el.contains(b));
-      if (inEditor.length > 0) return inEditor;
+      const usable = inEditor.filter((b) => !TABLE_TAGS.has(b.tagName));
+      if (usable.length > 0) return usable;
+      // Selection sits on table structure itself (e.g. a bare td): stay inert
+      // rather than falling back to an unrelated block elsewhere in the editor.
+      if (inEditor.length > 0) return [];
       const fallback = el.querySelector(BLOCK_FALLBACK_SELECTOR);
       return fallback ? [fallback as HTMLElement] : [];
     }

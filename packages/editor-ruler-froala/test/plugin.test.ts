@@ -165,6 +165,50 @@ describe('defineRulerPlugin', () => {
     expect(FE.PLUGINS.ruler).toBeTypeOf('function');
   });
 
+  it('stays inert when the selection sits on a table cell', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container, paragraph } = makeEditor();
+    const table = document.createElement('table');
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    tr.appendChild(td);
+    table.appendChild(tr);
+    editor.el.appendChild(table);
+    editor.selection.blocks = () => [td];
+    FE.PLUGINS.ruler!(editor)._init();
+
+    const leftHandle = container.querySelector('.edr-handle-left') as HTMLElement;
+    leftHandle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+
+    // Neither the cell nor any unrelated block gets styled.
+    expect(td.getAttribute('style')).toBeNull();
+    expect(paragraph.style.marginLeft).toBe('');
+  });
+
+  it('still applies to real blocks inside a table cell', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor();
+    const table = document.createElement('table');
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    const cellPara = document.createElement('p');
+    cellPara.textContent = 'in cell';
+    td.appendChild(cellPara);
+    tr.appendChild(td);
+    table.appendChild(tr);
+    editor.el.appendChild(table);
+    editor.selection.blocks = () => [cellPara];
+    FE.PLUGINS.ruler!(editor)._init();
+
+    const leftHandle = container.querySelector('.edr-handle-left') as HTMLElement;
+    leftHandle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+
+    expect(cellPara.style.marginLeft).toBe('1px');
+    expect(td.getAttribute('style')).toBeNull();
+  });
+
   it('falls back to the first block element when selection is empty', () => {
     const FE = makeFroalaConstructor();
     defineRulerPlugin(FE);

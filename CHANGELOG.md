@@ -9,6 +9,17 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-08-06
+
+### Added
+
+- `@devslab/editor-ruler-froala` — **everything can be pushed, like Word**:
+  - a selection inside a table now indents the **whole `<table>`** (margins on
+    the table block; `text-indent` is never written onto tables). Replaces the
+    0.1.1 stay-inert behavior. Multiple selected cells dedupe to one table.
+  - a bare `<img>` selection resolves to its containing block, so images push
+    with their paragraph regardless of how the editor reports the selection.
+
 ## [0.6.0] - 2026-08-06
 
 ### Added
@@ -104,7 +115,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.3.0...v0.4.0

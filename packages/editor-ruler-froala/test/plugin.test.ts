@@ -386,7 +386,7 @@ describe('defineRulerPlugin', () => {
     expect(FE.PLUGINS.ruler).toBeTypeOf('function');
   });
 
-  it('stays inert when the selection sits on a table cell', () => {
+  it('pushes the whole table when the selection sits on a table cell (Word-style)', () => {
     const FE = makeFroalaConstructor();
     defineRulerPlugin(FE);
     const { editor, container, paragraph } = makeEditor();
@@ -402,9 +402,51 @@ describe('defineRulerPlugin', () => {
     const leftHandle = container.querySelector('.edr-handle-left') as HTMLElement;
     leftHandle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
 
-    // Neither the cell nor any unrelated block gets styled.
+    // The table moves as a block; the cell and unrelated paragraphs stay clean.
+    expect(table.style.marginLeft).toBe('1px');
     expect(td.getAttribute('style')).toBeNull();
     expect(paragraph.style.marginLeft).toBe('');
+
+    // text-indent is never written onto a table.
+    const indentHandle = container.querySelector('.edr-handle-indent') as HTMLElement;
+    indentHandle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    expect(table.style.textIndent).toBe('');
+  });
+
+  it('dedupes multiple cells of the same table into one target', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor();
+    const table = document.createElement('table');
+    const tr = document.createElement('tr');
+    const td1 = document.createElement('td');
+    const td2 = document.createElement('td');
+    tr.append(td1, td2);
+    table.appendChild(tr);
+    editor.el.appendChild(table);
+    editor.selection.blocks = () => [td1, td2];
+    FE.PLUGINS.ruler!(editor)._init();
+
+    const leftHandle = container.querySelector('.edr-handle-left') as HTMLElement;
+    leftHandle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    expect(table.style.marginLeft).toBe('1px');
+  });
+
+  it('pushes the containing block when the selection is a bare image', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor();
+    const figure = document.createElement('p');
+    const img = document.createElement('img');
+    figure.appendChild(img);
+    editor.el.appendChild(figure);
+    editor.selection.blocks = () => [img as unknown as HTMLElement];
+    FE.PLUGINS.ruler!(editor)._init();
+
+    const leftHandle = container.querySelector('.edr-handle-left') as HTMLElement;
+    leftHandle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    expect(figure.style.marginLeft).toBe('1px');
+    expect(img.getAttribute('style')).toBeNull();
   });
 
   it('still applies to real blocks inside a table cell', () => {

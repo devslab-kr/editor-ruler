@@ -81,12 +81,16 @@ new FroalaEditor('#editor', {
 
 `defineRulerPlugin` registers the `ruler` plugin **and** toolbar commands — add what you need to `toolbarButtons`:
 
-- `rulerOptions` — **recommended single button**: one ruler-icon dropdown holding Show/Hide plus cm / inch / px (active states checkmarked)
-- `toggleRuler` / `rulerUnit` — the same functions as separate buttons, for hosts that prefer them split
+- `rulerOptions` — **recommended single button**: one ruler-icon dropdown holding Show/Hide, Vertical Ruler, Lock Guides, Clear Guides, plus cm / inch / px (active states checkmarked)
+- `toggleRuler` / `rulerUnit` — the same core functions as separate buttons, for hosts that prefer them split
+
+Froala options: `rulerVertical: true` shows the vertical ruler on init; `rulerGuides: false` disables guide lines.
 
 ## Features
 
 - Left margin / right margin / first-line indent handles (hanging indent supported)
+- **Vertical ruler** (`createVRuler`) — a scale strip for the editor's left edge
+- **Guide lines** (`createGuides`) — drag down from the ruler to drop vertical guides (draggable, lockable, deletable; purely visual, never in the document HTML)
 - Live drag preview + a single undo boundary per gesture (`commit` phase)
 - Keyboard accessible: handles are focusable sliders (`←`/`→`, `Shift` for 10px, `Home`/`End`)
 - cm / in / px scales, switchable at runtime

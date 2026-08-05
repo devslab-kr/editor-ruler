@@ -159,7 +159,7 @@ describe('defineRulerPlugin', () => {
     expect(btn.toggleClass).toHaveBeenCalledWith('fr-active', true);
   });
 
-  it('registers the unified rulerOptions dropdown (toggle + units)', () => {
+  it('registers the unified rulerOptions dropdown (toggle + vruler + guides + units)', () => {
     const FE = makeFroalaConstructor();
     defineRulerPlugin(FE);
     expect(FE.RegisterCommand).toHaveBeenCalledWith(
@@ -167,9 +167,89 @@ describe('defineRulerPlugin', () => {
       expect.objectContaining({
         type: 'dropdown',
         plugin: 'ruler',
-        options: { toggle: 'Show / Hide', cm: 'cm', in: 'inch', px: 'px' },
+        options: {
+          toggle: 'Show / Hide',
+          vruler: 'Vertical Ruler',
+          lockGuides: 'Lock Guides',
+          clearGuides: 'Clear Guides',
+          cm: 'cm',
+          in: 'inch',
+          px: 'px',
+        },
       }),
     );
+  });
+
+  it('rulerOptions routes vruler, lockGuides, and clearGuides values', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor();
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+    (editor as any).ruler = api;
+    const command = FE.RegisterCommand.mock.calls.find((c) => c[0] === 'rulerOptions')![1];
+
+    expect(api.isVRulerVisible()).toBe(false);
+    command.callback.call(editor, 'rulerOptions', 'vruler');
+    expect(api.isVRulerVisible()).toBe(true);
+    expect(container.querySelector('.edr-vwrap .edr-vruler')).toBeTruthy();
+    command.callback.call(editor, 'rulerOptions', 'vruler');
+    expect(api.isVRulerVisible()).toBe(false);
+
+    command.callback.call(editor, 'rulerOptions', 'lockGuides');
+    expect(api.isGuidesLocked()).toBe(true);
+    command.callback.call(editor, 'rulerOptions', 'lockGuides');
+    expect(api.isGuidesLocked()).toBe(false);
+
+    command.callback.call(editor, 'rulerOptions', 'clearGuides');
+    expect(api.getGuides()).toEqual([]);
+  });
+
+  it('mounts vertical ruler on init when rulerVertical is true and unwraps on destroy', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container, wrapper } = makeEditor({ rulerVertical: true });
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+    expect(api.isVRulerVisible()).toBe(true);
+    const vwrap = container.querySelector('.edr-vwrap') as HTMLElement;
+    expect(vwrap).toBeTruthy();
+    expect(vwrap.contains(wrapper)).toBe(true);
+
+    api.destroy();
+    expect(container.querySelector('.edr-vwrap')).toBeNull();
+    expect(container.contains(wrapper)).toBe(true); // wrapper restored to its old place
+  });
+
+  it('creates a guide by dragging down from the ruler strip', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor();
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+
+    const rulerRoot = container.querySelector('.edr-ruler') as HTMLElement;
+    const fire = (t: string, x: number, y: number, target: EventTarget) =>
+      target.dispatchEvent(new MouseEvent(t, { clientX: x, clientY: y, bubbles: true, cancelable: true }));
+    fire('pointerdown', 120, 0, rulerRoot);
+    fire('pointermove', 150, 40, window);
+    fire('pointerup', 150, 40, window);
+
+    expect(api.getGuides()).toEqual([150]);
+    expect(container.querySelector('.edr-guides .edr-guide')).toBeTruthy();
+    api.clearGuides();
+    expect(api.getGuides()).toEqual([]);
+  });
+
+  it('does not create guides when rulerGuides is false', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor({ rulerGuides: false });
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+    expect(container.querySelector('.edr-guides')).toBeNull();
+    expect(api.getGuides()).toEqual([]);
+    expect(api.isGuidesLocked()).toBe(false);
   });
 
   it('rulerOptions callback routes toggle vs unit values', () => {

@@ -81,12 +81,16 @@ new FroalaEditor('#editor', {
 
 `defineRulerPlugin`은 `ruler` 플러그인과 **함께** 툴바 커맨드들을 등록합니다 — 필요한 것을 `toolbarButtons`에 추가하세요:
 
-- `rulerOptions` — **권장 단일 버튼**: 줄자 아이콘 드롭다운 하나에 보이기/숨기기 + cm / inch / px (활성 상태 체크 표시)
-- `toggleRuler` / `rulerUnit` — 같은 기능을 버튼을 나눠 쓰고 싶을 때
+- `rulerOptions` — **권장 단일 버튼**: 줄자 아이콘 드롭다운 하나에 보이기/숨기기 · 세로 줄자 · 가이드 잠금 · 가이드 지우기 + cm / inch / px (활성 상태 체크 표시)
+- `toggleRuler` / `rulerUnit` — 핵심 기능을 버튼을 나눠 쓰고 싶을 때
+
+Froala 옵션: `rulerVertical: true`면 초기화 시 세로 줄자 표시, `rulerGuides: false`면 가이드선 비활성.
 
 ## 기능
 
 - 좌측 여백 / 우측 여백 / 첫 줄 들여쓰기 핸들 (내어쓰기(hanging indent) 지원)
+- **세로 줄자** (`createVRuler`) — 에디터 좌측의 세로 눈금 스트립
+- **가이드선** (`createGuides`) — 줄자에서 아래로 드래그해 세로 가이드 배치 (이동·잠금·삭제 가능; 순수 시각 요소로 문서 HTML에 남지 않음)
 - 드래그 중 실시간 미리보기 + 제스처당 undo 경계 1회 (`commit` phase)
 - 키보드 접근성: 핸들이 포커스 가능한 슬라이더 (`←`/`→`, `Shift`로 10px, `Home`/`End`)
 - cm / in / px 눈금, 런타임 전환 가능

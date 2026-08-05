@@ -1,10 +1,14 @@
 import {
+  createGuides,
   createRuler,
+  createVRuler,
+  type Guides,
   type Ruler,
   type RulerChange,
   type RulerChangePhase,
   type RulerMetrics,
   type RulerUnit,
+  type VRuler,
 } from '@devslab/editor-ruler';
 
 /**
@@ -14,6 +18,10 @@ import {
 export interface FroalaRulerOptions {
   rulerEnabled?: boolean;
   rulerUnit?: RulerUnit;
+  /** Show the vertical ruler strip on init. Default false. */
+  rulerVertical?: boolean;
+  /** Enable guide lines (drag down from the ruler strip). Default true. */
+  rulerGuides?: boolean;
 }
 
 interface FroalaRulerApi {
@@ -25,6 +33,12 @@ interface FroalaRulerApi {
   isVisible(): boolean;
   setUnit(unit: RulerUnit): void;
   getUnit(): RulerUnit;
+  toggleVRuler(): void;
+  isVRulerVisible(): boolean;
+  setGuidesLocked(locked: boolean): void;
+  isGuidesLocked(): boolean;
+  clearGuides(): void;
+  getGuides(): number[];
   destroy(): void;
 }
 
@@ -62,7 +76,12 @@ export function defineRulerPlugin(FroalaEditor: any): void {
   if (FroalaEditor.PLUGINS?.ruler) return;
 
   FroalaEditor.DEFAULTS = Object.assign(
-    { rulerEnabled: true, rulerUnit: 'cm' satisfies RulerUnit },
+    {
+      rulerEnabled: true,
+      rulerUnit: 'cm' satisfies RulerUnit,
+      rulerVertical: false,
+      rulerGuides: true,
+    },
     FroalaEditor.DEFAULTS,
   );
 
@@ -81,19 +100,33 @@ export function defineRulerPlugin(FroalaEditor: any): void {
       undo: false,
       focus: false,
       plugin: 'ruler',
-      options: { toggle: 'Show / Hide', ...UNIT_OPTIONS },
+      options: {
+        toggle: 'Show / Hide',
+        vruler: 'Vertical Ruler',
+        lockGuides: 'Lock Guides',
+        clearGuides: 'Clear Guides',
+        ...UNIT_OPTIONS,
+      },
       callback(this: any, _cmd: string, value: string) {
         if (value === 'toggle') this.ruler?.toggle();
+        else if (value === 'vruler') this.ruler?.toggleVRuler();
+        else if (value === 'lockGuides') this.ruler?.setGuidesLocked(!this.ruler?.isGuidesLocked());
+        else if (value === 'clearGuides') this.ruler?.clearGuides();
         else this.ruler?.setUnit(value as RulerUnit);
       },
       refreshOnShow(this: any, _$btn: any, $dropdown: any) {
         const rootEl: any = $dropdown?.get?.(0) ?? $dropdown;
         if (!rootEl?.querySelectorAll) return;
         const unit = this.ruler?.getUnit?.();
-        const visible = this.ruler?.isVisible?.() === true;
+        const activeByParam: Record<string, boolean> = {
+          toggle: this.ruler?.isVisible?.() === true,
+          vruler: this.ruler?.isVRulerVisible?.() === true,
+          lockGuides: this.ruler?.isGuidesLocked?.() === true,
+          clearGuides: false,
+        };
         for (const item of rootEl.querySelectorAll('a.fr-command')) {
           const param = item.getAttribute('data-param1');
-          item.classList.toggle('fr-active', param === 'toggle' ? visible : param === unit);
+          item.classList.toggle('fr-active', param ? (activeByParam[param] ?? param === unit) : false);
         }
       },
     });
@@ -138,6 +171,11 @@ export function defineRulerPlugin(FroalaEditor: any): void {
     let ruler: Ruler | null = null;
     let mount: HTMLElement | null = null;
     let visible = false;
+    let guides: Guides | null = null;
+    let vruler: VRuler | null = null;
+    let vmount: HTMLElement | null = null;
+    let vwrap: HTMLElement | null = null;
+    let vVisible = false;
 
     function editorEl(): HTMLElement {
       return editor.el as HTMLElement;
@@ -189,17 +227,77 @@ export function defineRulerPlugin(FroalaEditor: any): void {
       }
     }
 
-    function alignMount(): void {
-      if (!mount) return;
+    function contentPadding(side: 'paddingLeft' | 'paddingRight' | 'paddingTop' | 'paddingBottom'): number {
       const el = editorEl();
       const win = el.ownerDocument.defaultView!;
-      const paddingLeft = parseFloat(win.getComputedStyle(el).paddingLeft) || 0;
-      mount.style.paddingLeft = `${paddingLeft}px`;
+      return parseFloat(win.getComputedStyle(el)[side]) || 0;
+    }
+
+    /** Extra x-offset the vertical ruler strip adds in front of the editor. */
+    function vRulerOffset(): number {
+      return vVisible ? 23 : 0; // 22px strip + 1px border
+    }
+
+    function alignMount(): void {
+      if (!mount) return;
+      mount.style.paddingLeft = `${contentPadding('paddingLeft') + vRulerOffset()}px`;
     }
 
     function refresh(): void {
       alignMount();
+      if (vmount) vmount.style.paddingTop = `${contentPadding('paddingTop')}px`;
       ruler?.refresh();
+      vruler?.refresh();
+      guides?.refresh();
+    }
+
+    function wrapperEl(): HTMLElement {
+      return editor.$wp?.get?.(0) ?? editorEl().parentElement ?? editorEl();
+    }
+
+    function showVRuler(): void {
+      const el = editorEl();
+      const doc = el.ownerDocument;
+      if (!vwrap) {
+        const wrapper = wrapperEl();
+        vwrap = doc.createElement('div');
+        vwrap.className = 'edr-vwrap';
+        wrapper.parentElement?.insertBefore(vwrap, wrapper);
+        vmount = doc.createElement('div');
+        vmount.className = 'edr-froala-vmount';
+        vwrap.appendChild(vmount);
+        vwrap.appendChild(wrapper);
+        vruler = createVRuler(vmount, {
+          unit: ruler?.getUnit() ?? editor.opts.rulerUnit ?? 'cm',
+          getMetrics: () => {
+            const target = editorEl();
+            return {
+              contentHeight: Math.max(
+                0,
+                target.clientHeight - contentPadding('paddingTop') - contentPadding('paddingBottom'),
+              ),
+            };
+          },
+        });
+      }
+      vmount!.style.display = '';
+      vVisible = true;
+      refresh();
+    }
+
+    function hideVRuler(): void {
+      if (!vmount) return;
+      vmount.style.display = 'none';
+      vVisible = false;
+      refresh();
+    }
+
+    function toggleVRuler(): void {
+      vVisible ? hideVRuler() : showVRuler();
+    }
+
+    function isVRulerVisible(): boolean {
+      return vVisible;
     }
 
     function show(): void {
@@ -225,18 +323,47 @@ export function defineRulerPlugin(FroalaEditor: any): void {
 
     function setUnit(unit: RulerUnit): void {
       ruler?.setUnit(unit);
+      vruler?.setUnit(unit);
     }
 
     function getUnit(): RulerUnit {
       return ruler?.getUnit() ?? ((editor.opts.rulerUnit as RulerUnit) ?? 'cm');
     }
 
+    function setGuidesLocked(locked: boolean): void {
+      guides?.setLocked(locked);
+    }
+
+    function isGuidesLocked(): boolean {
+      return guides?.isLocked() === true;
+    }
+
+    function clearGuides(): void {
+      guides?.clear();
+    }
+
+    function getGuides(): number[] {
+      return guides?.list() ?? [];
+    }
+
     function destroy(): void {
       ruler?.destroy();
       ruler = null;
+      guides?.destroy();
+      guides = null;
+      vruler?.destroy();
+      vruler = null;
+      if (vwrap) {
+        const wrapper = vwrap.lastElementChild;
+        if (wrapper && wrapper !== vmount) vwrap.parentElement?.insertBefore(wrapper, vwrap);
+        vwrap.remove();
+        vwrap = null;
+        vmount = null;
+      }
       mount?.remove();
       mount = null;
       visible = false;
+      vVisible = false;
     }
 
     function _init(): void {
@@ -250,13 +377,22 @@ export function defineRulerPlugin(FroalaEditor: any): void {
       mount.className = 'edr-froala-mount';
       host.insertBefore(mount, wrapper);
 
+      if (editor.opts.rulerGuides !== false) {
+        guides = createGuides(wrapper, {
+          getOffsetLeft: () => contentPadding('paddingLeft'),
+        });
+      }
+
       ruler = createRuler(mount, {
         unit: editor.opts.rulerUnit ?? 'cm',
         getMetrics,
         onChange: applyChange,
+        ...(guides ? { guides } : {}),
       });
       alignMount();
       visible = true;
+
+      if (editor.opts.rulerVertical === true) showVRuler();
 
       for (const event of ['mouseup', 'keyup', 'contentChanged', 'commands.after']) {
         editor.events?.on?.(event, refresh);
@@ -264,7 +400,23 @@ export function defineRulerPlugin(FroalaEditor: any): void {
       editor.events?.on?.('destroy', destroy);
     }
 
-    return { _init, refresh, show, hide, toggle, isVisible, setUnit, getUnit, destroy };
+    return {
+      _init,
+      refresh,
+      show,
+      hide,
+      toggle,
+      isVisible,
+      setUnit,
+      getUnit,
+      toggleVRuler,
+      isVRulerVisible,
+      setGuidesLocked,
+      isGuidesLocked,
+      clearGuides,
+      getGuides,
+      destroy,
+    };
   };
 }
 

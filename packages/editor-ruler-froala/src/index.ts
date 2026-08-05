@@ -73,6 +73,31 @@ export function defineRulerPlugin(FroalaEditor: any): void {
     FroalaEditor.DefineIcon('toggleRuler', { NAME: 'ruler', template: 'editorRuler' });
   }
   if (typeof FroalaEditor.RegisterCommand === 'function') {
+    // Recommended single button: one ruler icon, all ruler options inside.
+    FroalaEditor.RegisterCommand('rulerOptions', {
+      title: 'Ruler',
+      icon: 'toggleRuler',
+      type: 'dropdown',
+      undo: false,
+      focus: false,
+      plugin: 'ruler',
+      options: { toggle: 'Show / Hide', ...UNIT_OPTIONS },
+      callback(this: any, _cmd: string, value: string) {
+        if (value === 'toggle') this.ruler?.toggle();
+        else this.ruler?.setUnit(value as RulerUnit);
+      },
+      refreshOnShow(this: any, _$btn: any, $dropdown: any) {
+        const rootEl: any = $dropdown?.get?.(0) ?? $dropdown;
+        if (!rootEl?.querySelectorAll) return;
+        const unit = this.ruler?.getUnit?.();
+        const visible = this.ruler?.isVisible?.() === true;
+        for (const item of rootEl.querySelectorAll('a.fr-command')) {
+          const param = item.getAttribute('data-param1');
+          item.classList.toggle('fr-active', param === 'toggle' ? visible : param === unit);
+        }
+      },
+    });
+    // Granular commands for hosts that prefer separate buttons.
     FroalaEditor.RegisterCommand('rulerUnit', {
       title: 'Ruler Unit',
       icon: 'toggleRuler',

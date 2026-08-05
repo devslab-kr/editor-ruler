@@ -159,6 +159,57 @@ describe('defineRulerPlugin', () => {
     expect(btn.toggleClass).toHaveBeenCalledWith('fr-active', true);
   });
 
+  it('registers the unified rulerOptions dropdown (toggle + units)', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    expect(FE.RegisterCommand).toHaveBeenCalledWith(
+      'rulerOptions',
+      expect.objectContaining({
+        type: 'dropdown',
+        plugin: 'ruler',
+        options: { toggle: 'Show / Hide', cm: 'cm', in: 'inch', px: 'px' },
+      }),
+    );
+  });
+
+  it('rulerOptions callback routes toggle vs unit values', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor } = makeEditor();
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+    (editor as any).ruler = api;
+
+    const command = FE.RegisterCommand.mock.calls.find((c) => c[0] === 'rulerOptions')![1];
+    command.callback.call(editor, 'rulerOptions', 'toggle');
+    expect(api.isVisible()).toBe(false);
+    command.callback.call(editor, 'rulerOptions', 'toggle');
+    expect(api.isVisible()).toBe(true);
+    command.callback.call(editor, 'rulerOptions', 'in');
+    expect(api.getUnit()).toBe('in');
+  });
+
+  it('rulerOptions refreshOnShow marks visibility and active unit', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor } = makeEditor();
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+    (editor as any).ruler = api;
+
+    const dropdown = document.createElement('div');
+    dropdown.innerHTML =
+      '<a class="fr-command" data-param1="toggle"></a>' +
+      '<a class="fr-command" data-param1="cm"></a>' +
+      '<a class="fr-command" data-param1="px"></a>';
+    const command = FE.RegisterCommand.mock.calls.find((c) => c[0] === 'rulerOptions')![1];
+    command.refreshOnShow.call(editor, null, { get: () => dropdown });
+
+    expect(dropdown.querySelector('[data-param1="toggle"]')!.classList.contains('fr-active')).toBe(true);
+    expect(dropdown.querySelector('[data-param1="cm"]')!.classList.contains('fr-active')).toBe(true);
+    expect(dropdown.querySelector('[data-param1="px"]')!.classList.contains('fr-active')).toBe(false);
+  });
+
   it('registers the rulerUnit dropdown with cm/in/px options', () => {
     const FE = makeFroalaConstructor();
     defineRulerPlugin(FE);

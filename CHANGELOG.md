@@ -9,6 +9,16 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-05
+
+### Added
+
+- `@devslab/editor-ruler-froala` — `rulerOptions` **unified toolbar dropdown**
+  (recommended): one ruler-icon button holding Show/Hide plus the cm / inch / px
+  unit switch, with active states checkmarked on open. Fixes the confusing UI of
+  two identical ruler icons sitting side by side; `toggleRuler` and `rulerUnit`
+  remain available as separate buttons.
+
 ## [0.2.0] - 2026-08-05
 
 ### Added
@@ -50,7 +60,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/devslab-kr/editor-ruler/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/devslab-kr/editor-ruler/releases/tag/v0.1.0

@@ -1,0 +1,73 @@
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm verify
+
+      - name: Check release tag matches package versions
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          node -e "
+            const core = require('./packages/editor-ruler/package.json');
+            const froala = require('./packages/editor-ruler-froala/package.json');
+            const expected = 'v' + core.version;
+            const actual = process.env.GITHUB_REF_NAME;
+            if (core.version !== froala.version) { console.error('Package versions diverge: ' + core.version + ' vs ' + froala.version); process.exit(1); }
+            if (actual !== expected) { console.error('Tag ' + actual + ' does not match package version ' + expected); process.exit(1); }
+          "
+
+      - name: Publish packages
+        run: pnpm -r publish --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'
+
+      - name: Extract changelog section
+        if: startsWith(github.ref, 'refs/tags/')
+        id: changelog
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          notes=$(awk -v header="## [$version]" '
+            substr($0, 1, length(header)) == header { capture = 1; next }
+            capture && substr($0, 1, 4) == "## [" { exit }
+            capture { print }
+          ' CHANGELOG.md)
+          if [ -z "$(printf '%s' "$notes" | tr -d '[:space:]')" ]; then
+            notes="See [CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/main/CHANGELOG.md)."
+          fi
+          {
+            echo "body<<CHANGELOG_EOF"
+            printf '%s\n' "$notes"
+            echo "CHANGELOG_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.body }}

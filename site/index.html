@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>editor-ruler — 웹 에디터를 위한 Word 스타일 줄자</title>
+    <meta
+      name="description"
+      content="웹 리치텍스트 에디터를 위한 Word 스타일 가로 줄자. 여백·첫 줄 들여쓰기 드래그 핸들, cm/in/px 눈금, Froala 플러그인 어댑터. 의존성 0."
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f7f9;
+        --ink: #1f2328;
+        --muted: #5f6570;
+        --line: #d8dbe0;
+        --panel: #ffffff;
+        --code: #0f1216;
+        --code-text: #e8edf4;
+        --accent: #2563eb;
+        --accent-soft: #dbe7fd;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+        line-height: 1.65;
+      }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .wrap { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+      header.top {
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+        position: sticky; top: 0; z-index: 10;
+      }
+      .top-inner {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 0; font-size: 14px;
+      }
+      .top-inner strong { font-size: 16px; }
+      .version {
+        background: var(--accent-soft); color: var(--accent);
+        border-radius: 999px; padding: 1px 10px; font-size: 12px; font-weight: 600;
+      }
+      .top-links { margin-left: auto; display: flex; gap: 14px; }
+      .hero { padding: 56px 0 28px; }
+      .hero h1 { font-size: clamp(24px, 4vw, 34px); line-height: 1.35; margin: 0 0 12px; }
+      .hero p.lead { color: var(--muted); font-size: 16px; margin: 0 0 18px; max-width: 46em; }
+      .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+      .badge {
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: 999px; padding: 3px 12px; font-size: 12.5px; color: var(--muted);
+      }
+      section { padding: 30px 0; }
+      section h2 { font-size: 21px; margin: 0 0 14px; }
+      .panel {
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: 10px; overflow: hidden;
+      }
+      pre {
+        margin: 0; padding: 16px 18px; overflow-x: auto;
+        background: var(--code); color: var(--code-text);
+        border-radius: 10px; font-size: 13.5px; line-height: 1.6;
+      }
+      pre + pre { margin-top: 10px; }
+      code { font-family: 'Cascadia Code', Consolas, 'SF Mono', Menlo, monospace; }
+      p code, li code {
+        background: var(--accent-soft); color: var(--ink);
+        padding: 0 5px; border-radius: 4px; font-size: 0.92em;
+      }
+      .note { color: var(--muted); font-size: 13.5px; margin-top: 10px; }
+      /* ---- playground ---- */
+      .playground-bar {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 16px; border-bottom: 1px solid var(--line);
+        font-size: 13px; color: var(--muted);
+      }
+      .playground-bar select {
+        font: inherit; padding: 2px 8px; border: 1px solid var(--line);
+        border-radius: 6px; background: var(--panel); color: var(--ink);
+      }
+      #ruler-mount {
+        padding: 0 44px;
+        background: #f6f7f8;
+        /* The page is light-only; pin the ruler's theme vars so an OS dark
+           preference doesn't switch just the ruler to dark. */
+        --edr-bg: #f6f7f8;
+        --edr-border: #d8dbe0;
+        --edr-fg: #5f6570;
+      }
+      #playground-page {
+        padding: 28px 44px 40px; min-height: 260px; outline: none;
+        font-size: 15px;
+      }
+      #playground-page :is(p, h3) { margin-top: 0; }
+      table.api { width: 100%; border-collapse: collapse; font-size: 14px; }
+      table.api th, table.api td {
+        text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      table.api th { color: var(--muted); font-weight: 600; white-space: nowrap; }
+      .table-scroll { overflow-x: auto; }
+      footer {
+        border-top: 1px solid var(--line); margin-top: 30px;
+        padding: 26px 0 40px; color: var(--muted); font-size: 13.5px;
+      }
+      footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <div class="wrap top-inner">
+        <strong>editor-ruler</strong>
+        <span class="version">v__PACKAGE_VERSION__</span>
+        <nav class="top-links">
+          <a href="https://github.com/devslab-kr/editor-ruler">GitHub</a>
+          <a href="https://www.npmjs.com/package/@devslab/editor-ruler">npm</a>
+          <a href="https://github.com/devslab-kr/editor-ruler/blob/main/README.md">English</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="wrap hero">
+      <h1>웹 에디터에는 줄자가 없었습니다.<br />이제 어디에나 달 수 있습니다.</h1>
+      <p class="lead">
+        Froala·TinyMCE·CKEditor 5·Quill — 어떤 범용 WYSIWYG 에디터도 Word처럼 여백과
+        들여쓰기를 끌어서 조절하는 줄자를 제공하지 않습니다. <strong>editor-ruler</strong>는
+        에디터에 종속되지 않는 코어와 얇은 어댑터로 그 공백을 채우는 오픈소스입니다.
+      </p>
+      <div class="badges">
+        <span class="badge">의존성 0</span>
+        <span class="badge">TypeScript</span>
+        <span class="badge">cm · in · px</span>
+        <span class="badge">키보드 접근성</span>
+        <span class="badge">Froala 어댑터</span>
+        <span class="badge">Apache-2.0</span>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <section id="playground">
+        <h2>바로 만져보기</h2>
+        <div class="panel">
+          <div class="playground-bar">
+            <span>문단을 클릭한 뒤 ▼(첫 줄 들여쓰기) · ▲(좌/우 여백) 핸들을 드래그하세요. 방향키도 됩니다.</span>
+            <select id="unit" aria-label="눈금 단위" style="margin-left:auto">
+              <option value="cm" selected>cm</option>
+              <option value="in">in</option>
+              <option value="px">px</option>
+            </select>
+          </div>
+          <div id="ruler-mount"></div>
+          <div id="playground-page" contenteditable="true" spellcheck="false">
+            <h3>Word처럼 끌어서 정렬하기</h3>
+            <p>이 문단을 선택하고 위 삼각형 핸들을 움직여 보세요. 왼쪽 아래 삼각형은 왼쪽 여백, 위 삼각형은 첫 줄 들여쓰기, 오른쪽 아래 삼각형은 오른쪽 여백입니다.</p>
+            <p>문단마다 들여쓰기가 따로 유지됩니다. 위 삼각형을 아래 삼각형보다 왼쪽으로 끌면 내어쓰기(hanging indent)도 됩니다.</p>
+            <p>이 플레이그라운드는 순수 contenteditable 위에서 코어만으로 동작합니다 — Froala 어댑터도 같은 코어를 씁니다.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="start">
+        <h2>시작하기 — npm</h2>
+<pre><code>npm install @devslab/editor-ruler</code></pre>
+<pre><code>import { createRuler } from '@devslab/editor-ruler';
+
+const ruler = createRuler(mountElement, {
+  unit: 'cm', // 'cm' | 'in' | 'px'
+  getMetrics: () =&gt; ({ contentWidth, leftMargin, rightMargin, firstLineIndent }), // px
+  onChange(change, phase) {
+    // px 값을 현재 문단(들)에 적용; 드래그를 놓는 순간 phase === 'commit'
+  },
+});
+
+ruler.refresh();      // 선택/내용이 바뀔 때 호출
+ruler.setUnit('in');  // 눈금 전환</code></pre>
+      </section>
+
+      <section id="cdn">
+        <h2>시작하기 — CDN (빌드 도구 없이)</h2>
+        <p>번들러 없이 <code>&lt;script&gt;</code> 한 줄로 씁니다. 전역 <code>EditorRuler</code>가 노출됩니다.</p>
+<pre><code>&lt;script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@__PACKAGE_VERSION__/dist/index.global.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const ruler = EditorRuler.createRuler(document.getElementById('ruler-mount'), {
+    unit: 'cm',
+    getMetrics: () =&gt; ({ /* ... */ }),
+    onChange(change) { /* ... */ },
+  });
+&lt;/script&gt;</code></pre>
+        <p class="note">Froala 어댑터도 동일합니다: <code>@devslab/editor-ruler-froala/dist/index.global.js</code>를 로드하면 전역 <code>EditorRulerFroala.defineRulerPlugin</code>이 노출됩니다 (코어 포함 단일 파일).</p>
+      </section>
+
+      <section id="froala">
+        <h2>Froala 연동</h2>
+<pre><code>npm install @devslab/editor-ruler-froala froala-editor</code></pre>
+<pre><code>import FroalaEditor from 'froala-editor';
+import { defineRulerPlugin } from '@devslab/editor-ruler-froala';
+
+defineRulerPlugin(FroalaEditor); // 인스턴스 생성 전에 1회
+
+new FroalaEditor('#editor', {
+  rulerEnabled: true, // 기본 true
+  rulerUnit: 'cm',
+  // 툴바에 줄자 토글 버튼을 넣으려면:
+  toolbarButtons: ['bold', 'italic', '|', 'toggleRuler'],
+});</code></pre>
+        <p class="note">
+          <code>defineRulerPlugin</code>은 표준 Froala 플러그인(<code>ruler</code>)과 함께
+          줄자 아이콘이 달린 <code>toggleRuler</code> 툴바 커맨드를 등록합니다 — 버튼이 활성 상태(fr-active)로
+          현재 표시 여부를 보여줍니다. <code>pluginsEnabled</code>를 직접 지정한다면 <code>'ruler'</code>를 포함하세요.
+          드래그는 선택 문단의 <code>margin-left/right</code>·<code>text-indent</code>를 갱신하고 제스처당 undo 스텝을 1회 기록합니다.
+        </p>
+      </section>
+
+      <section id="api">
+        <h2>API 요약</h2>
+        <div class="panel table-scroll">
+          <table class="api">
+            <tr><th>createRuler(mount, options)</th><td>줄자를 마운트하고 <code>Ruler</code> 핸들을 반환</td></tr>
+            <tr><th>options.getMetrics()</th><td><code>{ contentWidth, leftMargin, rightMargin, firstLineIndent }</code> — 전부 px</td></tr>
+            <tr><th>options.onChange(change, phase)</th><td>드래그 중 <code>'drag'</code>, 놓는 순간 <code>'commit'</code> (undo 경계)</td></tr>
+            <tr><th>ruler.refresh()</th><td>선택/내용 변경 시 메트릭 다시 읽기</td></tr>
+            <tr><th>ruler.setUnit(u)</th><td><code>'cm' | 'in' | 'px'</code> 눈금 전환</td></tr>
+            <tr><th>ruler.destroy()</th><td>DOM과 리스너 정리</td></tr>
+          </table>
+        </div>
+        <p class="note">핸들은 ARIA 슬라이더입니다 — <code>←</code>/<code>→</code> 1px, <code>Shift</code> 10px, <code>Home</code>/<code>End</code>. 테마는 <code>--edr-bg</code>·<code>--edr-fg</code>·<code>--edr-handle</code> 등 CSS 변수로 바꿉니다.</p>
+      </section>
+
+      <section id="faq">
+        <h2>자주 묻는 것</h2>
+        <p><strong>탭 스톱은요?</strong> HTML에는 탭 스톱 모델이 없어 의도적으로 범위 밖입니다. 여백·들여쓰기는 CSS와 1:1이라 어디서나 안전하게 동작합니다.</p>
+        <p><strong>다른 에디터는요?</strong> 코어가 에디터 불문이라 Tiptap·CKEditor 5 어댑터가 로드맵에 있습니다. 어댑터는 "선택 문단 읽기/스타일 쓰기/undo 연결"만 하면 됩니다 — <a href="https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-froala">Froala 어댑터</a>가 예시입니다.</p>
+      </section>
+    </div>
+
+    <footer>
+      <div class="wrap">
+        <span>Apache-2.0 © <a href="https://github.com/devslab-kr">devslab</a></span>
+        <a href="https://github.com/devslab-kr/editor-ruler">GitHub</a>
+        <a href="https://www.npmjs.com/package/@devslab/editor-ruler">@devslab/editor-ruler</a>
+        <a href="https://www.npmjs.com/package/@devslab/editor-ruler-froala">@devslab/editor-ruler-froala</a>
+        <a href="https://github.com/devslab-kr/editor-ruler/blob/main/CHANGELOG.md">CHANGELOG</a>
+      </div>
+    </footer>
+
+    <script src="./vendor/editor-ruler.global.js"></script>
+    <script>
+      const page = document.getElementById('playground-page');
+      const mount = document.getElementById('ruler-mount');
+      const unitSelect = document.getElementById('unit');
+
+      function currentBlocks() {
+        const sel = document.getSelection();
+        const blocks = [];
+        if (sel && sel.rangeCount > 0) {
+          let node = sel.getRangeAt(0).startContainer;
+          if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+          while (node && node !== page && node.parentElement !== page) node = node.parentElement;
+          if (node && node !== page) blocks.push(node);
+        }
+        if (blocks.length === 0 && page.firstElementChild) blocks.push(page.firstElementChild);
+        return blocks;
+      }
+
+      function getMetrics() {
+        const pageStyle = getComputedStyle(page);
+        const contentWidth = page.clientWidth
+          - parseFloat(pageStyle.paddingLeft) - parseFloat(pageStyle.paddingRight);
+        const block = currentBlocks()[0];
+        const style = block ? getComputedStyle(block) : null;
+        return {
+          contentWidth,
+          leftMargin: style ? parseFloat(style.marginLeft) || 0 : 0,
+          rightMargin: style ? parseFloat(style.marginRight) || 0 : 0,
+          firstLineIndent: style ? parseFloat(style.textIndent) || 0 : 0,
+        };
+      }
+
+      const ruler = EditorRuler.createRuler(mount, {
+        unit: 'cm',
+        getMetrics,
+        onChange(change) {
+          for (const block of currentBlocks()) {
+            if (change.leftMargin !== undefined) block.style.marginLeft = change.leftMargin + 'px';
+            if (change.rightMargin !== undefined) block.style.marginRight = change.rightMargin + 'px';
+            if (change.firstLineIndent !== undefined) block.style.textIndent = change.firstLineIndent + 'px';
+          }
+        },
+      });
+
+      document.addEventListener('selectionchange', () => {
+        if (page.contains(document.getSelection()?.anchorNode ?? null)) ruler.refresh();
+      });
+      window.addEventListener('resize', () => ruler.refresh());
+      unitSelect.addEventListener('change', () => ruler.setUnit(unitSelect.value));
+    </script>
+  </body>
+</html>

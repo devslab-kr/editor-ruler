@@ -11,7 +11,13 @@ interface FakeEditor {
 }
 
 function makeFroalaConstructor() {
-  return { DEFAULTS: { existing: true }, PLUGINS: {} as Record<string, (editor: FakeEditor) => any> };
+  return {
+    DEFAULTS: { existing: true },
+    PLUGINS: {} as Record<string, (editor: FakeEditor) => any>,
+    DefineIconTemplate: vi.fn(),
+    DefineIcon: vi.fn(),
+    RegisterCommand: vi.fn(),
+  };
 }
 
 function makeEditor(opts: Record<string, unknown> = {}): { editor: FakeEditor; container: HTMLElement; wrapper: HTMLElement; paragraph: HTMLElement } {
@@ -116,6 +122,47 @@ describe('defineRulerPlugin', () => {
 
     for (const fn of editor.events.handlers.get('destroy')!) fn();
     expect(container.querySelector('.edr-froala-mount')).toBeNull();
+  });
+
+  it('registers the toggleRuler toolbar icon and command', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    expect(FE.DefineIconTemplate).toHaveBeenCalledWith('editorRuler', expect.stringContaining('<svg'));
+    expect(FE.DefineIcon).toHaveBeenCalledWith('toggleRuler', expect.objectContaining({ template: 'editorRuler' }));
+    expect(FE.RegisterCommand).toHaveBeenCalledWith(
+      'toggleRuler',
+      expect.objectContaining({ icon: 'toggleRuler', plugin: 'ruler' }),
+    );
+  });
+
+  it('toggleRuler command hides and shows the mounted ruler', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor();
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+    (editor as any).ruler = api;
+
+    const command = FE.RegisterCommand.mock.calls.find((c) => c[0] === 'toggleRuler')![1];
+    const mount = container.querySelector('.edr-froala-mount') as HTMLElement;
+
+    expect(api.isVisible()).toBe(true);
+    command.callback.call(editor);
+    expect(api.isVisible()).toBe(false);
+    expect(mount.style.display).toBe('none');
+    command.callback.call(editor);
+    expect(api.isVisible()).toBe(true);
+    expect(mount.style.display).toBe('');
+
+    const btn = { toggleClass: vi.fn() };
+    command.refresh.call(editor, btn);
+    expect(btn.toggleClass).toHaveBeenCalledWith('fr-active', true);
+  });
+
+  it('tolerates a Froala constructor without icon/command registries', () => {
+    const FE = { DEFAULTS: {}, PLUGINS: {} as Record<string, unknown> };
+    expect(() => defineRulerPlugin(FE)).not.toThrow();
+    expect(FE.PLUGINS.ruler).toBeTypeOf('function');
   });
 
   it('falls back to the first block element when selection is empty', () => {

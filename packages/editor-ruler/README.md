@@ -1,6 +1,8 @@
 # @devslab/editor-ruler
 
-> 한국어: [README.ko.md](README.ko.md)
+[![npm](https://img.shields.io/npm/v/%40devslab%2Feditor-ruler)](https://www.npmjs.com/package/@devslab/editor-ruler)
+
+**[Docs & live demo](https://devslab-kr.github.io/editor-ruler/)** · [한국어](README.ko.md)
 
 Editor-agnostic core of [editor-ruler](https://github.com/devslab-kr/editor-ruler): a Word-like horizontal ruler (margins + first-line indent) for any contenteditable-based editor. Zero dependencies.
 
@@ -22,6 +24,12 @@ ruler.destroy();
 ```
 
 Handles are keyboard-accessible sliders (`←`/`→`, `Shift` ×10, `Home`/`End`) with ARIA attributes. Styling via CSS custom properties: `--edr-bg`, `--edr-border`, `--edr-fg`, `--edr-handle`, `--edr-handle-active`, `--edr-accent`.
+
+CDN usage (no build tools) — the iife build exposes an `EditorRuler` global:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.1/dist/index.global.js"></script>
+```
 
 For editor integrations see the adapters (e.g. [`@devslab/editor-ruler-froala`](https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-froala)).
 

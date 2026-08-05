@@ -19,10 +19,17 @@ export interface FroalaRulerOptions {
 interface FroalaRulerApi {
   _init(): void;
   refresh(): void;
+  show(): void;
+  hide(): void;
+  toggle(): void;
+  isVisible(): boolean;
   destroy(): void;
 }
 
 const BLOCK_FALLBACK_SELECTOR = 'p, div, h1, h2, h3, h4, h5, h6, li, blockquote, pre';
+
+const RULER_ICON_SVG =
+  '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 8a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3zm1 2h1.5v3H4v-3zm3.5 0H9v2H7.5v-2zm3.5 0h1.5v3H11v-3zm3.5 0H16v2h-1.5v-2zm3.5 0h1.5v3H18v-3z"/></svg>';
 
 /**
  * Registers the ruler plugin on the FroalaEditor constructor. Call once, before
@@ -37,6 +44,9 @@ const BLOCK_FALLBACK_SELECTOR = 'p, div, h1, h2, h3, h4, h5, h6, li, blockquote,
  * ```
  *
  * If you set `pluginsEnabled` explicitly, include `'ruler'` in the list.
+ *
+ * Also registers a `'toggleRuler'` toolbar command with a ruler icon — add it to
+ * `toolbarButtons` to let users show/hide the ruler.
  */
 export function defineRulerPlugin(FroalaEditor: any): void {
   if (FroalaEditor.PLUGINS?.ruler) return;
@@ -46,9 +56,32 @@ export function defineRulerPlugin(FroalaEditor: any): void {
     FroalaEditor.DEFAULTS,
   );
 
+  if (typeof FroalaEditor.DefineIconTemplate === 'function') {
+    FroalaEditor.DefineIconTemplate('editorRuler', RULER_ICON_SVG);
+  }
+  if (typeof FroalaEditor.DefineIcon === 'function') {
+    FroalaEditor.DefineIcon('toggleRuler', { NAME: 'ruler', template: 'editorRuler' });
+  }
+  if (typeof FroalaEditor.RegisterCommand === 'function') {
+    FroalaEditor.RegisterCommand('toggleRuler', {
+      title: 'Toggle Ruler',
+      icon: 'toggleRuler',
+      undo: false,
+      focus: false,
+      plugin: 'ruler',
+      callback(this: any) {
+        this.ruler?.toggle();
+      },
+      refresh(this: any, $btn: any) {
+        $btn?.toggleClass?.('fr-active', this.ruler?.isVisible() === true);
+      },
+    });
+  }
+
   FroalaEditor.PLUGINS.ruler = function rulerPlugin(editor: any): FroalaRulerApi {
     let ruler: Ruler | null = null;
     let mount: HTMLElement | null = null;
+    let visible = false;
 
     function editorEl(): HTMLElement {
       return editor.el as HTMLElement;
@@ -109,11 +142,33 @@ export function defineRulerPlugin(FroalaEditor: any): void {
       ruler?.refresh();
     }
 
+    function show(): void {
+      if (!mount) return;
+      mount.style.display = '';
+      visible = true;
+      refresh();
+    }
+
+    function hide(): void {
+      if (!mount) return;
+      mount.style.display = 'none';
+      visible = false;
+    }
+
+    function toggle(): void {
+      visible ? hide() : show();
+    }
+
+    function isVisible(): boolean {
+      return visible;
+    }
+
     function destroy(): void {
       ruler?.destroy();
       ruler = null;
       mount?.remove();
       mount = null;
+      visible = false;
     }
 
     function _init(): void {
@@ -133,6 +188,7 @@ export function defineRulerPlugin(FroalaEditor: any): void {
         onChange: applyChange,
       });
       alignMount();
+      visible = true;
 
       for (const event of ['mouseup', 'keyup', 'contentChanged', 'commands.after']) {
         editor.events?.on?.(event, refresh);
@@ -140,7 +196,7 @@ export function defineRulerPlugin(FroalaEditor: any): void {
       editor.events?.on?.('destroy', destroy);
     }
 
-    return { _init, refresh, destroy };
+    return { _init, refresh, show, hide, toggle, isVisible, destroy };
   };
 }
 

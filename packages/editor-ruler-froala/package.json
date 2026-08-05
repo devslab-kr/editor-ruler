@@ -4,7 +4,7 @@
   "description": "Froala WYSIWYG editor adapter for @devslab/editor-ruler — a Word-like horizontal ruler plugin.",
   "license": "Apache-2.0",
   "author": "devslab",
-  "homepage": "https://github.com/devslab-kr/editor-ruler#readme",
+  "homepage": "https://devslab-kr.github.io/editor-ruler/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/devslab-kr/editor-ruler.git",

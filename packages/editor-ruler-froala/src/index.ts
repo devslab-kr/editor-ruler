@@ -23,8 +23,12 @@ interface FroalaRulerApi {
   hide(): void;
   toggle(): void;
   isVisible(): boolean;
+  setUnit(unit: RulerUnit): void;
+  getUnit(): RulerUnit;
   destroy(): void;
 }
+
+const UNIT_OPTIONS: Record<RulerUnit, string> = { cm: 'cm', in: 'inch', px: 'px' };
 
 const BLOCK_FALLBACK_SELECTOR = 'p, div, h1, h2, h3, h4, h5, h6, li, blockquote, pre';
 
@@ -69,6 +73,27 @@ export function defineRulerPlugin(FroalaEditor: any): void {
     FroalaEditor.DefineIcon('toggleRuler', { NAME: 'ruler', template: 'editorRuler' });
   }
   if (typeof FroalaEditor.RegisterCommand === 'function') {
+    FroalaEditor.RegisterCommand('rulerUnit', {
+      title: 'Ruler Unit',
+      icon: 'toggleRuler',
+      type: 'dropdown',
+      undo: false,
+      focus: false,
+      plugin: 'ruler',
+      options: UNIT_OPTIONS,
+      callback(this: any, _cmd: string, unit: string) {
+        this.ruler?.setUnit(unit as RulerUnit);
+      },
+      refreshOnShow(this: any, _$btn: any, $dropdown: any) {
+        const current = this.ruler?.getUnit?.();
+        if (!current) return;
+        const rootEl: any = $dropdown?.get?.(0) ?? $dropdown;
+        if (!rootEl?.querySelectorAll) return;
+        for (const item of rootEl.querySelectorAll('a.fr-command')) {
+          item.classList.toggle('fr-active', item.getAttribute('data-param1') === current);
+        }
+      },
+    });
     FroalaEditor.RegisterCommand('toggleRuler', {
       title: 'Toggle Ruler',
       icon: 'toggleRuler',
@@ -173,6 +198,14 @@ export function defineRulerPlugin(FroalaEditor: any): void {
       return visible;
     }
 
+    function setUnit(unit: RulerUnit): void {
+      ruler?.setUnit(unit);
+    }
+
+    function getUnit(): RulerUnit {
+      return ruler?.getUnit() ?? ((editor.opts.rulerUnit as RulerUnit) ?? 'cm');
+    }
+
     function destroy(): void {
       ruler?.destroy();
       ruler = null;
@@ -206,7 +239,7 @@ export function defineRulerPlugin(FroalaEditor: any): void {
       editor.events?.on?.('destroy', destroy);
     }
 
-    return { _init, refresh, show, hide, toggle, isVisible, destroy };
+    return { _init, refresh, show, hide, toggle, isVisible, setUnit, getUnit, destroy };
   };
 }
 

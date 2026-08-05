@@ -9,6 +9,17 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-05
+
+### Added
+
+- `@devslab/editor-ruler-froala` — `rulerUnit` **dropdown toolbar command**:
+  switches the ruler scale between cm / inch / px at runtime, with the active
+  unit checkmarked when the dropdown opens (`refreshOnShow`). Add `'rulerUnit'`
+  to `toolbarButtons` next to `'toggleRuler'`. Future ruler options (vertical
+  ruler, guide freezing) will live in the same dropdown. Plugin API gains
+  `setUnit(unit)` / `getUnit()`.
+
 ## [0.1.1] - 2026-08-05
 
 ### Fixed
@@ -39,6 +50,7 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/devslab-kr/editor-ruler/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/devslab-kr/editor-ruler/releases/tag/v0.1.0

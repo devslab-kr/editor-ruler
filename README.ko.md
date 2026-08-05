@@ -79,7 +79,10 @@ new FroalaEditor('#editor', {
 // pluginsEnabled를 직접 지정한다면 'ruler'를 포함하세요
 ```
 
-`defineRulerPlugin`은 `ruler` 플러그인과 **함께** 줄자 아이콘이 달린 `toggleRuler` 툴바 커맨드를 등록합니다 (버튼 활성 상태가 표시 여부를 반영) — 보이기/숨기기 버튼이 필요하면 `toolbarButtons`에 추가하세요.
+`defineRulerPlugin`은 `ruler` 플러그인과 **함께** 툴바 커맨드 두 개를 등록합니다 — 필요한 것을 `toolbarButtons`에 추가하세요:
+
+- `toggleRuler` — 줄자 아이콘 보이기/숨기기 버튼 (활성 상태가 표시 여부 반영)
+- `rulerUnit` — cm / inch / px 눈금 전환 드롭다운 (현재 단위에 체크 표시)
 
 ## 기능
 

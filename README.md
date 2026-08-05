@@ -79,7 +79,10 @@ new FroalaEditor('#editor', {
 // if you set pluginsEnabled explicitly, include 'ruler'
 ```
 
-`defineRulerPlugin` registers the `ruler` plugin **and** a `toggleRuler` toolbar command with a ruler icon (active state reflects visibility) — add it to `toolbarButtons` if you want a show/hide button.
+`defineRulerPlugin` registers the `ruler` plugin **and** two toolbar commands — add them to `toolbarButtons` as needed:
+
+- `toggleRuler` — show/hide button with a ruler icon (active state reflects visibility)
+- `rulerUnit` — dropdown that switches the scale between cm / inch / px (current unit checkmarked)
 
 ## Features
 

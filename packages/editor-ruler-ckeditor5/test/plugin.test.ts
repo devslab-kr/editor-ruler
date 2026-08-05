@@ -83,6 +83,36 @@ describe('EditorRulerPlugin (CKEditor 5)', () => {
     expect(editor.getData()).not.toContain('edr-guide');
   });
 
+  it('registers the editorRuler toolbar dropdown with a ruler icon', async () => {
+    const { editor } = await makeEditor();
+    expect(editor.ui.componentFactory.has('editorRuler')).toBe(true);
+    const dropdown = editor.ui.componentFactory.create('editorRuler');
+    expect(dropdown.buttonView.label).toBe('Ruler');
+    expect(dropdown.buttonView.icon).toContain('<svg');
+  });
+
+  it('exposes show/hide, unit, and guide controls on the plugin API', async () => {
+    const { editor, host } = await makeEditor();
+    const plugin = editor.plugins.get('EditorRuler');
+    const mount = host.querySelector('.edr-ck-mount') as HTMLElement;
+
+    expect(plugin.isVisible()).toBe(true);
+    plugin.toggle();
+    expect(plugin.isVisible()).toBe(false);
+    expect(mount.style.display).toBe('none');
+    plugin.toggle();
+    expect(mount.style.display).toBe('');
+
+    expect(plugin.getUnit()).toBe('cm');
+    plugin.setUnit('px');
+    expect(plugin.getUnit()).toBe('px');
+
+    expect(plugin.isGuidesLocked()).toBe(false);
+    plugin.setGuidesLocked(true);
+    expect(plugin.isGuidesLocked()).toBe(true);
+    plugin.clearGuides();
+  });
+
   it('cleans up its DOM on destroy', async () => {
     const { editor, host } = await makeEditor();
     await editor.destroy();

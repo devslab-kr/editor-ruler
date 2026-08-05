@@ -125,6 +125,19 @@
       #tiptap-editor .tiptap img { max-width: 100%; }
       #tiptap-editor .tiptap img.ProseMirror-selectednode { outline: 2px solid var(--accent); }
       #tiptap-panel .edr-tiptap-mount { background: #f6f7f8; }
+      .demo-loading { padding: 24px 44px; color: var(--muted); font-size: 14px; margin: 0; }
+      .mini-toolbar {
+        display: flex; align-items: center; gap: 4px;
+        padding: 8px 12px; border-bottom: 1px solid var(--line); background: #fbfbfc;
+      }
+      .mini-toolbar button {
+        appearance: none; cursor: pointer; font: inherit; font-size: 13.5px;
+        background: transparent; border: 1px solid transparent; border-radius: 6px;
+        min-width: 32px; height: 30px; padding: 0 8px; color: var(--ink);
+      }
+      .mini-toolbar button:hover { border-color: var(--line); background: #fff; }
+      .mini-toolbar button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+      .mini-brand { margin-left: auto; font-size: 12px; color: var(--muted); }
       #ckeditor-panel .edr-ck-mount { background: #f6f7f8; }
       #ckeditor-panel .ck-editor__editable { min-height: 220px; }
       #ckeditor-panel .ck.ck-editor__main > .ck-editor__editable { border-color: transparent; }
@@ -216,9 +229,16 @@
             <a class="sb-link" href="https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/tiptap" target="_blank" rel="noopener">StackBlitz에서 열기 ↗</a>
           </div>
           <div class="panel" id="tiptap-panel">
-            <div id="tiptap-editor"></div>
+            <div class="mini-toolbar" id="tiptap-toolbar" hidden>
+              <button type="button" data-cmd="bold" title="굵게"><b>B</b></button>
+              <button type="button" data-cmd="italic" title="기울임"><i>I</i></button>
+              <button type="button" data-cmd="heading" title="제목">H3</button>
+              <button type="button" data-cmd="bulletList" title="목록">•≡</button>
+              <span class="mini-brand">Tiptap (headless) — 툴바는 데모용</span>
+            </div>
+            <div id="tiptap-editor"><p class="demo-loading">Tiptap 에디터 로딩 중…</p></div>
           </div>
-          <p class="note" id="tiptap-note">Tiptap 모듈을 CDN(esm.sh)에서 불러옵니다 — 네트워크에 따라 잠시 걸릴 수 있습니다. 테이블은 Tiptap table 확장을 설치하면 동일하게 동작합니다.</p>
+          <p class="note" id="tiptap-note">Tiptap은 <strong>헤드리스</strong> 에디터라 툴바가 원래 없습니다 — 위 미니 툴바는 데모용으로 직접 배선한 것이고, 코어 탭과의 차이는 문서 모델(노드 속성 저장·undo 통합·getHTML 직렬화)입니다. 모듈은 CDN(esm.sh)에서 불러오며 네트워크에 따라 잠시 걸릴 수 있습니다.</p>
         </div>
 
         <div class="tab-panel" id="tab-ckeditor" hidden>
@@ -230,7 +250,7 @@
             <a class="sb-link" href="https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/ckeditor5" target="_blank" rel="noopener">StackBlitz에서 열기 ↗</a>
           </div>
           <div class="panel" id="ckeditor-panel">
-            <div id="ckeditor-editor"></div>
+            <div id="ckeditor-editor"><p class="demo-loading">CKEditor 5 로딩 중…</p></div>
           </div>
           <p class="note" id="ckeditor-note">CKEditor 5 모듈을 CDN에서 불러옵니다 — 네트워크에 따라 잠시 걸릴 수 있습니다. 이미지는 CKEditor 이미지 플러그인 구성에 따라 동일하게 동작합니다.</p>
         </div>
@@ -560,11 +580,36 @@ new Editor({
       window.__initTiptap = async () => {
         try {
           const [{ Editor }, { default: StarterKit }, { default: Image }, { EditorRuler }] = await load();
+          const tiptapHost = document.getElementById('tiptap-editor');
+          tiptapHost.innerHTML = '';
           editor = new Editor({
-            element: document.getElementById('tiptap-editor'),
+            element: tiptapHost,
             extensions: [StarterKit, Image.configure({ inline: true, allowBase64: true }), EditorRuler.configure({ unit: 'cm' })],
             content: PRESETS.paragraphs,
           });
+          // demo mini toolbar — Tiptap is headless, so this is wired by hand
+          const tb = document.getElementById('tiptap-toolbar');
+          tb.hidden = false;
+          const runCmd = {
+            bold: () => editor.chain().focus().toggleBold().run(),
+            italic: () => editor.chain().focus().toggleItalic().run(),
+            heading: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+            bulletList: () => editor.chain().focus().toggleBulletList().run(),
+          };
+          const isActive = {
+            bold: () => editor.isActive('bold'),
+            italic: () => editor.isActive('italic'),
+            heading: () => editor.isActive('heading', { level: 3 }),
+            bulletList: () => editor.isActive('bulletList'),
+          };
+          const syncToolbar = () => {
+            tb.querySelectorAll('button').forEach((b) => b.classList.toggle('active', isActive[b.dataset.cmd]?.() === true));
+          };
+          tb.querySelectorAll('button').forEach((b) =>
+            b.addEventListener('click', () => { runCmd[b.dataset.cmd]?.(); syncToolbar(); }),
+          );
+          editor.on('selectionUpdate', syncToolbar);
+          editor.on('transaction', syncToolbar);
           editor.on('create', () => {
             window.__tiptapRuler = editor.storage.editorRuler.ruler;
           });
@@ -592,10 +637,12 @@ new Editor({
             import('@devslab/editor-ruler-ckeditor5'),
           ]);
           const { ClassicEditor, Essentials, Paragraph, Heading, Bold, Italic, Table, TableToolbar } = ck;
-          const editor = await ClassicEditor.create(document.getElementById('ckeditor-editor'), {
+          const ckHost = document.getElementById('ckeditor-editor');
+          ckHost.innerHTML = '';
+          const editor = await ClassicEditor.create(ckHost, {
             licenseKey: 'GPL',
             plugins: [Essentials, Paragraph, Heading, Bold, Italic, Table, TableToolbar, EditorRulerPlugin],
-            toolbar: ['heading', '|', 'bold', 'italic', 'insertTable'],
+            toolbar: ['heading', '|', 'bold', 'italic', 'insertTable', '|', 'editorRuler'],
             editorRuler: { unit: 'cm' },
             initialData: PRESETS.paragraphs,
           });

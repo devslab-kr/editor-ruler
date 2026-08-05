@@ -343,6 +343,43 @@ describe('defineRulerPlugin', () => {
     expect(dropdown.querySelector('[data-param1="px"]')!.classList.contains('fr-active')).toBe(false);
   });
 
+  it('localizes toolbar strings from <html lang> (browser language)', () => {
+    document.documentElement.lang = 'ko';
+    try {
+      const FE = makeFroalaConstructor();
+      defineRulerPlugin(FE);
+      const cmd = FE.RegisterCommand.mock.calls.find((c) => c[0] === 'rulerOptions')![1];
+      expect(cmd.title).toBe('줄자');
+      expect(cmd.options.toggle).toBe('보이기 / 숨기기');
+      expect(cmd.options.vruler).toBe('세로 줄자');
+      expect(cmd.options.in).toBe('인치');
+    } finally {
+      document.documentElement.lang = '';
+    }
+  });
+
+  it('explicit language and string overrides win over detection', () => {
+    document.documentElement.lang = 'ko';
+    try {
+      const FE = makeFroalaConstructor();
+      defineRulerPlugin(FE, { language: 'en', strings: { clearGuides: 'Wipe Guides' } });
+      const cmd = FE.RegisterCommand.mock.calls.find((c) => c[0] === 'rulerOptions')![1];
+      expect(cmd.title).toBe('Ruler');
+      expect(cmd.options.clearGuides).toBe('Wipe Guides');
+    } finally {
+      document.documentElement.lang = '';
+    }
+  });
+
+  it('passes localized ARIA labels to the ruler handles per editor language', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor({ language: 'ko' });
+    FE.PLUGINS.ruler!(editor)._init();
+    const left = container.querySelector('.edr-handle-left') as HTMLElement;
+    expect(left.getAttribute('aria-label')).toBe('왼쪽 여백');
+  });
+
   it('tolerates a Froala constructor without icon/command registries', () => {
     const FE = { DEFAULTS: {}, PLUGINS: {} as Record<string, unknown> };
     expect(() => defineRulerPlugin(FE)).not.toThrow();

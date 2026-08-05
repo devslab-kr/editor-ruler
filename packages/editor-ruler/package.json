@@ -1,6 +1,6 @@
 {
   "name": "@devslab/editor-ruler",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "A Word-like horizontal ruler for web rich-text editors: margins, first-line indent, drag handles. Editor-agnostic core.",
   "license": "Apache-2.0",
   "author": "devslab",

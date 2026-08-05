@@ -9,6 +9,18 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-08-06
+
+### Added
+
+- **UI language follows the browser**: toolbar titles, dropdown items, and the
+  handles' accessible labels localize automatically — explicit option →
+  `<html lang>` → browser language → English. Korean and English ship built in.
+  - Core: `detectLanguage` / `resolveRulerLabels` / `RULER_LABEL_LOCALES`.
+  - Froala: `defineRulerPlugin(FroalaEditor, { language, strings })` for
+    overrides at registration time; per-editor handle labels honor
+    `rulerLanguage` (new option) or Froala's own `language` option.
+
 ## [0.5.0] - 2026-08-05
 
 ### Changed (breaking)
@@ -92,7 +104,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.2.0...v0.3.0

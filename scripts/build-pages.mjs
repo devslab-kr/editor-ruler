@@ -12,10 +12,14 @@ await rm(outDir, { recursive: true, force: true });
 await mkdir(path.join(outDir, 'vendor'), { recursive: true });
 await cp(siteDir, outDir, { recursive: true });
 
-// The live playground runs on the freshly built core bundle.
+// The live playgrounds run on the freshly built bundles.
 await cp(
   path.join(root, 'packages/editor-ruler/dist/index.global.js'),
   path.join(outDir, 'vendor', 'editor-ruler.global.js'),
+);
+await cp(
+  path.join(root, 'packages/editor-ruler-froala/dist/index.global.js'),
+  path.join(outDir, 'vendor', 'editor-ruler-froala.global.js'),
 );
 
 const indexPath = path.join(outDir, 'index.html');

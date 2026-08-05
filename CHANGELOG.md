@@ -9,6 +9,16 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-08-06
+
+### Added
+
+- **Guide snapping**: margin/indent handles and table column markers snap to a
+  nearby vertical guide (within 5px, configurable via
+  `RulerOptions.guideSnap`; 0 disables) during pointer drags. Snapping uses the
+  handle's *visual position* — the first-line indent handle snaps where the
+  triangle sits, not on its relative value. Keyboard adjustments never snap.
+
 ## [0.8.0] - 2026-08-06
 
 ### Added
@@ -130,7 +140,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.5.0...v0.6.0

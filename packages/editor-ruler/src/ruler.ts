@@ -61,6 +61,11 @@ export interface RulerOptions {
   guides?: Guides;
   /** Table column-boundary markers (Word-style), fed by the host adapter. */
   columns?: RulerColumns;
+  /**
+   * Snap distance in px for pointer drags near a vertical guide (handles and
+   * column markers). 0 disables snapping. Default 5.
+   */
+  guideSnap?: number;
 }
 
 export interface Ruler {
@@ -100,6 +105,8 @@ interface HandleSpec {
   /** +1 when moving the pointer right increases the value, -1 when it decreases it. */
   sign: 1 | -1;
   position(m: RulerMetrics): number;
+  /** Inverse of position(): the value that places the handle at `pos`. */
+  valueForPosition(m: RulerMetrics, pos: number): number;
   min(m: RulerMetrics): number;
   max(m: RulerMetrics, minColumn: number): number;
 }
@@ -111,6 +118,7 @@ const HANDLE_SPECS: HandleSpec[] = [
     path: TRIANGLE_DOWN,
     sign: 1,
     position: (m) => m.leftMargin + m.firstLineIndent,
+    valueForPosition: (m, pos) => pos - m.leftMargin,
     min: (m) => -m.leftMargin,
     max: (m, minColumn) => m.contentWidth - m.leftMargin - m.rightMargin - minColumn,
   },
@@ -120,6 +128,7 @@ const HANDLE_SPECS: HandleSpec[] = [
     path: TRIANGLE_UP,
     sign: 1,
     position: (m) => m.leftMargin,
+    valueForPosition: (_m, pos) => pos,
     min: (m) => Math.max(0, -m.firstLineIndent),
     max: (m, minColumn) =>
       m.contentWidth - m.rightMargin - minColumn - Math.max(0, m.firstLineIndent),
@@ -130,6 +139,7 @@ const HANDLE_SPECS: HandleSpec[] = [
     path: TRIANGLE_UP,
     sign: -1,
     position: (m) => m.contentWidth - m.rightMargin,
+    valueForPosition: (m, pos) => m.contentWidth - pos,
     min: () => 0,
     max: (m, minColumn) =>
       m.contentWidth - m.leftMargin - Math.max(0, m.firstLineIndent) - minColumn,
@@ -278,7 +288,9 @@ export function createRuler(mount: HTMLElement, options: RulerOptions): Ruler {
         const startEdge = columnEdges[index] ?? 0;
         let last = startEdge;
         const onMove = (move: PointerEvent) => {
-          last = applyColumn(marker, index, startEdge + (move.clientX - startX), 'drag');
+          const raw = startEdge + (move.clientX - startX);
+          const snapped = snapPosition(raw);
+          last = applyColumn(marker, index, snapped ?? raw, 'drag');
         };
         const onUp = () => {
           doc.defaultView?.removeEventListener('pointermove', onMove);
@@ -340,6 +352,18 @@ export function createRuler(mount: HTMLElement, options: RulerOptions): Ruler {
     return m[key];
   }
 
+  /** Nearest vertical guide within the snap distance of `pos`, or null. */
+  function snapPosition(pos: number): number | null {
+    const distance = options.guideSnap ?? 5;
+    if (!options.guides || !(distance > 0)) return null;
+    let best: number | null = null;
+    for (const g of options.guides.list().x) {
+      const d = Math.abs(g - pos);
+      if (d <= distance && (best === null || d < Math.abs(best - pos))) best = g;
+    }
+    return best;
+  }
+
   function applyValue(spec: HandleSpec, m: RulerMetrics, raw: number, phase: RulerChangePhase): void {
     const lo = spec.min(m);
     // Guard against degenerate ranges (e.g. a content area narrower than minColumnWidth).
@@ -365,7 +389,12 @@ export function createRuler(mount: HTMLElement, options: RulerOptions): Ruler {
           const raw = startValue + spec.sign * (move.clientX - startX);
           const lo = spec.min(startMetrics);
           const hi = Math.max(lo, spec.max(startMetrics, minColumn));
-          lastValue = clamp(raw, lo, hi);
+          let value = clamp(raw, lo, hi);
+          const snapped = snapPosition(spec.position({ ...startMetrics, [spec.key]: value }));
+          if (snapped !== null) {
+            value = clamp(spec.valueForPosition(startMetrics, snapped), lo, hi);
+          }
+          lastValue = value;
           applyValue(spec, startMetrics, lastValue, 'drag');
         };
         const onUp = () => {

@@ -1,0 +1,46 @@
+{
+  "name": "@devslab/editor-ruler",
+  "version": "0.1.0",
+  "description": "A Word-like horizontal ruler for web rich-text editors: margins, first-line indent, drag handles. Editor-agnostic core.",
+  "license": "Apache-2.0",
+  "author": "devslab",
+  "homepage": "https://github.com/devslab-kr/editor-ruler#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devslab-kr/editor-ruler.git",
+    "directory": "packages/editor-ruler"
+  },
+  "bugs": "https://github.com/devslab-kr/editor-ruler/issues",
+  "keywords": [
+    "ruler",
+    "wysiwyg",
+    "editor",
+    "indent",
+    "margin",
+    "contenteditable",
+    "rich-text"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

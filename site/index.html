@@ -196,7 +196,7 @@ ruler.setUnit('in');  // 눈금 전환</code></pre>
 
       <section id="froala-live">
         <h2>Froala에서 실제로</h2>
-        <p>아래는 <strong>진짜 Froala 에디터</strong>에 어댑터를 붙인 모습입니다. 문단을 클릭하고 줄자 핸들을 드래그해 보세요 — 툴바의 줄자 버튼(<code>toggleRuler</code>)으로 줄자를 켜고 끌 수 있습니다.</p>
+        <p>아래는 <strong>진짜 Froala 에디터</strong>에 어댑터를 붙인 모습입니다. 문단을 클릭하고 줄자 핸들을 드래그해 보세요 — 툴바의 줄자 버튼(<code>toggleRuler</code>)으로 줄자를 켜고 끄고, 그 옆 드롭다운(<code>rulerUnit</code>)으로 cm / inch / px 눈금을 바꿀 수 있습니다.</p>
         <div class="panel" id="froala-panel">
           <div id="froala-editor">
             <p>이 문단을 선택하고 줄자 핸들을 드래그해 보세요.</p>
@@ -217,8 +217,8 @@ defineRulerPlugin(FroalaEditor); // 인스턴스 생성 전에 1회
 new FroalaEditor('#editor', {
   rulerEnabled: true, // 기본 true
   rulerUnit: 'cm',
-  // 툴바에 줄자 토글 버튼을 넣으려면:
-  toolbarButtons: ['bold', 'italic', '|', 'toggleRuler'],
+  // 툴바에 줄자 토글 버튼 + 단위 드롭다운을 넣으려면:
+  toolbarButtons: ['bold', 'italic', '|', 'toggleRuler', 'rulerUnit'],
 });</code></pre>
         <p class="note">
           <code>defineRulerPlugin</code>은 표준 Froala 플러그인(<code>ruler</code>)과 함께
@@ -322,7 +322,7 @@ new FroalaEditor('#editor', {
         new FroalaEditor('#froala-editor', {
           rulerEnabled: true,
           rulerUnit: 'cm',
-          toolbarButtons: ['bold', 'italic', 'underline', '|', 'formatOL', 'formatUL', '|', 'toggleRuler'],
+          toolbarButtons: ['bold', 'italic', 'underline', '|', 'formatOL', 'formatUL', '|', 'toggleRuler', 'rulerUnit'],
           heightMin: 180,
           attribution: false,
         });

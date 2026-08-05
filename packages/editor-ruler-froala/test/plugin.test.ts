@@ -159,6 +159,51 @@ describe('defineRulerPlugin', () => {
     expect(btn.toggleClass).toHaveBeenCalledWith('fr-active', true);
   });
 
+  it('registers the rulerUnit dropdown with cm/in/px options', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    expect(FE.RegisterCommand).toHaveBeenCalledWith(
+      'rulerUnit',
+      expect.objectContaining({
+        type: 'dropdown',
+        plugin: 'ruler',
+        options: { cm: 'cm', in: 'inch', px: 'px' },
+      }),
+    );
+  });
+
+  it('rulerUnit dropdown callback switches the scale unit', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor } = makeEditor();
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+    (editor as any).ruler = api;
+
+    expect(api.getUnit()).toBe('cm');
+    const command = FE.RegisterCommand.mock.calls.find((c) => c[0] === 'rulerUnit')![1];
+    command.callback.call(editor, 'rulerUnit', 'px');
+    expect(api.getUnit()).toBe('px');
+  });
+
+  it('rulerUnit refreshOnShow marks the active unit', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor } = makeEditor();
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+    (editor as any).ruler = api;
+
+    const dropdown = document.createElement('div');
+    dropdown.innerHTML =
+      '<a class="fr-command" data-param1="cm"></a><a class="fr-command" data-param1="px"></a>';
+    const command = FE.RegisterCommand.mock.calls.find((c) => c[0] === 'rulerUnit')![1];
+    command.refreshOnShow.call(editor, null, { get: () => dropdown });
+
+    expect(dropdown.querySelector('[data-param1="cm"]')!.classList.contains('fr-active')).toBe(true);
+    expect(dropdown.querySelector('[data-param1="px"]')!.classList.contains('fr-active')).toBe(false);
+  });
+
   it('tolerates a Froala constructor without icon/command registries', () => {
     const FE = { DEFAULTS: {}, PLUGINS: {} as Record<string, unknown> };
     expect(() => defineRulerPlugin(FE)).not.toThrow();

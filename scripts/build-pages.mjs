@@ -30,6 +30,10 @@ await cp(
   path.join(root, 'packages/editor-ruler-tiptap/dist/index.js'),
   path.join(outDir, 'vendor', 'editor-ruler-tiptap.mjs'),
 );
+await cp(
+  path.join(root, 'packages/editor-ruler-ckeditor5/dist/index.js'),
+  path.join(outDir, 'vendor', 'editor-ruler-ckeditor5.mjs'),
+);
 
 const indexPath = path.join(outDir, 'index.html');
 const index = await readFile(indexPath, 'utf8');

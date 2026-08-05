@@ -1,0 +1,21 @@
+{
+  "name": "editor-ruler-example-ckeditor5",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@devslab/editor-ruler-ckeditor5": "^0.11.0",
+    "ckeditor5": "^48.4.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  },
+  "stackblitz": {
+    "startCommand": "npm run dev"
+  }
+}

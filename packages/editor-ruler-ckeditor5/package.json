@@ -1,24 +1,24 @@
 {
-  "name": "@devslab/editor-ruler",
+  "name": "@devslab/editor-ruler-ckeditor5",
   "version": "0.11.0",
-  "description": "A Word-like horizontal ruler for web rich-text editors: margins, first-line indent, drag handles. Editor-agnostic core.",
+  "description": "CKEditor 5 plugin for @devslab/editor-ruler — a Word-like horizontal ruler with margins, first-line indent, and guide lines.",
   "license": "Apache-2.0",
   "author": "devslab",
   "homepage": "https://devslab-kr.github.io/editor-ruler/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/devslab-kr/editor-ruler.git",
-    "directory": "packages/editor-ruler"
+    "directory": "packages/editor-ruler-ckeditor5"
   },
   "bugs": "https://github.com/devslab-kr/editor-ruler/issues",
   "keywords": [
+    "ckeditor5",
+    "ckeditor",
+    "ckeditor5-plugin",
     "ruler",
     "wysiwyg",
-    "editor",
     "indent",
-    "margin",
-    "contenteditable",
-    "rich-text"
+    "margin"
   ],
   "type": "module",
   "main": "./dist/index.cjs",
@@ -42,5 +42,14 @@
     "build": "tsup",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@devslab/editor-ruler": "workspace:^"
+  },
+  "peerDependencies": {
+    "ckeditor5": ">=42.0.0"
+  },
+  "devDependencies": {
+    "ckeditor5": "^48.4.0"
   }
 }

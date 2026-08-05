@@ -18,7 +18,7 @@ Froala·TinyMCE·CKEditor 5·Quill 등 범용 WYSIWYG 에디터에는 줄자가 
 | [`@devslab/editor-ruler`](packages/editor-ruler) | 코어: 줄자 UI, 드래그/키보드 핸들, 단위 눈금, 가이드선, 컬럼 마커. 의존성 0, 프레임워크 무관. |
 | [`@devslab/editor-ruler-froala`](packages/editor-ruler-froala) | [Froala WYSIWYG 에디터](https://froala.com) 플러그인 어댑터. |
 | [`@devslab/editor-ruler-tiptap`](packages/editor-ruler-tiptap) | [Tiptap](https://tiptap.dev) 확장 (v2/v3). |
-| `@devslab/editor-ruler-ckeditor5` | 예정. |
+| [`@devslab/editor-ruler-ckeditor5`](packages/editor-ruler-ckeditor5) | [CKEditor 5](https://ckeditor.com/ckeditor-5/) 플러그인 (`ckeditor5 >= 42`). |
 
 ## 빠른 시작 (코어 — 아무 contenteditable)
 
@@ -95,6 +95,25 @@ new Editor({ element, extensions: [StarterKit, EditorRuler], content });
 
 들여쓰기는 노드 속성으로 저장되고 순수 인라인 CSS로 렌더되며, 드래그 전체가 undo 1스텝입니다. 옵션은 [패키지 README](packages/editor-ruler-tiptap) 참조.
 
+## 빠른 시작 (CKEditor 5)
+
+```bash
+npm install @devslab/editor-ruler-ckeditor5 ckeditor5
+```
+
+```ts
+import { ClassicEditor, Essentials, Paragraph, Heading } from 'ckeditor5';
+import { EditorRulerPlugin } from '@devslab/editor-ruler-ckeditor5';
+
+ClassicEditor.create(element, {
+  licenseKey: 'GPL',
+  plugins: [Essentials, Paragraph, Heading, EditorRulerPlugin],
+  editorRuler: { unit: 'cm' },
+});
+```
+
+모델 속성이 순수 인라인 CSS로 다운캐스트되고, 드래그가 undo 1스텝입니다. [패키지 README](packages/editor-ruler-ckeditor5) 참조.
+
 `defineRulerPlugin`은 `ruler` 플러그인과 **함께** 툴바 커맨드들을 등록합니다 — 필요한 것을 `toolbarButtons`에 추가하세요:
 
 - `rulerOptions` — **권장 단일 버튼**: 줄자 아이콘 드롭다운 하나에 보이기/숨기기 · 세로 줄자 · 가이드 잠금 · 가이드 지우기 + cm / inch / px (활성 상태 체크 표시)
@@ -127,6 +146,7 @@ Froala 옵션: `rulerVertical: true`면 초기화 시 세로 줄자 표시, `rul
 - [순수 contenteditable — StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/vanilla)
 - [Froala — StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/froala)
 - [Tiptap — StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/tiptap)
+- [CKEditor 5 — StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/ckeditor5)
 
 로컬:
 

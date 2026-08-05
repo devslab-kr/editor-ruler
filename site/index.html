@@ -125,7 +125,10 @@
       #tiptap-editor .tiptap img { max-width: 100%; }
       #tiptap-editor .tiptap img.ProseMirror-selectednode { outline: 2px solid var(--accent); }
       #tiptap-panel .edr-tiptap-mount { background: #f6f7f8; }
-      #core-ruler-mount, #froala-panel, #tiptap-panel {
+      #ckeditor-panel .edr-ck-mount { background: #f6f7f8; }
+      #ckeditor-panel .ck-editor__editable { min-height: 220px; }
+      #ckeditor-panel .ck.ck-editor__main > .ck-editor__editable { border-color: transparent; }
+      #core-ruler-mount, #froala-panel, #tiptap-panel, #ckeditor-panel {
         --edr-bg: #f6f7f8;
         --edr-border: #d8dbe0;
         --edr-fg: #5f6570;
@@ -185,6 +188,7 @@
         <div class="tabs" role="tablist">
           <button type="button" data-tab="froala" class="active">Froala</button>
           <button type="button" data-tab="tiptap">Tiptap</button>
+          <button type="button" data-tab="ckeditor">CKEditor 5</button>
           <button type="button" data-tab="core">코어 (contenteditable)</button>
         </div>
 
@@ -215,6 +219,20 @@
             <div id="tiptap-editor"></div>
           </div>
           <p class="note" id="tiptap-note">Tiptap 모듈을 CDN(esm.sh)에서 불러옵니다 — 네트워크에 따라 잠시 걸릴 수 있습니다. 테이블은 Tiptap table 확장을 설치하면 동일하게 동작합니다.</p>
+        </div>
+
+        <div class="tab-panel" id="tab-ckeditor" hidden>
+          <div class="demo-bar">
+            <button type="button" class="chip active" data-preset="paragraphs">문단</button>
+            <button type="button" class="chip" data-preset="table">테이블</button>
+            <button type="button" class="chip" data-preset="mixed">복합</button>
+            <span class="spacer"></span>
+            <a class="sb-link" href="https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/ckeditor5" target="_blank" rel="noopener">StackBlitz에서 열기 ↗</a>
+          </div>
+          <div class="panel" id="ckeditor-panel">
+            <div id="ckeditor-editor"></div>
+          </div>
+          <p class="note" id="ckeditor-note">CKEditor 5 모듈을 CDN에서 불러옵니다 — 네트워크에 따라 잠시 걸릴 수 있습니다. 이미지는 CKEditor 이미지 플러그인 구성에 따라 동일하게 동작합니다.</p>
         </div>
 
         <div class="tab-panel" id="tab-core" hidden>
@@ -352,11 +370,14 @@ new Editor({
           "@tiptap/core": "https://esm.sh/@tiptap/core@3.6.5",
           "@tiptap/starter-kit": "https://esm.sh/@tiptap/starter-kit@3.6.5",
           "@tiptap/extension-image": "https://esm.sh/@tiptap/extension-image@3.6.5",
+          "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/48.4.0/ckeditor5.js",
           "@devslab/editor-ruler": "./vendor/editor-ruler.mjs",
-          "@devslab/editor-ruler-tiptap": "./vendor/editor-ruler-tiptap.mjs"
+          "@devslab/editor-ruler-tiptap": "./vendor/editor-ruler-tiptap.mjs",
+          "@devslab/editor-ruler-ckeditor5": "./vendor/editor-ruler-ckeditor5.mjs"
         }
       }
     </script>
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/48.4.0/ckeditor5.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@4.5.2/css/froala_editor.pkgd.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/froala-editor@4.5.2/js/froala_editor.pkgd.min.js"></script>
     <script src="./vendor/editor-ruler-froala.global.js"></script>
@@ -406,9 +427,9 @@ new Editor({
 
       // ---------- tabs ----------
       const tabButtons = document.querySelectorAll('.tabs button');
-      const panels = { froala: document.getElementById('tab-froala'), tiptap: document.getElementById('tab-tiptap'), core: document.getElementById('tab-core') };
-      const activators = { froala: initFroala, tiptap: () => window.__initTiptap?.(), core: initCore };
-      const refreshers = { froala: () => window.__froalaRuler?.refresh(), tiptap: () => window.__tiptapRuler?.refresh(), core: () => window.__coreRuler?.refresh() };
+      const panels = { froala: document.getElementById('tab-froala'), tiptap: document.getElementById('tab-tiptap'), ckeditor: document.getElementById('tab-ckeditor'), core: document.getElementById('tab-core') };
+      const activators = { froala: initFroala, tiptap: () => window.__initTiptap?.(), ckeditor: () => window.__initCk?.(), core: initCore };
+      const refreshers = { froala: () => window.__froalaRuler?.refresh(), tiptap: () => window.__tiptapRuler?.refresh(), ckeditor: () => window.__ckRuler?.refresh(), core: () => window.__coreRuler?.refresh() };
       const started = {};
 
       tabButtons.forEach((btn) => {
@@ -559,6 +580,38 @@ new Editor({
           });
         } catch (e) {
           note.textContent = 'Tiptap CDN 모듈을 불러오지 못했습니다 — 네트워크 상태를 확인한 뒤 새로고침해 주세요.';
+        }
+      };
+
+      // ---------- CKEditor 5 tab ----------
+      const ckNote = document.getElementById('ckeditor-note');
+      window.__initCk = async () => {
+        try {
+          const [ck, { EditorRulerPlugin }] = await Promise.all([
+            import('ckeditor5'),
+            import('@devslab/editor-ruler-ckeditor5'),
+          ]);
+          const { ClassicEditor, Essentials, Paragraph, Heading, Bold, Italic, Table, TableToolbar } = ck;
+          const editor = await ClassicEditor.create(document.getElementById('ckeditor-editor'), {
+            licenseKey: 'GPL',
+            plugins: [Essentials, Paragraph, Heading, Bold, Italic, Table, TableToolbar, EditorRulerPlugin],
+            toolbar: ['heading', '|', 'bold', 'italic', 'insertTable'],
+            editorRuler: { unit: 'cm' },
+            initialData: PRESETS.paragraphs,
+          });
+          window.__ckRuler = editor.plugins.get('EditorRuler').ruler;
+          ckNote.textContent =
+            '들여쓰기는 모델 속성으로 저장되어 getData()에 순수 인라인 CSS로 나오고, 드래그가 undo 한 단계입니다 (Ctrl+Z). 이미지는 CKEditor 이미지 플러그인 구성에 따라 동일하게 동작합니다.';
+          const panel = document.getElementById('tab-ckeditor');
+          panel.querySelectorAll('.chip').forEach((chip) => {
+            chip.addEventListener('click', () => {
+              panel.querySelectorAll('.chip').forEach((c) => c.classList.toggle('active', c === chip));
+              editor.setData(PRESETS[chip.dataset.preset]);
+              window.__ckRuler?.refresh();
+            });
+          });
+        } catch (e) {
+          ckNote.textContent = 'CKEditor CDN 모듈을 불러오지 못했습니다 — 네트워크 상태를 확인한 뒤 새로고침해 주세요.';
         }
       };
     </script>

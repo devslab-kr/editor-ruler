@@ -44,7 +44,7 @@ ruler.refresh(); // call whenever selection or content changes
 The iife build exposes an `EditorRuler` global:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.1/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.12/dist/index.global.js"></script>
 <script>
   const ruler = EditorRuler.createRuler(mountElement, { /* same options */ });
 </script>
@@ -56,8 +56,8 @@ Version pinning options:
 
 | URL | Meaning |
 |---|---|
-| `@0.1.0` | Exact version — never changes, cached longest |
-| `@0.1` | Latest `0.1.x` patch — bugfixes auto-applied, no breaking changes (recommended) |
+| `@0.12.2` | Exact version — never changes, cached longest |
+| `@0.12` | Latest `0.12.x` patch — bugfixes auto-applied, no breaking changes (recommended) |
 | `@latest` (or no version) | Always the newest release — majors included, so breaking changes can land without warning; jsDelivr caches the alias for up to 12h |
 
 ## Quick start (Froala)

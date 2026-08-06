@@ -9,6 +9,16 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.12.2] - 2026-08-06
+
+### Fixed
+
+- README CDN examples still pinned `@0.1` from the first release — updated to
+  the current minor (`@0.12`) across all package READMEs, and the landing
+  page's version-pinning note now auto-fills both the exact version and the
+  minor pin at build time so it can't go stale again. Docs-only release
+  (republished so npmjs shows the corrected READMEs).
+
 ## [0.12.1] - 2026-08-06
 
 ### Changed
@@ -192,7 +202,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.1...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.2...HEAD
+[0.12.2]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.10.0...v0.11.0

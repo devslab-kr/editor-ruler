@@ -37,7 +37,13 @@ await cp(
 
 const indexPath = path.join(outDir, 'index.html');
 const index = await readFile(indexPath, 'utf8');
-await writeFile(indexPath, index.replaceAll('__PACKAGE_VERSION__', corePkg.version));
+const minor = corePkg.version.split('.').slice(0, 2).join('.');
+await writeFile(
+  indexPath,
+  index
+    .replaceAll('__PACKAGE_VERSION__', corePkg.version)
+    .replaceAll('__PACKAGE_MINOR__', minor),
+);
 
 await writeFile(
   path.join(outDir, 'package.json'),

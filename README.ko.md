@@ -44,7 +44,7 @@ ruler.refresh(); // 선택/내용이 바뀔 때마다 호출
 iife 빌드가 전역 `EditorRuler`를 노출합니다:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.1/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.12/dist/index.global.js"></script>
 <script>
   const ruler = EditorRuler.createRuler(mountElement, { /* 동일한 옵션 */ });
 </script>
@@ -56,8 +56,8 @@ Froala 어댑터도 동일합니다 — `@devslab/editor-ruler-froala/dist/index
 
 | URL | 의미 |
 |---|---|
-| `@0.1.0` | 정확한 버전 고정 — 절대 안 바뀜, 캐시 최장 |
-| `@0.1` | `0.1.x` 최신 패치 — 버그픽스 자동 반영, 브레이킹 없음 (권장) |
+| `@0.12.2` | 정확한 버전 고정 — 절대 안 바뀜, 캐시 최장 |
+| `@0.12` | `0.12.x` 최신 패치 — 버그픽스 자동 반영, 브레이킹 없음 (권장) |
 | `@latest` (또는 버전 생략) | 항상 최신 릴리스 — 메이저 포함이라 브레이킹 체인지가 예고 없이 들어올 수 있음; jsDelivr가 별칭을 최대 12시간 캐시 |
 
 ## 빠른 시작 (Froala)

@@ -30,7 +30,7 @@ new FroalaEditor('#editor', {
 CDN 사용 — iife 빌드는 코어를 포함한 단일 파일로 전역 `EditorRulerFroala`를 노출합니다:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler-froala@0.1/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler-froala@0.12/dist/index.global.js"></script>
 <script>
   EditorRulerFroala.defineRulerPlugin(FroalaEditor);
 </script>

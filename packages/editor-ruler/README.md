@@ -28,7 +28,7 @@ Handles are keyboard-accessible sliders (`←`/`→`, `Shift` ×10, `Home`/`End`
 CDN usage (no build tools) — the iife build exposes an `EditorRuler` global:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.12/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.13/dist/index.global.js"></script>
 ```
 
 For editor integrations see the adapters (e.g. [`@devslab/editor-ruler-froala`](https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-froala)).

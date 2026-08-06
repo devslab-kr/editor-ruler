@@ -236,6 +236,60 @@ describe('defineRulerPlugin', () => {
     expect(container.contains(wrapper)).toBe(true); // wrapper restored to its old place
   });
 
+  it('rulerVerticalGutter reserves the strip column up front, hidden', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor({ rulerVerticalGutter: true });
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+
+    // The gutter exists from init even though the strip is not shown…
+    expect(api.isVRulerVisible()).toBe(false);
+    const vmount = container.querySelector('.edr-froala-vmount') as HTMLElement;
+    expect(vmount).toBeTruthy();
+    expect(vmount.style.visibility).toBe('hidden');
+    expect(vmount.style.display).not.toBe('none');
+    // …and the horizontal ruler is already offset past it.
+    const mount = container.querySelector('.edr-froala-mount') as HTMLElement;
+    expect(mount.style.paddingLeft).toBe('23px');
+  });
+
+  it('rulerVerticalGutter keeps the column (no reflow) across vruler toggles', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor({ rulerVerticalGutter: true });
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+    const vmount = container.querySelector('.edr-froala-vmount') as HTMLElement;
+    const mount = container.querySelector('.edr-froala-mount') as HTMLElement;
+
+    api.toggleVRuler(); // show
+    expect(api.isVRulerVisible()).toBe(true);
+    expect(vmount.style.visibility).toBe('');
+    expect(mount.style.paddingLeft).toBe('23px');
+
+    api.toggleVRuler(); // hide — gutter stays, width untouched
+    expect(api.isVRulerVisible()).toBe(false);
+    expect(vmount.style.visibility).toBe('hidden');
+    expect(vmount.style.display).not.toBe('none');
+    expect(mount.style.paddingLeft).toBe('23px');
+  });
+
+  it('without the gutter option, hiding the vruler reclaims its width', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor({ rulerVertical: true });
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+    const vmount = container.querySelector('.edr-froala-vmount') as HTMLElement;
+    const mount = container.querySelector('.edr-froala-mount') as HTMLElement;
+    expect(mount.style.paddingLeft).toBe('23px');
+
+    api.toggleVRuler(); // hide — strip removed from layout entirely
+    expect(vmount.style.display).toBe('none');
+    expect(mount.style.paddingLeft).toBe('0px');
+  });
+
   it('drags a horizontal guide from the horizontal ruler, vertical from the vertical', () => {
     const FE = makeFroalaConstructor();
     defineRulerPlugin(FE);

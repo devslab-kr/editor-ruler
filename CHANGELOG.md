@@ -9,6 +9,30 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-08-07
+
+### Added
+
+- **Vertical ruler on every adapter** — the core `createVRuler` strip was
+  only wired into Froala; now Tiptap and CKEditor 5 mount it too (flex-wrap
+  the editable with the 23px strip beside it, exactly the Froala mechanic),
+  including the gutter behavior and vertical-guide dragging:
+  - `@devslab/editor-ruler-tiptap` — `vertical` / `verticalGutter` options
+    plus `showVerticalRuler` / `hideVerticalRuler` / `toggleVerticalRuler`
+    commands; strip handle at `editor.storage.editorRuler.vruler`, state at
+    `…verticalVisible`.
+  - `@devslab/editor-ruler-ckeditor5` — `editorRuler.vertical` /
+    `editorRuler.verticalGutter` config, `showVRuler()` / `hideVRuler()` /
+    `toggleVRuler()` / `isVRulerVisible()` plugin API, and a **Vertical
+    Ruler entry in the `editorRuler` toolbar dropdown** (ko/en).
+  - `verticalGutter: true` reserves the strip's 23px column up front
+    (`scrollbar-gutter: stable` style) so toggling never reflows the
+    content — same option Froala got in 0.13.0.
+
+### Changed
+
+- README CDN pins bumped `@0.15` → `@0.16`.
+
 ## [0.15.0] - 2026-08-06
 
 ### Added
@@ -269,7 +293,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.15.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.3...v0.13.0

@@ -2,6 +2,7 @@ import { Extension } from '@tiptap/core';
 import {
   createGuides,
   createRuler,
+  createVRuler,
   resolveRulerLabels,
   type Guides,
   type Ruler,
@@ -9,6 +10,7 @@ import {
   type RulerChangePhase,
   type RulerMetrics,
   type RulerUnit,
+  type VRuler,
 } from '@devslab/editor-ruler';
 
 /** Per-node indentation, px. Stored as a single `rulerIndent` attribute. */
@@ -27,6 +29,14 @@ export interface EditorRulerOptions {
    * `showRuler` / `toggleRuler` commands.
    */
   visible: boolean;
+  /** Show the vertical ruler strip on create. Default false. */
+  vertical: boolean;
+  /**
+   * Reserve the vertical ruler's 23px column from the start (like CSS
+   * `scrollbar-gutter: stable`), so toggling the vertical ruler never
+   * reflows the content. Default false.
+   */
+  verticalGutter: boolean;
   unit: RulerUnit;
   /** Enable guide lines (drag down from the ruler). */
   guides: boolean;
@@ -65,10 +75,15 @@ function parseIndent(element: HTMLElement): RulerIndent | null {
 interface RulerStorage {
   ruler: Ruler | null;
   guides: Guides | null;
+  vruler: VRuler | null;
   /** The ruler's mount element (for show/hide). */
   host: HTMLElement | null;
   /** Current visibility — read via `editor.storage.editorRuler.visible`. */
   visible: boolean;
+  /** Current vertical ruler visibility. */
+  verticalVisible: boolean;
+  /** @internal — set by onCreate, used by the vertical ruler commands. */
+  setVerticalVisible: ((visible: boolean) => void) | null;
   cleanup: (() => void) | null;
 }
 
@@ -81,6 +96,12 @@ declare module '@tiptap/core' {
       hideRuler: () => ReturnType;
       /** Toggle ruler visibility. */
       toggleRuler: () => ReturnType;
+      /** Show the vertical ruler strip. */
+      showVerticalRuler: () => ReturnType;
+      /** Hide the vertical ruler strip. */
+      hideVerticalRuler: () => ReturnType;
+      /** Toggle the vertical ruler strip. */
+      toggleVerticalRuler: () => ReturnType;
     };
   }
   interface Storage {
@@ -111,6 +132,8 @@ export const EditorRuler = Extension.create<EditorRulerOptions, RulerStorage>({
     return {
       types: ['paragraph', 'heading'],
       visible: true,
+      vertical: false,
+      verticalGutter: false,
       unit: 'cm',
       guides: true,
       guideSnap: 5,
@@ -120,7 +143,16 @@ export const EditorRuler = Extension.create<EditorRulerOptions, RulerStorage>({
   },
 
   addStorage() {
-    return { ruler: null, guides: null, host: null, visible: true, cleanup: null };
+    return {
+      ruler: null,
+      guides: null,
+      vruler: null,
+      host: null,
+      visible: true,
+      verticalVisible: false,
+      setVerticalVisible: null,
+      cleanup: null,
+    };
   },
 
   addCommands() {
@@ -131,10 +163,18 @@ export const EditorRuler = Extension.create<EditorRulerOptions, RulerStorage>({
       if (visible) storage.ruler?.refresh();
       return true;
     };
+    const setVertical = (storage: RulerStorage, visible: boolean): boolean => {
+      if (!storage.setVerticalVisible) return false;
+      storage.setVerticalVisible(visible);
+      return true;
+    };
     return {
       showRuler: () => () => setVisible(this.storage, true),
       hideRuler: () => () => setVisible(this.storage, false),
       toggleRuler: () => () => setVisible(this.storage, !this.storage.visible),
+      showVerticalRuler: () => () => setVertical(this.storage, true),
+      hideVerticalRuler: () => () => setVertical(this.storage, false),
+      toggleVerticalRuler: () => () => setVertical(this.storage, !this.storage.verticalVisible),
     };
   },
 
@@ -176,7 +216,7 @@ export const EditorRuler = Extension.create<EditorRulerOptions, RulerStorage>({
         return m;
       })();
 
-    const padding = (side: 'paddingLeft' | 'paddingRight' | 'paddingTop'): number =>
+    const padding = (side: 'paddingLeft' | 'paddingRight' | 'paddingTop' | 'paddingBottom'): number =>
       parseFloat(win.getComputedStyle(dom)[side]) || 0;
 
     const types = options.types;
@@ -282,9 +322,69 @@ export const EditorRuler = Extension.create<EditorRulerOptions, RulerStorage>({
     });
     align();
 
+    // ---- vertical ruler (lazy: the wrap only exists once needed) ----
+    let vwrap: HTMLElement | null = null;
+    let vmount: HTMLElement | null = null;
+    const vGutter = options.verticalGutter === true;
+
+    const ensureVWrap = () => {
+      if (vwrap) return;
+      const parent = dom.parentElement;
+      if (!parent) return;
+      vwrap = doc.createElement('div');
+      vwrap.className = 'edr-vwrap';
+      parent.insertBefore(vwrap, dom);
+      vmount = doc.createElement('div');
+      vmount.className = 'edr-tiptap-vmount';
+      vwrap.appendChild(vmount);
+      vwrap.appendChild(dom);
+      vmount.style.paddingTop = `${padding('paddingTop')}px`;
+      storage.vruler = createVRuler(vmount, {
+        unit: ruler.getUnit(),
+        ...(guides ? { guides } : {}),
+        getMetrics: () => ({
+          // When the editable scrolls itself, clientHeight is the visible
+          // viewport, which is exactly what the strip should span.
+          contentHeight: Math.max(
+            0,
+            dom.clientHeight - padding('paddingTop') - padding('paddingBottom'),
+          ),
+        }),
+      });
+    };
+
+    const setVerticalVisible = (visible: boolean) => {
+      ensureVWrap();
+      if (!vmount) return;
+      if (visible) {
+        vmount.style.display = '';
+        vmount.style.visibility = '';
+        storage.vruler?.refresh();
+      } else if (vGutter) {
+        // Keep the reserved column — hide the strip without reclaiming width.
+        vmount.style.visibility = 'hidden';
+      } else {
+        vmount.style.display = 'none';
+      }
+      storage.verticalVisible = visible;
+      align();
+      ruler.refresh();
+      guides?.refresh();
+    };
+    storage.setVerticalVisible = setVerticalVisible;
+
+    if (options.vertical === true) {
+      setVerticalVisible(true);
+    } else if (vGutter) {
+      // Reserve the gutter up front so a later toggle doesn't reflow content.
+      ensureVWrap();
+      if (vmount) (vmount as HTMLElement).style.visibility = 'hidden';
+    }
+
     const onResize = () => {
       align();
       ruler.refresh();
+      storage.vruler?.refresh();
       guides?.refresh();
     };
     win.addEventListener('resize', onResize);
@@ -298,6 +398,15 @@ export const EditorRuler = Extension.create<EditorRulerOptions, RulerStorage>({
       win.removeEventListener('resize', onResize);
       ruler.destroy();
       guides?.destroy();
+      storage.vruler?.destroy();
+      storage.vruler = null;
+      storage.setVerticalVisible = null;
+      if (vwrap) {
+        vwrap.parentElement?.insertBefore(dom, vwrap);
+        vwrap.remove();
+        vwrap = null;
+        vmount = null;
+      }
       if (ownsHost) host.remove();
     };
   },
@@ -308,6 +417,7 @@ export const EditorRuler = Extension.create<EditorRulerOptions, RulerStorage>({
 
   onUpdate() {
     this.storage.ruler?.refresh();
+    this.storage.vruler?.refresh();
   },
 
   onDestroy() {

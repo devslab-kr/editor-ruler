@@ -72,6 +72,63 @@ describe('EditorRuler (Tiptap)', () => {
     editor.destroy();
   });
 
+  it('vertical: true mounts the vertical ruler; commands toggle it', async () => {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    const editor = new Editor({
+      element,
+      extensions: [StarterKit, EditorRuler.configure({ vertical: true })],
+      content: '<p>Hi</p>',
+    });
+    if (!element.querySelector('.edr-tiptap-mount')) {
+      await new Promise<void>((resolve) => {
+        editor.on('create', () => resolve());
+        setTimeout(resolve, 50);
+      });
+    }
+
+    expect(element.querySelector('.edr-vwrap .edr-vruler')).toBeTruthy();
+    expect(element.querySelector('.edr-vwrap')!.contains(editor.view.dom)).toBe(true);
+    expect(editor.storage.editorRuler.verticalVisible).toBe(true);
+
+    editor.commands.toggleVerticalRuler();
+    const vmount = element.querySelector('.edr-tiptap-vmount') as HTMLElement;
+    expect(vmount.style.display).toBe('none');
+    expect(editor.storage.editorRuler.verticalVisible).toBe(false);
+
+    editor.commands.showVerticalRuler();
+    expect(vmount.style.display).toBe('');
+    editor.destroy();
+  });
+
+  it('verticalGutter reserves the strip column and keeps it across toggles', async () => {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    const editor = new Editor({
+      element,
+      extensions: [StarterKit, EditorRuler.configure({ verticalGutter: true })],
+      content: '<p>Hi</p>',
+    });
+    if (!element.querySelector('.edr-tiptap-mount')) {
+      await new Promise<void>((resolve) => {
+        editor.on('create', () => resolve());
+        setTimeout(resolve, 50);
+      });
+    }
+
+    const vmount = element.querySelector('.edr-tiptap-vmount') as HTMLElement;
+    expect(vmount).toBeTruthy();
+    expect(vmount.style.visibility).toBe('hidden');
+    expect(editor.storage.editorRuler.verticalVisible).toBe(false);
+
+    editor.commands.toggleVerticalRuler(); // show
+    expect(vmount.style.visibility).toBe('');
+    editor.commands.toggleVerticalRuler(); // hide — gutter stays
+    expect(vmount.style.visibility).toBe('hidden');
+    expect(vmount.style.display).not.toBe('none');
+    editor.destroy();
+  });
+
   it('applies indentation to the current paragraph as portable inline CSS', async () => {
     const { editor, element } = await makeEditor();
     editor.commands.setTextSelection(3);

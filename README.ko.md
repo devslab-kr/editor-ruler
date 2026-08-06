@@ -44,7 +44,7 @@ ruler.refresh(); // 선택/내용이 바뀔 때마다 호출
 iife 빌드가 전역 `EditorRuler`를 노출합니다:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.15/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.16/dist/index.global.js"></script>
 <script>
   const ruler = EditorRuler.createRuler(mountElement, { /* 동일한 옵션 */ });
 </script>
@@ -56,8 +56,8 @@ Froala 어댑터도 동일합니다 — `@devslab/editor-ruler-froala/dist/index
 
 | URL | 의미 |
 |---|---|
-| `@0.15.0` | 정확한 버전 고정 — 절대 안 바뀜, 캐시 최장 |
-| `@0.15` | `0.15.x` 최신 패치 — 버그픽스 자동 반영, 브레이킹 없음 (권장) |
+| `@0.16.0` | 정확한 버전 고정 — 절대 안 바뀜, 캐시 최장 |
+| `@0.16` | `0.16.x` 최신 패치 — 버그픽스 자동 반영, 브레이킹 없음 (권장) |
 | `@latest` (또는 버전 생략) | 항상 최신 릴리스 — 메이저 포함이라 브레이킹 체인지가 예고 없이 들어올 수 있음; jsDelivr가 별칭을 최대 12시간 캐시 |
 
 ## 빠른 시작 (Froala)
@@ -121,7 +121,7 @@ ClassicEditor.create(element, {
 
 Froala 옵션: `rulerVisible: false`면 가로 줄자를 숨긴 채 시작(플러그인·툴바는 살아 있어 나중에 토글로 켬), `rulerVertical: true`면 초기화 시 세로 줄자 표시, `rulerVerticalGutter: true`면 세로 줄자의 23px 자리를 처음부터 예약해(`scrollbar-gutter: stable`과 같은 발상) 토글해도 본문이 리플로우되지 않음, `rulerGuides: false`면 가이드선 비활성.
 
-Tiptap·CKEditor 5도 숨긴 채 시작을 지원합니다: Tiptap은 `EditorRuler.configure({ visible: false })` + `showRuler`/`hideRuler`/`toggleRuler` 커맨드, CKEditor 5는 `editorRuler: { visible: false }` + 플러그인의 `show()`/`toggle()`. 세로 줄자는 현재 Froala 전용입니다.
+Tiptap·CKEditor 5도 같은 제어를 지원합니다: `visible: false`면 숨긴 채 시작(Tiptap은 `showRuler`/`hideRuler`/`toggleRuler` 커맨드, CKEditor 5는 플러그인의 `show()`/`toggle()`), 그리고 **세로 줄자는 세 어댑터 모두에서 동작합니다** — `vertical: true`면 초기 표시, `verticalGutter: true`면 23px 자리를 예약해 토글해도 본문이 리플로우되지 않음 (Tiptap: `showVerticalRuler`/`toggleVerticalRuler` 커맨드, CKEditor 5: `showVRuler()`/`toggleVRuler()` + 툴바 드롭다운의 세로 줄자 항목).
 
 ## 기능
 

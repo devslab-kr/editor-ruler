@@ -2,6 +2,7 @@ import { addListToDropdown, Collection, createDropdown, Plugin, UIModel } from '
 import {
   createGuides,
   createRuler,
+  createVRuler,
   detectLanguage,
   resolveRulerLabels,
   type Guides,
@@ -10,6 +11,7 @@ import {
   type RulerChangePhase,
   type RulerMetrics,
   type RulerUnit,
+  type VRuler,
 } from '@devslab/editor-ruler';
 
 const ATTRS = [
@@ -26,6 +28,7 @@ const RULER_ICON =
 interface CkRulerStrings {
   ruler: string;
   showHide: string;
+  verticalRuler: string;
   lockGuides: string;
   clearGuides: string;
   cm: string;
@@ -37,6 +40,7 @@ const STRINGS: Record<string, CkRulerStrings> = {
   en: {
     ruler: 'Ruler',
     showHide: 'Show / Hide',
+    verticalRuler: 'Vertical Ruler',
     lockGuides: 'Lock Guides',
     clearGuides: 'Clear Guides',
     cm: 'cm',
@@ -46,6 +50,7 @@ const STRINGS: Record<string, CkRulerStrings> = {
   ko: {
     ruler: '줄자',
     showHide: '보이기 / 숨기기',
+    verticalRuler: '세로 줄자',
     lockGuides: '가이드 잠금',
     clearGuides: '가이드 지우기',
     cm: 'cm',
@@ -64,6 +69,14 @@ export interface CkRulerConfig {
    * it hidden — the toolbar dropdown / plugin `show()` bring it up later.
    */
   visible?: boolean;
+  /** Show the vertical ruler strip on init. Default false. */
+  vertical?: boolean;
+  /**
+   * Reserve the vertical ruler's 23px column from the start (like CSS
+   * `scrollbar-gutter: stable`), so toggling the vertical ruler never
+   * reflows the content. Default false.
+   */
+  verticalGutter?: boolean;
 }
 
 declare module 'ckeditor5' {
@@ -97,7 +110,12 @@ export class EditorRulerPlugin extends Plugin {
 
   private _ruler: Ruler | null = null;
   private _guides: Guides | null = null;
+  private _vruler: VRuler | null = null;
   private _mountEl: HTMLElement | null = null;
+  private _vwrapEl: HTMLElement | null = null;
+  private _vmountEl: HTMLElement | null = null;
+  private _domRoot: HTMLElement | null = null;
+  private _vVisible = false;
   private _cleanup: Array<() => void> = [];
   private _gestureBaseline: Map<any, Record<string, number | null>> | null = null;
 
@@ -107,6 +125,10 @@ export class EditorRulerPlugin extends Plugin {
 
   public get guides(): Guides | null {
     return this._guides;
+  }
+
+  public get vruler(): VRuler | null {
+    return this._vruler;
   }
 
   private _visible = true;
@@ -130,8 +152,41 @@ export class EditorRulerPlugin extends Plugin {
     return this._visible;
   }
 
+  public showVRuler(): void {
+    this._ensureVWrap();
+    if (!this._vmountEl) return;
+    this._vmountEl.style.display = '';
+    this._vmountEl.style.visibility = '';
+    this._vVisible = true;
+    this._vruler?.refresh();
+    this._ruler?.refresh();
+    this._guides?.refresh();
+  }
+
+  public hideVRuler(): void {
+    if (!this._vmountEl) return;
+    if (this._config().verticalGutter === true) {
+      // Keep the reserved column — hide the strip without reclaiming width.
+      this._vmountEl.style.visibility = 'hidden';
+    } else {
+      this._vmountEl.style.display = 'none';
+    }
+    this._vVisible = false;
+    this._ruler?.refresh();
+    this._guides?.refresh();
+  }
+
+  public toggleVRuler(): void {
+    this._vVisible ? this.hideVRuler() : this.showVRuler();
+  }
+
+  public isVRulerVisible(): boolean {
+    return this._vVisible;
+  }
+
   public setUnit(unit: RulerUnit): void {
     this._ruler?.setUnit(unit);
+    this._vruler?.setUnit(unit);
   }
 
   public getUnit(): RulerUnit {
@@ -188,6 +243,7 @@ export class EditorRulerPlugin extends Plugin {
       const t = STRINGS[language] ?? STRINGS.en!;
       const labels: Record<string, string> = {
         toggle: t.showHide,
+        vruler: t.verticalRuler,
         lockGuides: t.lockGuides,
         clearGuides: t.clearGuides,
         cm: t.cm,
@@ -206,6 +262,7 @@ export class EditorRulerPlugin extends Plugin {
         items.add({ type: 'button', model });
       };
       push('toggle');
+      push('vruler');
       push('lockGuides');
       push('clearGuides');
       items.add({ type: 'separator' });
@@ -217,6 +274,7 @@ export class EditorRulerPlugin extends Plugin {
       dropdown.on('execute', (evt: any) => {
         const id = evt.source?.id;
         if (id === 'toggle') plugin.toggle();
+        else if (id === 'vruler') plugin.toggleVRuler();
         else if (id === 'lockGuides') plugin.setGuidesLocked(!plugin.isGuidesLocked());
         else if (id === 'clearGuides') plugin.clearGuides();
         else if (id === 'cm' || id === 'in' || id === 'px') plugin.setUnit(id);
@@ -226,6 +284,7 @@ export class EditorRulerPlugin extends Plugin {
         if (!isOpen) return;
         const unit = plugin.getUnit();
         models.get('toggle')?.set('isOn', plugin.isVisible());
+        models.get('vruler')?.set('isOn', plugin.isVRulerVisible());
         models.get('lockGuides')?.set('isOn', plugin.isGuidesLocked());
         for (const u of ['cm', 'in', 'px']) models.get(u)?.set('isOn', unit === u);
       });
@@ -241,6 +300,16 @@ export class EditorRulerPlugin extends Plugin {
     this._ruler = null;
     this._guides?.destroy();
     this._guides = null;
+    this._vruler?.destroy();
+    this._vruler = null;
+    if (this._vwrapEl) {
+      if (this._domRoot) this._vwrapEl.parentElement?.insertBefore(this._domRoot, this._vwrapEl);
+      this._vwrapEl.remove();
+      this._vwrapEl = null;
+      this._vmountEl = null;
+    }
+    this._domRoot = null;
+    this._vVisible = false;
     this._mountEl?.remove();
     this._mountEl = null;
     super.destroy();
@@ -250,6 +319,40 @@ export class EditorRulerPlugin extends Plugin {
     const editor = this.editor as any;
     const user: CkRulerConfig = editor.config.get('editorRuler') ?? {};
     return { unit: 'cm', guides: true, guideSnap: 5, ...user };
+  }
+
+  /** Wraps the editable in a flex row with the vertical ruler strip beside it. */
+  private _ensureVWrap(): void {
+    const domRoot = this._domRoot;
+    if (this._vwrapEl || !domRoot) return;
+    const doc = domRoot.ownerDocument;
+    const win = doc.defaultView!;
+    const parent = domRoot.parentElement;
+    if (!parent) return;
+    const pad = (side: 'paddingTop' | 'paddingBottom'): number =>
+      parseFloat(win.getComputedStyle(domRoot)[side]) || 0;
+    const vwrap = doc.createElement('div');
+    vwrap.className = 'edr-vwrap';
+    parent.insertBefore(vwrap, domRoot);
+    const vmount = doc.createElement('div');
+    vmount.className = 'edr-ck-vmount';
+    vwrap.appendChild(vmount);
+    vwrap.appendChild(domRoot);
+    vmount.style.paddingTop = `${pad('paddingTop')}px`;
+    this._vwrapEl = vwrap;
+    this._vmountEl = vmount;
+    this._vruler = createVRuler(vmount, {
+      unit: this.getUnit(),
+      ...(this._guides ? { guides: this._guides } : {}),
+      getMetrics: () => ({
+        // When the editable scrolls itself (max-height setups), clientHeight
+        // is the visible viewport — exactly what the strip should span.
+        contentHeight: Math.max(
+          0,
+          domRoot.clientHeight - pad('paddingTop') - pad('paddingBottom'),
+        ),
+      }),
+    });
   }
 
   private _selectedBlocks(): any[] {
@@ -271,6 +374,7 @@ export class EditorRulerPlugin extends Plugin {
     mount.className = 'edr-ck-mount';
     host.insertBefore(mount, domRoot);
     this._mountEl = mount;
+    this._domRoot = domRoot;
     if (config.visible === false) this.hide();
 
     const padding = (side: 'paddingLeft' | 'paddingRight' | 'paddingTop'): number =>
@@ -364,6 +468,7 @@ export class EditorRulerPlugin extends Plugin {
     const refresh = () => {
       align();
       this._ruler?.refresh();
+      this._vruler?.refresh();
       this._guides?.refresh();
     };
     const selection = editor.model.document.selection;
@@ -375,6 +480,14 @@ export class EditorRulerPlugin extends Plugin {
       editor.model.document.off('change:data', refresh);
       win.removeEventListener('resize', refresh);
     });
+
+    if (config.vertical === true) {
+      this.showVRuler();
+    } else if (config.verticalGutter === true) {
+      // Reserve the gutter up front so a later toggle doesn't reflow content.
+      this._ensureVWrap();
+      if (this._vmountEl) this._vmountEl.style.visibility = 'hidden';
+    }
 
     this._ruler.refresh();
   }

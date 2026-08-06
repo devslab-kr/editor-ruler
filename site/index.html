@@ -349,7 +349,7 @@ new Editor({
   extensions: [StarterKit, EditorRuler.configure({ unit: 'cm' })],
   content: '&lt;p&gt;Hello&lt;/p&gt;',
 });</code></pre>
-        <p class="note">들여쓰기는 <code>rulerIndent</code> 노드 속성으로 저장되어 <code>getHTML()</code>에 순수 인라인 CSS로 나오고, 드래그 전체가 undo 한 단계입니다. Tiptap v2·v3 지원. <code>visible: false</code>면 숨긴 채 시작하고 <code>editor.commands.toggleRuler()</code>로 켭니다.</p>
+        <p class="note">들여쓰기는 <code>rulerIndent</code> 노드 속성으로 저장되어 <code>getHTML()</code>에 순수 인라인 CSS로 나오고, 드래그 전체가 undo 한 단계입니다. Tiptap v2·v3 지원. <code>visible: false</code>면 숨긴 채 시작하고 <code>editor.commands.toggleRuler()</code>로 켭니다. 세로 줄자는 <code>vertical: true</code>(+<code>verticalGutter</code>로 자리 예약)와 <code>toggleVerticalRuler</code> 커맨드로 제어합니다.</p>
       </section>
 
       <section id="ckeditor5">
@@ -365,10 +365,11 @@ ClassicEditor.create(element, {
   editorRuler: {
     unit: 'cm',      // 'cm' | 'in' | 'px'
     visible: true,   // false면 숨긴 채 시작 — 드롭다운/plugin.show()로 켬
+    vertical: false, // 세로 줄자 초기 표시 (verticalGutter로 자리 예약)
     guides: true,
   },
 });</code></pre>
-        <p class="note">들여쓰기는 모델 속성으로 저장되어 <code>getData()</code>에 순수 인라인 CSS로 다운캐스트되고, 드래그 전체가 undo 한 단계입니다. <code>editorRuler</code> 툴바 드롭다운에 보이기/숨기기·가이드 잠금/지우기·단위 전환이 들어 있습니다. <code>ckeditor5 &gt;= 42</code> 필요.</p>
+        <p class="note">들여쓰기는 모델 속성으로 저장되어 <code>getData()</code>에 순수 인라인 CSS로 다운캐스트되고, 드래그 전체가 undo 한 단계입니다. <code>editorRuler</code> 툴바 드롭다운에 보이기/숨기기·세로 줄자·가이드 잠금/지우기·단위 전환이 들어 있습니다. <code>ckeditor5 &gt;= 42</code> 필요.</p>
       </section>
 
       <section id="api">

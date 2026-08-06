@@ -44,7 +44,7 @@ ruler.refresh(); // call whenever selection or content changes
 The iife build exposes an `EditorRuler` global:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.14/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.15/dist/index.global.js"></script>
 <script>
   const ruler = EditorRuler.createRuler(mountElement, { /* same options */ });
 </script>
@@ -56,8 +56,8 @@ Version pinning options:
 
 | URL | Meaning |
 |---|---|
-| `@0.14.0` | Exact version — never changes, cached longest |
-| `@0.14` | Latest `0.14.x` patch — bugfixes auto-applied, no breaking changes (recommended) |
+| `@0.15.0` | Exact version — never changes, cached longest |
+| `@0.15` | Latest `0.15.x` patch — bugfixes auto-applied, no breaking changes (recommended) |
 | `@latest` (or no version) | Always the newest release — majors included, so breaking changes can land without warning; jsDelivr caches the alias for up to 12h |
 
 ## Quick start (Froala)
@@ -120,6 +120,8 @@ Model attributes down-cast to plain inline CSS; one undo step per drag. See the 
 - `toggleRuler` / `rulerUnit` — the same core functions as separate buttons, for hosts that prefer them split
 
 Froala options: `rulerVisible: false` starts the horizontal ruler hidden (plugin and toolbar stay alive — toggle it on later); `rulerVertical: true` shows the vertical ruler on init; `rulerVerticalGutter: true` reserves the strip's 23px column from the start (like `scrollbar-gutter: stable`) so toggling the vertical ruler never reflows the content; `rulerGuides: false` disables guide lines.
+
+Tiptap and CKEditor 5 support start-hidden too: `EditorRuler.configure({ visible: false })` plus `showRuler`/`hideRuler`/`toggleRuler` commands (Tiptap), and `editorRuler: { visible: false }` plus the plugin's `show()`/`toggle()` (CKEditor 5). The vertical ruler is currently Froala-only.
 
 ## Features
 

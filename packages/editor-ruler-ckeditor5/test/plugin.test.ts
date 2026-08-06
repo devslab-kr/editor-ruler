@@ -46,6 +46,28 @@ describe('EditorRulerPlugin (CKEditor 5)', () => {
     expect(mount!.querySelector('.edr-ruler')).toBeTruthy();
   });
 
+  it('editorRuler.visible: false mounts the ruler hidden; show() brings it up', async () => {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    const editor: any = await ClassicEditor.create(element, {
+      licenseKey: 'GPL',
+      plugins: [Essentials, Paragraph, Heading, EditorRulerPlugin],
+      editorRuler: { visible: false },
+      initialData: '<p>Hi</p>',
+    });
+    editors.push(editor);
+    const host = editor.editing.view.getDomRoot().parentElement as HTMLElement;
+    const mount = host.querySelector('.edr-ck-mount') as HTMLElement;
+    const plugin = editor.plugins.get('EditorRuler');
+
+    expect(mount.style.display).toBe('none');
+    expect(plugin.isVisible()).toBe(false);
+
+    plugin.show();
+    expect(mount.style.display).toBe('');
+    expect(plugin.isVisible()).toBe(true);
+  });
+
   it('applies indentation to the selected block as portable inline CSS', async () => {
     const { editor, host } = await makeEditor();
     const left = host.querySelector('.edr-handle-left') as HTMLElement;

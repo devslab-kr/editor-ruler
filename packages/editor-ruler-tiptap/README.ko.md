@@ -20,6 +20,8 @@ new Editor({
   extensions: [
     StarterKit,
     EditorRuler.configure({
+      visible: true,     // false면 숨긴 채 시작 — 나중에
+                         // editor.commands.showRuler()로 표시
       unit: 'cm',        // 'cm' | 'in' | 'px'
       guides: true,      // 줄자에서 아래로 드래그 → 가이드선
       guideSnap: 5,      // 스냅 거리(px); 0이면 비활성
@@ -33,7 +35,7 @@ new Editor({
 
 들여쓰기는 `rulerIndent` 노드 속성으로 저장되고 **순수 인라인 CSS**(`<p style="margin-left: 75px">`)로 렌더됩니다 — `editor.getHTML()` 출력이 그대로 이식 가능하고, 기존 인라인 들여쓰기도 파싱되어 들어옵니다. 드래그 제스처 전체가 정확히 **undo 1스텝**입니다 (드래그 중 트랜잭션은 히스토리 제외, 놓는 순간 baseline→final 기록).
 
-줄자 API는 `editor.storage.editorRuler.ruler`(`refresh`/`setUnit`/…), 가이드는 `editor.storage.editorRuler.guides`로 접근합니다.
+표시/숨김은 **`showRuler` / `hideRuler` / `toggleRuler` 커맨드**(`editor.commands.toggleRuler()`)로 제어하고, 현재 상태는 `editor.storage.editorRuler.visible`에 있습니다. 줄자 API는 `editor.storage.editorRuler.ruler`(`refresh`/`setUnit`/…), 가이드는 `editor.storage.editorRuler.guides`로 접근합니다.
 
 Tiptap v2·v3 모두 지원 (`@tiptap/core >= 2`).
 

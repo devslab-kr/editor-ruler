@@ -9,6 +9,29 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-08-06
+
+### Added
+
+- **Start-hidden parity across adapters** — the Froala-only `rulerVisible`
+  idea (0.14.0) now exists everywhere:
+  - `@devslab/editor-ruler-tiptap` — `visible` option (default true) plus
+    **`showRuler` / `hideRuler` / `toggleRuler` commands**; current state at
+    `editor.storage.editorRuler.visible`. Typed via Tiptap `Commands` /
+    `Storage` module augmentation.
+  - `@devslab/editor-ruler-ckeditor5` — `editorRuler.visible` config
+    (default true); the existing `show()`/`hide()`/`toggle()` plugin API and
+    toolbar dropdown bring it up later. The `editorRuler` config key is now
+    typed via `EditorConfig` module augmentation.
+  - Note: the vertical ruler (and its `rulerVerticalGutter`) remains
+    Froala-only for now.
+- Landing page gains a **CKEditor 5 연동 section** (it had Froala and Tiptap
+  but never CKEditor 5) and documents the new visibility controls.
+
+### Changed
+
+- README CDN pins bumped `@0.14` → `@0.15`.
+
 ## [0.14.0] - 2026-08-06
 
 ### Added
@@ -246,7 +269,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.3...v0.13.0
 [0.12.3]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.2...v0.12.3

@@ -205,6 +205,21 @@ describe('defineRulerPlugin', () => {
     expect(api.getGuides()).toEqual({ x: [], y: [] });
   });
 
+  it('caps the vertical ruler at the scroll container height, not the content height', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container, wrapper } = makeEditor({ rulerVertical: true });
+    // .fr-element grows with content (900px) while .fr-wrapper is the fixed
+    // scroll viewport (300px) — the strip must match the viewport.
+    Object.defineProperty(editor.el, 'clientHeight', { value: 900, configurable: true });
+    Object.defineProperty(wrapper, 'clientHeight', { value: 300, configurable: true });
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+
+    const vruler = container.querySelector('.edr-vruler') as HTMLElement;
+    expect(vruler.style.height).toBe('300px');
+  });
+
   it('mounts vertical ruler on init when rulerVertical is true and unwraps on destroy', () => {
     const FE = makeFroalaConstructor();
     defineRulerPlugin(FE);

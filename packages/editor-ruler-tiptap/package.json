@@ -1,6 +1,6 @@
 {
   "name": "@devslab/editor-ruler-tiptap",
-  "version": "0.12.2",
+  "version": "0.12.3",
   "description": "Tiptap extension for @devslab/editor-ruler — a Word-like horizontal ruler with margins, first-line indent, and guide lines.",
   "license": "Apache-2.0",
   "author": "devslab",

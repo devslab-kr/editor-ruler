@@ -59,6 +59,17 @@ export interface CkRulerConfig {
   guides?: boolean;
   guideSnap?: number;
   language?: string;
+  /**
+   * Whether the ruler starts visible. Default true. `visible: false` mounts
+   * it hidden — the toolbar dropdown / plugin `show()` bring it up later.
+   */
+  visible?: boolean;
+}
+
+declare module 'ckeditor5' {
+  interface EditorConfig {
+    editorRuler?: CkRulerConfig;
+  }
 }
 
 /**
@@ -260,6 +271,7 @@ export class EditorRulerPlugin extends Plugin {
     mount.className = 'edr-ck-mount';
     host.insertBefore(mount, domRoot);
     this._mountEl = mount;
+    if (config.visible === false) this.hide();
 
     const padding = (side: 'paddingLeft' | 'paddingRight' | 'paddingTop'): number =>
       parseFloat(win.getComputedStyle(domRoot)[side]) || 0;

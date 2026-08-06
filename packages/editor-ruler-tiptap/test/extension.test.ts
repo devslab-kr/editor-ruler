@@ -42,6 +42,36 @@ describe('EditorRuler (Tiptap)', () => {
     expect(element.querySelector('.edr-tiptap-mount')).toBeNull();
   });
 
+  it('visible: false starts the ruler hidden; commands toggle it', async () => {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    const editor = new Editor({
+      element,
+      extensions: [StarterKit, EditorRuler.configure({ visible: false })],
+      content: '<p>Hi</p>',
+    });
+    if (!element.querySelector('.edr-tiptap-mount')) {
+      await new Promise<void>((resolve) => {
+        editor.on('create', () => resolve());
+        setTimeout(resolve, 50);
+      });
+    }
+
+    const mount = element.querySelector('.edr-tiptap-mount') as HTMLElement;
+    expect(mount.style.display).toBe('none');
+    expect(editor.storage.editorRuler.visible).toBe(false);
+
+    editor.commands.toggleRuler();
+    expect(mount.style.display).toBe('');
+    expect(editor.storage.editorRuler.visible).toBe(true);
+
+    editor.commands.hideRuler();
+    expect(mount.style.display).toBe('none');
+    editor.commands.showRuler();
+    expect(mount.style.display).toBe('');
+    editor.destroy();
+  });
+
   it('applies indentation to the current paragraph as portable inline CSS', async () => {
     const { editor, element } = await makeEditor();
     editor.commands.setTextSelection(3);

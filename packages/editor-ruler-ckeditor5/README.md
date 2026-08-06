@@ -20,6 +20,8 @@ ClassicEditor.create(document.querySelector('#editor'), {
   plugins: [Essentials, Paragraph, Heading, Bold, Italic, EditorRulerPlugin],
   toolbar: ['heading', '|', 'bold', 'italic', '|', 'editorRuler'], // ruler-icon dropdown
   editorRuler: {
+    visible: true,  // false starts the ruler hidden — the toolbar dropdown
+                    // or plugin.show() brings it up later
     unit: 'cm',     // 'cm' | 'in' | 'px'
     guides: true,   // drag down from the ruler for guide lines
     guideSnap: 5,   // snap distance in px; 0 disables

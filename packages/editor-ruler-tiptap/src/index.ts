@@ -21,6 +21,12 @@ export interface RulerIndent {
 export interface EditorRulerOptions {
   /** Node types that carry indentation. */
   types: string[];
+  /**
+   * Whether the ruler starts visible with the editor. Default true.
+   * `visible: false` mounts it hidden — bring it up later with the
+   * `showRuler` / `toggleRuler` commands.
+   */
+  visible: boolean;
   unit: RulerUnit;
   /** Enable guide lines (drag down from the ruler). */
   guides: boolean;
@@ -59,7 +65,27 @@ function parseIndent(element: HTMLElement): RulerIndent | null {
 interface RulerStorage {
   ruler: Ruler | null;
   guides: Guides | null;
+  /** The ruler's mount element (for show/hide). */
+  host: HTMLElement | null;
+  /** Current visibility — read via `editor.storage.editorRuler.visible`. */
+  visible: boolean;
   cleanup: (() => void) | null;
+}
+
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    editorRuler: {
+      /** Show the ruler. */
+      showRuler: () => ReturnType;
+      /** Hide the ruler (extension stays active). */
+      hideRuler: () => ReturnType;
+      /** Toggle ruler visibility. */
+      toggleRuler: () => ReturnType;
+    };
+  }
+  interface Storage {
+    editorRuler: RulerStorage;
+  }
 }
 
 /**
@@ -84,6 +110,7 @@ export const EditorRuler = Extension.create<EditorRulerOptions, RulerStorage>({
   addOptions() {
     return {
       types: ['paragraph', 'heading'],
+      visible: true,
       unit: 'cm',
       guides: true,
       guideSnap: 5,
@@ -93,7 +120,22 @@ export const EditorRuler = Extension.create<EditorRulerOptions, RulerStorage>({
   },
 
   addStorage() {
-    return { ruler: null, guides: null, cleanup: null };
+    return { ruler: null, guides: null, host: null, visible: true, cleanup: null };
+  },
+
+  addCommands() {
+    const setVisible = (storage: RulerStorage, visible: boolean): boolean => {
+      if (!storage.host) return false;
+      storage.host.style.display = visible ? '' : 'none';
+      storage.visible = visible;
+      if (visible) storage.ruler?.refresh();
+      return true;
+    };
+    return {
+      showRuler: () => () => setVisible(this.storage, true),
+      hideRuler: () => () => setVisible(this.storage, false),
+      toggleRuler: () => () => setVisible(this.storage, !this.storage.visible),
+    };
   },
 
   addGlobalAttributes() {
@@ -249,6 +291,9 @@ export const EditorRuler = Extension.create<EditorRulerOptions, RulerStorage>({
 
     storage.ruler = ruler;
     storage.guides = guides;
+    storage.host = host;
+    storage.visible = options.visible !== false;
+    if (!storage.visible) host.style.display = 'none';
     storage.cleanup = () => {
       win.removeEventListener('resize', onResize);
       ruler.destroy();

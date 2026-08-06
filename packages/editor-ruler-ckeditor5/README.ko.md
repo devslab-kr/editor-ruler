@@ -20,6 +20,8 @@ ClassicEditor.create(document.querySelector('#editor'), {
   plugins: [Essentials, Paragraph, Heading, Bold, Italic, EditorRulerPlugin],
   toolbar: ['heading', '|', 'bold', 'italic', '|', 'editorRuler'], // 줄자 아이콘 드롭다운
   editorRuler: {
+    visible: true,  // false면 숨긴 채 시작 — 툴바 드롭다운이나
+                    // plugin.show()로 나중에 표시
     unit: 'cm',     // 'cm' | 'in' | 'px'
     guides: true,   // 줄자에서 아래로 드래그 → 가이드선
     guideSnap: 5,   // 스냅 거리(px); 0이면 비활성

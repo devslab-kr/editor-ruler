@@ -28,7 +28,7 @@ ruler.destroy();
 CDN 사용(빌드 도구 없이) — iife 빌드가 전역 `EditorRuler`를 노출합니다:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.14/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.15/dist/index.global.js"></script>
 ```
 
 에디터 연동은 어댑터를 사용하세요 (예: [`@devslab/editor-ruler-froala`](https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-froala)).

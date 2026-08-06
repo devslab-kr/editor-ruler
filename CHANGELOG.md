@@ -9,6 +9,18 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.12.3] - 2026-08-06
+
+### Fixed
+
+- `@devslab/editor-ruler-froala` — the vertical ruler sized itself to
+  `.fr-element` (which grows with content) instead of `.fr-wrapper` (the
+  fixed-height scroll container), so with a fixed editor height and long
+  content the strip outgrew the visible editor. It is now capped at the
+  wrapper's viewport height, falling back to the content height when the
+  wrapper has no fixed layout (`heightMin`-only setups, jsdom). Reported by
+  a user running a fixed-height Froala — thank you!
+
 ## [0.12.2] - 2026-08-06
 
 ### Fixed
@@ -202,7 +214,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.2...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.3...HEAD
+[0.12.3]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.2...v0.12.3
 [0.12.2]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.11.0...v0.12.0

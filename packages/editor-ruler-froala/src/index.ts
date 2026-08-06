@@ -406,12 +406,18 @@ export function defineRulerPlugin(FroalaEditor: any, defineOptions: DefineRulerP
           ...(guides ? { guides } : {}),
           getMetrics: () => {
             const target = editorEl();
-            return {
-              contentHeight: Math.max(
-                0,
-                target.clientHeight - contentPadding('paddingTop') - contentPadding('paddingBottom'),
-              ),
-            };
+            const scroller = wrapperEl();
+            const padTop = contentPadding('paddingTop');
+            const contentH =
+              target.clientHeight - padTop - contentPadding('paddingBottom');
+            // .fr-element grows with its content, but .fr-wrapper is the
+            // scroll container with the fixed visible height — cap the strip
+            // at the visible viewport or it outgrows the editor. (Falls back
+            // to the content height when the wrapper has no layout, e.g. in
+            // jsdom or when the wrapper auto-grows with heightMin only.)
+            const viewportH =
+              scroller.clientHeight > 0 ? scroller.clientHeight - padTop : Infinity;
+            return { contentHeight: Math.max(0, Math.min(contentH, viewportH)) };
           },
         });
       }

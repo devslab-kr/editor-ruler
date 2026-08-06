@@ -341,6 +341,16 @@ Copy an existing adapter's test file as your template.
    bites on clean checkouts (CI), never on a warm local tree.
 6. **Tiptap v3 emits `create` asynchronously** — tests must await editor
    readiness before touching the mounted ruler.
+7. **The vertical ruler strip consumes real width** — it wraps the editor's
+   scroll container in a flex row (`.edr-vwrap`) with a 23px strip beside it,
+   so showing it narrows the writable area by 23px and the horizontal ruler
+   correctly re-reads the narrower width. That's geometry, not a bug — but
+   the reflow on toggle is jarring, so the Froala adapter's
+   `rulerVerticalGutter: true` reserves the column at init
+   (`visibility: hidden`, scrollbar-gutter style) and toggling never moves
+   the content. Field-reported twice before this was understood: once as
+   "content shifts 820 → 800", once as the strip height bug (§ the wrapper,
+   not the growing `.fr-element`, is the fixed viewport).
 
 ## 8. File map & dev loop
 

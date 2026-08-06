@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6?logo=typescript&logoColor=white)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE)
 
-**[문서 & 라이브 데모](https://devslab-kr.github.io/editor-ruler/)** · [English](README.md)
+**[문서 & 라이브 데모](https://devslab-kr.github.io/editor-ruler/)** · [Architecture](docs/ARCHITECTURE.md) · [English](README.md)
 
 웹 리치텍스트 에디터를 위한 **Word 스타일 가로 줄자** — 좌/우 여백과 첫 줄 들여쓰기를 드래그 핸들·키보드로 조절, cm/in/px 눈금 지원.
 

@@ -322,6 +322,8 @@ defineRulerPlugin(FroalaEditor); // 인스턴스 생성 전에 1회
 new FroalaEditor('#editor', {
   rulerEnabled: true, // 기본 true
   rulerUnit: 'cm',
+  // 세로 줄자 23px 자리를 미리 예약 — 토글해도 본문 폭 불변 (기본 false):
+  rulerVerticalGutter: true,
   // 줄자 옵션 통합 드롭다운 (보이기/숨기기 + 세로 줄자 + 가이드 + 단위):
   toolbarButtons: ['bold', 'italic', '|', 'rulerOptions'],
   // 따로 쓰고 싶으면 'toggleRuler', 'rulerUnit'도 각각 등록돼 있습니다
@@ -483,6 +485,8 @@ new Editor({
         const ed = new FroalaEditor('#froala-editor', {
           rulerEnabled: true,
           rulerUnit: 'cm',
+          rulerVerticalGutter: true, // 세로 줄자 토글에도 본문 폭 불변
+
           toolbarButtons: ['bold', 'italic', 'underline', '|', 'formatOL', 'formatUL', 'insertTable', '|', 'rulerOptions'],
           heightMin: 220,
           attribution: false,

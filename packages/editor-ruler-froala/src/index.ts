@@ -23,6 +23,13 @@ export interface FroalaRulerOptions {
   rulerUnit?: RulerUnit;
   /** Show the vertical ruler strip on init. Default false. */
   rulerVertical?: boolean;
+  /**
+   * Reserve the vertical ruler's 23px column from the start (like CSS
+   * `scrollbar-gutter: stable`), so toggling the vertical ruler never
+   * reflows the content — hidden means an empty gutter, not reclaimed
+   * width. Default false: the strip only takes space while visible.
+   */
+  rulerVerticalGutter?: boolean;
   /** Enable guide lines (drag down from the ruler strip). Default true. */
   rulerGuides?: boolean;
 }
@@ -135,6 +142,7 @@ export function defineRulerPlugin(FroalaEditor: any, defineOptions: DefineRulerP
       rulerEnabled: true,
       rulerUnit: 'cm' satisfies RulerUnit,
       rulerVertical: false,
+      rulerVerticalGutter: false,
       rulerGuides: true,
       rulerLanguage: null,
     },
@@ -367,9 +375,15 @@ export function defineRulerPlugin(FroalaEditor: any, defineOptions: DefineRulerP
       return parseFloat(win.getComputedStyle(el)[side]) || 0;
     }
 
+    function vGutter(): boolean {
+      return editor.opts.rulerVerticalGutter === true;
+    }
+
     /** Extra x-offset the vertical ruler strip adds in front of the editor. */
     function vRulerOffset(): number {
-      return vVisible ? 23 : 0; // 22px strip + 1px border
+      // 22px strip + 1px border. In gutter mode the column is reserved even
+      // while the strip is hidden, so the offset applies whenever it exists.
+      return vVisible || (vGutter() && vwrap) ? 23 : 0;
     }
 
     function alignMount(): void {
@@ -389,7 +403,7 @@ export function defineRulerPlugin(FroalaEditor: any, defineOptions: DefineRulerP
       return editor.$wp?.get?.(0) ?? editorEl().parentElement ?? editorEl();
     }
 
-    function showVRuler(): void {
+    function ensureVWrap(): void {
       const el = editorEl();
       const doc = el.ownerDocument;
       if (!vwrap) {
@@ -421,14 +435,24 @@ export function defineRulerPlugin(FroalaEditor: any, defineOptions: DefineRulerP
           },
         });
       }
+    }
+
+    function showVRuler(): void {
+      ensureVWrap();
       vmount!.style.display = '';
+      vmount!.style.visibility = '';
       vVisible = true;
       refresh();
     }
 
     function hideVRuler(): void {
       if (!vmount) return;
-      vmount.style.display = 'none';
+      if (vGutter()) {
+        // Keep the reserved column — hide the strip without reclaiming width.
+        vmount.style.visibility = 'hidden';
+      } else {
+        vmount.style.display = 'none';
+      }
       vVisible = false;
       refresh();
     }
@@ -536,7 +560,14 @@ export function defineRulerPlugin(FroalaEditor: any, defineOptions: DefineRulerP
       alignMount();
       visible = true;
 
-      if (editor.opts.rulerVertical === true) showVRuler();
+      if (editor.opts.rulerVertical === true) {
+        showVRuler();
+      } else if (vGutter()) {
+        // Reserve the gutter up front so a later toggle doesn't reflow content.
+        ensureVWrap();
+        vmount!.style.visibility = 'hidden';
+        refresh();
+      }
 
       for (const event of ['mouseup', 'keyup', 'contentChanged', 'commands.after']) {
         editor.events?.on?.(event, refresh);

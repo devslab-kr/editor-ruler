@@ -44,7 +44,7 @@ ruler.refresh(); // call whenever selection or content changes
 The iife build exposes an `EditorRuler` global:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.12/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.13/dist/index.global.js"></script>
 <script>
   const ruler = EditorRuler.createRuler(mountElement, { /* same options */ });
 </script>
@@ -56,8 +56,8 @@ Version pinning options:
 
 | URL | Meaning |
 |---|---|
-| `@0.12.2` | Exact version — never changes, cached longest |
-| `@0.12` | Latest `0.12.x` patch — bugfixes auto-applied, no breaking changes (recommended) |
+| `@0.13.0` | Exact version — never changes, cached longest |
+| `@0.13` | Latest `0.13.x` patch — bugfixes auto-applied, no breaking changes (recommended) |
 | `@latest` (or no version) | Always the newest release — majors included, so breaking changes can land without warning; jsDelivr caches the alias for up to 12h |
 
 ## Quick start (Froala)
@@ -119,7 +119,7 @@ Model attributes down-cast to plain inline CSS; one undo step per drag. See the 
 - `rulerOptions` — **recommended single button**: one ruler-icon dropdown holding Show/Hide, Vertical Ruler, Lock Guides, Clear Guides, plus cm / inch / px (active states checkmarked)
 - `toggleRuler` / `rulerUnit` — the same core functions as separate buttons, for hosts that prefer them split
 
-Froala options: `rulerVertical: true` shows the vertical ruler on init; `rulerGuides: false` disables guide lines.
+Froala options: `rulerVertical: true` shows the vertical ruler on init; `rulerVerticalGutter: true` reserves the strip's 23px column from the start (like `scrollbar-gutter: stable`) so toggling the vertical ruler never reflows the content; `rulerGuides: false` disables guide lines.
 
 ## Features
 

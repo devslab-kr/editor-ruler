@@ -9,6 +9,23 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-08-06
+
+### Added
+
+- `@devslab/editor-ruler-froala` — **`rulerVerticalGutter` option** (default
+  false): reserves the vertical ruler's 23px column from init, like CSS
+  `scrollbar-gutter: stable`. Without it, showing the vertical ruler narrows
+  the writable area by 23px (the strip has to take its space from somewhere,
+  and the horizontal ruler correctly re-reads the narrower width — e.g.
+  820 → ~797); with the gutter on, that space is always reserved, so toggling
+  the vertical ruler never reflows the content. Prompted by a field report of
+  the width shift — thank you!
+
+### Changed
+
+- README CDN pins bumped `@0.12` → `@0.13`.
+
 ## [0.12.3] - 2026-08-06
 
 ### Fixed
@@ -214,7 +231,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.3...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.3...v0.13.0
 [0.12.3]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.2...v0.12.3
 [0.12.2]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.0...v0.12.1

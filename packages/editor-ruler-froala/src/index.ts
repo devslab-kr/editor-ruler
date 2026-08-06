@@ -20,6 +20,13 @@ import {
  */
 export interface FroalaRulerOptions {
   rulerEnabled?: boolean;
+  /**
+   * Whether the horizontal ruler starts visible with the editor. Default
+   * true. Unlike `rulerEnabled: false` (which disables the plugin entirely),
+   * `rulerVisible: false` keeps the plugin — and its toolbar commands —
+   * alive, just hidden until the user toggles it on.
+   */
+  rulerVisible?: boolean;
   rulerUnit?: RulerUnit;
   /** Show the vertical ruler strip on init. Default false. */
   rulerVertical?: boolean;
@@ -140,6 +147,7 @@ export function defineRulerPlugin(FroalaEditor: any, defineOptions: DefineRulerP
   FroalaEditor.DEFAULTS = Object.assign(
     {
       rulerEnabled: true,
+      rulerVisible: true,
       rulerUnit: 'cm' satisfies RulerUnit,
       rulerVertical: false,
       rulerVerticalGutter: false,
@@ -559,6 +567,7 @@ export function defineRulerPlugin(FroalaEditor: any, defineOptions: DefineRulerP
       });
       alignMount();
       visible = true;
+      if (editor.opts.rulerVisible === false) hide();
 
       if (editor.opts.rulerVertical === true) {
         showVRuler();

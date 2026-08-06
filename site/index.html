@@ -320,7 +320,8 @@ import { defineRulerPlugin } from '@devslab/editor-ruler-froala';
 defineRulerPlugin(FroalaEditor); // 인스턴스 생성 전에 1회
 
 new FroalaEditor('#editor', {
-  rulerEnabled: true, // 기본 true
+  rulerEnabled: true, // 기본 true — false면 플러그인 자체 비활성
+  rulerVisible: true, // false면 숨긴 채 시작 — 툴바 토글로 켬 (기본 true)
   rulerUnit: 'cm',
   // 세로 줄자 23px 자리를 미리 예약 — 토글해도 본문 폭 불변 (기본 false):
   rulerVerticalGutter: true,

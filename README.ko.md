@@ -44,7 +44,7 @@ ruler.refresh(); // 선택/내용이 바뀔 때마다 호출
 iife 빌드가 전역 `EditorRuler`를 노출합니다:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.13/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.14/dist/index.global.js"></script>
 <script>
   const ruler = EditorRuler.createRuler(mountElement, { /* 동일한 옵션 */ });
 </script>
@@ -56,8 +56,8 @@ Froala 어댑터도 동일합니다 — `@devslab/editor-ruler-froala/dist/index
 
 | URL | 의미 |
 |---|---|
-| `@0.13.0` | 정확한 버전 고정 — 절대 안 바뀜, 캐시 최장 |
-| `@0.13` | `0.13.x` 최신 패치 — 버그픽스 자동 반영, 브레이킹 없음 (권장) |
+| `@0.14.0` | 정확한 버전 고정 — 절대 안 바뀜, 캐시 최장 |
+| `@0.14` | `0.14.x` 최신 패치 — 버그픽스 자동 반영, 브레이킹 없음 (권장) |
 | `@latest` (또는 버전 생략) | 항상 최신 릴리스 — 메이저 포함이라 브레이킹 체인지가 예고 없이 들어올 수 있음; jsDelivr가 별칭을 최대 12시간 캐시 |
 
 ## 빠른 시작 (Froala)
@@ -119,7 +119,7 @@ ClassicEditor.create(element, {
 - `rulerOptions` — **권장 단일 버튼**: 줄자 아이콘 드롭다운 하나에 보이기/숨기기 · 세로 줄자 · 가이드 잠금 · 가이드 지우기 + cm / inch / px (활성 상태 체크 표시)
 - `toggleRuler` / `rulerUnit` — 핵심 기능을 버튼을 나눠 쓰고 싶을 때
 
-Froala 옵션: `rulerVertical: true`면 초기화 시 세로 줄자 표시, `rulerVerticalGutter: true`면 세로 줄자의 23px 자리를 처음부터 예약해(`scrollbar-gutter: stable`과 같은 발상) 토글해도 본문이 리플로우되지 않음, `rulerGuides: false`면 가이드선 비활성.
+Froala 옵션: `rulerVisible: false`면 가로 줄자를 숨긴 채 시작(플러그인·툴바는 살아 있어 나중에 토글로 켬), `rulerVertical: true`면 초기화 시 세로 줄자 표시, `rulerVerticalGutter: true`면 세로 줄자의 23px 자리를 처음부터 예약해(`scrollbar-gutter: stable`과 같은 발상) 토글해도 본문이 리플로우되지 않음, `rulerGuides: false`면 가이드선 비활성.
 
 ## 기능
 

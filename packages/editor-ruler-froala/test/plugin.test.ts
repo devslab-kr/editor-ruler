@@ -236,6 +236,37 @@ describe('defineRulerPlugin', () => {
     expect(container.contains(wrapper)).toBe(true); // wrapper restored to its old place
   });
 
+  it('rulerVisible: false starts the ruler hidden but toggleable', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor({ rulerVisible: false });
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+
+    // Plugin alive (mount + toolbar API), just hidden at start…
+    const mount = container.querySelector('.edr-froala-mount') as HTMLElement;
+    expect(mount).toBeTruthy();
+    expect(mount.style.display).toBe('none');
+    expect(api.isVisible()).toBe(false);
+
+    // …and a normal toggle brings it up.
+    api.toggle();
+    expect(api.isVisible()).toBe(true);
+    expect(mount.style.display).toBe('');
+  });
+
+  it('rulerVisible: false can still start with the vertical ruler shown', () => {
+    const FE = makeFroalaConstructor();
+    defineRulerPlugin(FE);
+    const { editor, container } = makeEditor({ rulerVisible: false, rulerVertical: true });
+    const api = FE.PLUGINS.ruler!(editor);
+    api._init();
+
+    expect(api.isVisible()).toBe(false);
+    expect(api.isVRulerVisible()).toBe(true);
+    expect(container.querySelector('.edr-vwrap .edr-vruler')).toBeTruthy();
+  });
+
   it('rulerVerticalGutter reserves the strip column up front, hidden', () => {
     const FE = makeFroalaConstructor();
     defineRulerPlugin(FE);

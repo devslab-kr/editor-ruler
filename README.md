@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6?logo=typescript&logoColor=white)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE)
 
-**[Docs & live demo](https://devslab-kr.github.io/editor-ruler/)** · [한국어](README.ko.md)
+**[Docs & live demo](https://devslab-kr.github.io/editor-ruler/)** · [Architecture](docs/ARCHITECTURE.md) · [한국어](README.ko.md)
 
 A **Word-like horizontal ruler** for web rich-text editors — left/right margins and first-line indent with draggable handles, keyboard control, and cm/in/px scales.
 

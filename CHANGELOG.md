@@ -9,6 +9,15 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.12.1] - 2026-08-06
+
+### Changed
+
+- Search discoverability: compound keywords added to every package
+  (`froala-ruler`, `tiptap-ruler`, `ckeditor-ruler`, `horizontal-ruler`, …)
+  and the landing site now ships `robots.txt` + `sitemap.xml`. No code
+  changes.
+
 ## [0.12.0] - 2026-08-06
 
 ### Added
@@ -183,7 +192,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.1...HEAD
+[0.12.1]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.9.0...v0.10.0

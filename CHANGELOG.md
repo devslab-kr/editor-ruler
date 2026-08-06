@@ -9,6 +9,21 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-08-06
+
+### Added
+
+- `@devslab/editor-ruler-froala` — **`rulerVisible` option** (default true):
+  controls whether the horizontal ruler starts visible with the editor.
+  `rulerVisible: false` starts it hidden while keeping the plugin and its
+  toolbar commands alive, so users toggle it on when they want it — the
+  start-state counterpart to `rulerVertical`, completing the symmetry
+  (`rulerEnabled: false` still disables the plugin entirely).
+
+### Changed
+
+- README CDN pins bumped `@0.13` → `@0.14`.
+
 ## [0.13.0] - 2026-08-06
 
 ### Added
@@ -231,7 +246,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.3...v0.13.0
 [0.12.3]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.2...v0.12.3
 [0.12.2]: https://github.com/devslab-kr/editor-ruler/compare/v0.12.1...v0.12.2

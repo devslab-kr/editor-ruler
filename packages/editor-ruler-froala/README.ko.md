@@ -17,7 +17,10 @@ import { defineRulerPlugin } from '@devslab/editor-ruler-froala';
 defineRulerPlugin(FroalaEditor); // 에디터 인스턴스 생성 전에 1회
 
 new FroalaEditor('#editor', {
-  rulerEnabled: true,          // 기본 true
+  rulerEnabled: true,          // 기본 true — false면 플러그인 자체 비활성
+  rulerVisible: true,          // 에디터 시작 시 줄자 표시 여부 — false면 숨긴
+                               // 채 시작 (플러그인·툴바는 살아 있어서 필요할
+                               // 때 토글로 켬)
   rulerUnit: 'cm',             // 'cm' | 'in' | 'px'
   rulerVertical: false,        // 초기화 시 세로 줄자 표시
   rulerVerticalGutter: false,  // 세로 줄자의 23px 자리를 처음부터 예약
@@ -35,7 +38,7 @@ new FroalaEditor('#editor', {
 CDN 사용 — iife 빌드는 코어를 포함한 단일 파일로 전역 `EditorRulerFroala`를 노출합니다:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler-froala@0.13/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler-froala@0.14/dist/index.global.js"></script>
 <script>
   EditorRulerFroala.defineRulerPlugin(FroalaEditor);
 </script>

@@ -17,7 +17,10 @@ import { defineRulerPlugin } from '@devslab/editor-ruler-froala';
 defineRulerPlugin(FroalaEditor); // once, before creating editor instances
 
 new FroalaEditor('#editor', {
-  rulerEnabled: true,          // default true
+  rulerEnabled: true,          // default true — false disables the plugin entirely
+  rulerVisible: true,          // start with the ruler shown; false starts it
+                               // hidden (plugin + toolbar stay alive — the
+                               // user toggles it on when they want it)
   rulerUnit: 'cm',             // 'cm' | 'in' | 'px'
   rulerVertical: false,        // show the vertical ruler on init
   rulerVerticalGutter: false,  // reserve the vertical ruler's 23px column up
@@ -35,7 +38,7 @@ If you configure `pluginsEnabled` explicitly, add `'ruler'` to the list.
 CDN usage — the iife build bundles the core into one file and exposes `EditorRulerFroala`:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler-froala@0.13/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler-froala@0.14/dist/index.global.js"></script>
 <script>
   EditorRulerFroala.defineRulerPlugin(FroalaEditor);
 </script>

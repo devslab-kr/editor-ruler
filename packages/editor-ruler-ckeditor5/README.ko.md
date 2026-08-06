@@ -22,6 +22,10 @@ ClassicEditor.create(document.querySelector('#editor'), {
   editorRuler: {
     visible: true,  // false면 숨긴 채 시작 — 툴바 드롭다운이나
                     // plugin.show()로 나중에 표시
+    vertical: false, // 초기화 시 세로 줄자 표시
+    verticalGutter: false, // 세로 줄자의 23px 자리를 처음부터 예약
+                    // (scrollbar-gutter: stable 방식) — 토글해도
+                    // 본문이 리플로우되지 않음
     unit: 'cm',     // 'cm' | 'in' | 'px'
     guides: true,   // 줄자에서 아래로 드래그 → 가이드선
     guideSnap: 5,   // 스냅 거리(px); 0이면 비활성
@@ -32,7 +36,7 @@ ClassicEditor.create(document.querySelector('#editor'), {
 
 들여쓰기는 모델 속성(`rulerMarginLeft` / `rulerMarginRight` / `rulerTextIndent`)으로 저장되고 **순수 인라인 CSS**(`<p style="margin-left:75px">`)로 다운캐스트됩니다 — `getData()` 출력이 그대로 이식 가능하고, 기존 인라인 들여쓰기도 업캐스트되어 들어옵니다. 드래그 제스처 전체가 정확히 **undo 1스텝**입니다.
 
-플러그인이 **`editorRuler` 툴바 항목**을 등록합니다 — 줄자 아이콘 드롭다운 하나에 보이기/숨기기·가이드 잠금·가이드 지우기·cm/인치/px 전환 (활성 상태 체크 표시, 라벨은 에디터 UI 언어 추종 — ko/en 내장). 전체 API는 `editor.plugins.get('EditorRuler')`에도 있습니다 (`ruler`, `guides`, `show`/`hide`/`toggle`, `setUnit`, `setGuidesLocked`, `clearGuides`).
+플러그인이 **`editorRuler` 툴바 항목**을 등록합니다 — 줄자 아이콘 드롭다운 하나에 보이기/숨기기·세로 줄자·가이드 잠금·가이드 지우기·cm/인치/px 전환 (활성 상태 체크 표시, 라벨은 에디터 UI 언어 추종 — ko/en 내장). 전체 API는 `editor.plugins.get('EditorRuler')`에도 있습니다 (`ruler`, `vruler`, `guides`, `show`/`hide`/`toggle`, `showVRuler`/`hideVRuler`/`toggleVRuler`, `setUnit`, `setGuidesLocked`, `clearGuides`). 세로 줄자에서 오른쪽으로 드래그하면 세로 가이드가 생깁니다.
 
 `ckeditor5 >= 42` (통합 npm 패키지) 필요.
 

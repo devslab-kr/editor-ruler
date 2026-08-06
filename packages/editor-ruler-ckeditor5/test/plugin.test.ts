@@ -68,6 +68,55 @@ describe('EditorRulerPlugin (CKEditor 5)', () => {
     expect(plugin.isVisible()).toBe(true);
   });
 
+  it('editorRuler.vertical: true mounts the strip; toggleVRuler hides it', async () => {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    const editor: any = await ClassicEditor.create(element, {
+      licenseKey: 'GPL',
+      plugins: [Essentials, Paragraph, Heading, EditorRulerPlugin],
+      editorRuler: { vertical: true },
+      initialData: '<p>Hi</p>',
+    });
+    editors.push(editor);
+    const domRoot = editor.editing.view.getDomRoot();
+    const plugin = editor.plugins.get('EditorRuler');
+    const vwrap = document.querySelector('.edr-vwrap') as HTMLElement;
+
+    expect(vwrap).toBeTruthy();
+    expect(vwrap.querySelector('.edr-vruler')).toBeTruthy();
+    expect(vwrap.contains(domRoot)).toBe(true);
+    expect(plugin.isVRulerVisible()).toBe(true);
+
+    plugin.toggleVRuler();
+    const vmount = vwrap.querySelector('.edr-ck-vmount') as HTMLElement;
+    expect(vmount.style.display).toBe('none');
+    expect(plugin.isVRulerVisible()).toBe(false);
+  });
+
+  it('editorRuler.verticalGutter reserves the column across toggles', async () => {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    const editor: any = await ClassicEditor.create(element, {
+      licenseKey: 'GPL',
+      plugins: [Essentials, Paragraph, Heading, EditorRulerPlugin],
+      editorRuler: { verticalGutter: true },
+      initialData: '<p>Hi</p>',
+    });
+    editors.push(editor);
+    const plugin = editor.plugins.get('EditorRuler');
+    const vmount = document.querySelector('.edr-ck-vmount') as HTMLElement;
+
+    expect(vmount).toBeTruthy();
+    expect(vmount.style.visibility).toBe('hidden');
+    expect(plugin.isVRulerVisible()).toBe(false);
+
+    plugin.toggleVRuler(); // show
+    expect(vmount.style.visibility).toBe('');
+    plugin.toggleVRuler(); // hide — gutter stays
+    expect(vmount.style.visibility).toBe('hidden');
+    expect(vmount.style.display).not.toBe('none');
+  });
+
   it('applies indentation to the selected block as portable inline CSS', async () => {
     const { editor, host } = await makeEditor();
     const left = host.querySelector('.edr-handle-left') as HTMLElement;

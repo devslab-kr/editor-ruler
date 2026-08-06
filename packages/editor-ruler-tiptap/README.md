@@ -22,6 +22,10 @@ new Editor({
     EditorRuler.configure({
       visible: true,     // false starts the ruler hidden — show it later
                          // with editor.commands.showRuler()
+      vertical: false,   // show the vertical ruler strip on create
+      verticalGutter: false, // reserve the strip's 23px column up front
+                         // (scrollbar-gutter: stable style) — toggling the
+                         // vertical ruler never reflows the content
       unit: 'cm',        // 'cm' | 'in' | 'px'
       guides: true,      // drag down from the ruler for guide lines
       guideSnap: 5,      // snap distance in px; 0 disables
@@ -35,7 +39,7 @@ new Editor({
 
 Indentation is stored as a `rulerIndent` node attribute and rendered as **plain inline CSS** (`<p style="margin-left: 75px">`), so `editor.getHTML()` output is portable and existing inline indentation parses back in. A whole drag gesture is exactly **one undo step** (drag transactions skip history; the release records baseline → final).
 
-Visibility is controlled with the **`showRuler` / `hideRuler` / `toggleRuler` commands** (`editor.commands.toggleRuler()`); the current state is at `editor.storage.editorRuler.visible`. The ruler API is available at `editor.storage.editorRuler.ruler` (`refresh`/`setUnit`/…) and guides at `editor.storage.editorRuler.guides`.
+Visibility is controlled with the **`showRuler` / `hideRuler` / `toggleRuler` commands** (`editor.commands.toggleRuler()`); the current state is at `editor.storage.editorRuler.visible`. The **vertical ruler** has matching commands — `showVerticalRuler` / `hideVerticalRuler` / `toggleVerticalRuler` — with state at `editor.storage.editorRuler.verticalVisible`; dragging right from it drops a vertical guide. The ruler API is available at `editor.storage.editorRuler.ruler` (`refresh`/`setUnit`/…), the vertical strip at `editor.storage.editorRuler.vruler`, and guides at `editor.storage.editorRuler.guides`.
 
 Works with Tiptap v2 and v3 (`@tiptap/core >= 2`).
 

@@ -9,6 +9,12 @@
       content="웹 리치텍스트 에디터를 위한 Word 스타일 가로 줄자. 여백·첫 줄 들여쓰기 드래그 핸들, 세로 줄자, 가이드선·스냅. Froala·Tiptap·CKEditor 5 어댑터, 의존성 0 코어. API 1.0 안정."
     />
     <link rel="canonical" href="https://devslab-kr.github.io/editor-ruler/" />
+    <!-- Relative so these resolve under /editor-ruler/ on Pages and at the
+         root locally. Declaring them also stops the browser's blind request
+         for /favicon.ico, which on Pages would hit the org root, not us. -->
+    <link rel="icon" href="favicon.ico" sizes="32x32" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="devslab open source" />
     <meta property="og:url" content="https://devslab-kr.github.io/editor-ruler/" />

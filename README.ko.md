@@ -13,6 +13,8 @@
 
 Froala·TinyMCE·CKEditor 5·Quill 등 범용 WYSIWYG 에디터에는 줄자가 없고, Syncfusion·DevExpress·ONLYOFFICE 같은 무거운 문서형 컴포넌트에만 있습니다. `editor-ruler`는 **에디터 불문 코어** + 얇은 **에디터별 어댑터** 구조로 이 공백을 채웁니다.
 
+📄 **왜 만들었나:** [Every web rich-text editor is missing a ruler](https://medium.com/@sinny78/every-web-rich-text-editor-is-missing-a-ruler-bb749d9ee0d3) — 이 공백이 왜 생겼는지, 페이지 모델이 없는 HTML에서 줄자란 무엇일 수 있는지, 만들면서 밟은 함정들 (영문).
+
 ## 패키지
 
 | 패키지 | 설명 |

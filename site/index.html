@@ -110,6 +110,7 @@
         border-radius: 999px; padding: 3px 12px; font-size: 12.5px; color: var(--muted);
       }
       .hero-cta { display: flex; gap: 10px; flex-wrap: wrap; }
+      .hero-story { margin: 14px 0 0; font-size: 13.5px; color: var(--muted); }
       .btn {
         display: inline-block; padding: 8px 18px; border-radius: 8px;
         font-size: 14px; font-weight: 600; border: 1px solid var(--line);
@@ -247,6 +248,11 @@
         <a class="btn primary" href="#demo" data-i18n="cta.demo">라이브 데모 보기</a>
         <a class="btn" href="#start" data-i18n="cta.start">시작하기</a>
       </div>
+      <p class="hero-story" data-i18n="hero.story">
+        📄 왜 만들었나 —
+        <a href="https://medium.com/@sinny78/every-web-rich-text-editor-is-missing-a-ruler-bb749d9ee0d3" target="_blank" rel="noopener">Every web rich-text editor is missing a ruler</a>
+        (영문)
+      </p>
     </div>
 
     <div class="wrap">
@@ -476,6 +482,8 @@ ClassicEditor.create(element, {
         'badge.vruler': 'Vertical ruler',
         'cta.demo': 'See the live demo',
         'cta.start': 'Get started',
+        'hero.story':
+          '📄 Why this exists — <a href="https://medium.com/@sinny78/every-web-rich-text-editor-is-missing-a-ruler-bb749d9ee0d3" target="_blank" rel="noopener">Every web rich-text editor is missing a ruler</a>',
         'h2.demo': 'Live demo — by editor',
         'tab.core': 'Core (contenteditable)',
         'chip.paragraphs': 'Paragraphs',

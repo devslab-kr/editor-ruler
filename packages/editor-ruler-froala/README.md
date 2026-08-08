@@ -4,6 +4,8 @@
 
 **[Docs & live demo](https://devslab-kr.github.io/editor-ruler/)** · [한국어](README.ko.md)
 
+**Stable since 1.0.0** — the exported API follows semantic versioning; see the [stability scope](https://github.com/devslab-kr/editor-ruler#stability).
+
 [Froala WYSIWYG editor](https://froala.com) adapter for [`@devslab/editor-ruler`](https://github.com/devslab-kr/editor-ruler) — adds a Word-like horizontal ruler (margins + first-line indent) above the editor.
 
 ```bash

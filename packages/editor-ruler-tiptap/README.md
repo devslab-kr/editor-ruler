@@ -4,6 +4,8 @@
 
 **[Docs & live demo](https://devslab-kr.github.io/editor-ruler/)** · [한국어](README.ko.md)
 
+**Stable since 1.0.0** — the exported API follows semantic versioning; see the [stability scope](https://github.com/devslab-kr/editor-ruler#stability).
+
 [Tiptap](https://tiptap.dev) extension for [`@devslab/editor-ruler`](https://github.com/devslab-kr/editor-ruler) — a Word-like horizontal ruler with margin/first-line-indent drag handles and guide lines above your editor.
 
 ```bash

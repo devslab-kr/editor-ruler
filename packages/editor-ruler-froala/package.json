@@ -1,6 +1,6 @@
 {
   "name": "@devslab/editor-ruler-froala",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Froala WYSIWYG editor adapter for @devslab/editor-ruler — a Word-like horizontal ruler plugin.",
   "license": "Apache-2.0",
   "author": "devslab",

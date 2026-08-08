@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@devslab/editor-ruler-tiptap": "^1.0.0",
+    "@devslab/editor-ruler-tiptap": "^1.0.1",
     "@tiptap/core": "^3.6.5",
     "@tiptap/extension-image": "^3.6.5",
     "@tiptap/starter-kit": "^3.6.5"

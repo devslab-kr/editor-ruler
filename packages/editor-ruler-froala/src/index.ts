@@ -41,7 +41,11 @@ export interface FroalaRulerOptions {
   rulerGuides?: boolean;
 }
 
-interface FroalaRulerApi {
+/**
+ * The plugin API exposed as `editor.ruler` on a Froala instance.
+ * `_init` is Froala's own lifecycle hook — the editor calls it, you don't.
+ */
+export interface FroalaRulerApi {
   _init(): void;
   refresh(): void;
   show(): void;

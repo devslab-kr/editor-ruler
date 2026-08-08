@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@devslab/editor-ruler": "^0.16.0"
+    "@devslab/editor-ruler": "^1.0.0"
   },
   "devDependencies": {
     "vite": "^5.4.0"

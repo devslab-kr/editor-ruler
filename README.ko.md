@@ -9,6 +9,8 @@
 
 웹 리치텍스트 에디터를 위한 **Word 스타일 가로 줄자** — 좌/우 여백과 첫 줄 들여쓰기를 드래그 핸들·키보드로 조절, cm/in/px 눈금 지원.
 
+**1.0.0부터 안정 버전** — 범위는 [안정성](#안정성) 참조.
+
 Froala·TinyMCE·CKEditor 5·Quill 등 범용 WYSIWYG 에디터에는 줄자가 없고, Syncfusion·DevExpress·ONLYOFFICE 같은 무거운 문서형 컴포넌트에만 있습니다. `editor-ruler`는 **에디터 불문 코어** + 얇은 **에디터별 어댑터** 구조로 이 공백을 채웁니다.
 
 ## 패키지
@@ -44,7 +46,7 @@ ruler.refresh(); // 선택/내용이 바뀔 때마다 호출
 iife 빌드가 전역 `EditorRuler`를 노출합니다:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.16/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@1.0/dist/index.global.js"></script>
 <script>
   const ruler = EditorRuler.createRuler(mountElement, { /* 동일한 옵션 */ });
 </script>
@@ -56,8 +58,8 @@ Froala 어댑터도 동일합니다 — `@devslab/editor-ruler-froala/dist/index
 
 | URL | 의미 |
 |---|---|
-| `@0.16.0` | 정확한 버전 고정 — 절대 안 바뀜, 캐시 최장 |
-| `@0.16` | `0.16.x` 최신 패치 — 버그픽스 자동 반영, 브레이킹 없음 (권장) |
+| `@1.0.0` | 정확한 버전 고정 — 절대 안 바뀜, 캐시 최장 |
+| `@1.0` | `1.0.x` 최신 패치 — 버그픽스 자동 반영, 브레이킹 없음 (권장) |
 | `@latest` (또는 버전 생략) | 항상 최신 릴리스 — 메이저 포함이라 브레이킹 체인지가 예고 없이 들어올 수 있음; jsDelivr가 별칭을 최대 12시간 캐시 |
 
 ## 빠른 시작 (Froala)
@@ -157,9 +159,26 @@ pnpm install && pnpm build
 # demo/index.html을 브라우저에서 열기 (순수 contenteditable + 코어 줄자)
 ```
 
+## 안정성
+
+**1.0.0부터 안정 버전**입니다. 문서화된 API의 breaking change는 메이저 릴리스를 필요로 합니다.
+
+약속에 포함되는 것:
+
+- 네 패키지 진입점에서 export하는 모든 심볼, 각 어댑터가 받는 옵션·설정
+- 테마링에 쓰는 `--edr-*` CSS 커스텀 프로퍼티
+- 출력 계약 — 들여쓰기는 순수 인라인 CSS(`margin-left` / `margin-right` / `text-indent`, px)로 기록
+
+의도적으로 **포함하지 않는** 것 (계속 개선할 수 있도록):
+
+- 주입되는 DOM 구조와 내부 클래스명(`.edr-vwrap`, `.edr-froala-vmount` 등) — 내부 셀렉터를 잡지 말고 CSS 변수로 테마링하세요
+- `@internal` 표시된 모든 것
+
 ## 개발
 
-pnpm 모노레포. `pnpm build` / `pnpm test` / `pnpm typecheck`. 버저닝은 [changesets](https://github.com/changesets/changesets).
+pnpm 모노레포. `pnpm build` / `pnpm test` / `pnpm typecheck`.
+
+버전의 단일 진실 원천은 `packages/editor-ruler/package.json`입니다 — 이것만 올리고 `pnpm sync:versions`를 돌리면 형제 패키지·`examples/` 핀·README CDN 핀에 전파됩니다. `pnpm check:versions`는 고치지 않고 어긋남만 보고하며 CI에서 실행되므로, 낡은 참조는 배포되는 대신 빌드를 깨뜨립니다.
 
 ## 라이선스
 

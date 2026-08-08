@@ -72,17 +72,30 @@ function parseIndent(element: HTMLElement): RulerIndent | null {
   return Object.keys(indent).length > 0 ? indent : null;
 }
 
-interface RulerStorage {
+/**
+ * Shape of `editor.storage.editorRuler`. Everything here is read-only from
+ * the outside — drive visibility with the commands, not by assignment.
+ */
+export interface RulerStorage {
+  /** The horizontal ruler handle (`refresh`/`setUnit`/…), once mounted. */
   ruler: Ruler | null;
+  /** The guide-line controller, or null when `guides: false`. */
   guides: Guides | null;
+  /** The vertical strip, or null until the vertical ruler is first shown. */
   vruler: VRuler | null;
-  /** The ruler's mount element (for show/hide). */
+  /** The ruler's mount element. */
   host: HTMLElement | null;
-  /** Current visibility — read via `editor.storage.editorRuler.visible`. */
+  /** Whether the horizontal ruler is currently visible. */
   visible: boolean;
-  /** Current vertical ruler visibility. */
+  /** Whether the vertical ruler is currently visible. */
   verticalVisible: boolean;
-  /** @internal — set by onCreate, used by the vertical ruler commands. */
+}
+
+/**
+ * Implementation-only fields. Kept off {@link RulerStorage} so the public
+ * type stays a stable contract — these can change without a major bump.
+ */
+interface InternalRulerStorage extends RulerStorage {
   setVerticalVisible: ((visible: boolean) => void) | null;
   cleanup: (() => void) | null;
 }
@@ -163,18 +176,19 @@ export const EditorRuler = Extension.create<EditorRulerOptions, RulerStorage>({
       if (visible) storage.ruler?.refresh();
       return true;
     };
-    const setVertical = (storage: RulerStorage, visible: boolean): boolean => {
+    const setVertical = (storage: InternalRulerStorage, visible: boolean): boolean => {
       if (!storage.setVerticalVisible) return false;
       storage.setVerticalVisible(visible);
       return true;
     };
+    const internal = (): InternalRulerStorage => this.storage as InternalRulerStorage;
     return {
       showRuler: () => () => setVisible(this.storage, true),
       hideRuler: () => () => setVisible(this.storage, false),
       toggleRuler: () => () => setVisible(this.storage, !this.storage.visible),
-      showVerticalRuler: () => () => setVertical(this.storage, true),
-      hideVerticalRuler: () => () => setVertical(this.storage, false),
-      toggleVerticalRuler: () => () => setVertical(this.storage, !this.storage.verticalVisible),
+      showVerticalRuler: () => () => setVertical(internal(), true),
+      hideVerticalRuler: () => () => setVertical(internal(), false),
+      toggleVerticalRuler: () => () => setVertical(internal(), !this.storage.verticalVisible),
     };
   },
 
@@ -199,7 +213,7 @@ export const EditorRuler = Extension.create<EditorRulerOptions, RulerStorage>({
   onCreate() {
     const editor = this.editor;
     const options = this.options;
-    const storage = this.storage;
+    const storage = this.storage as InternalRulerStorage;
     const view = editor.view;
     const dom = view.dom as HTMLElement;
     const doc = dom.ownerDocument;
@@ -421,7 +435,7 @@ export const EditorRuler = Extension.create<EditorRulerOptions, RulerStorage>({
   },
 
   onDestroy() {
-    this.storage.cleanup?.();
+    (this.storage as InternalRulerStorage).cleanup?.();
   },
 });
 

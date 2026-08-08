@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="editor-ruler">
+  <rect width="32" height="32" rx="6" fill="#2563eb" />
+  <!-- Every coordinate is even so that at 16px — where a favicon actually
+       lives — each edge lands on a whole pixel instead of smearing across
+       two. Three fat notches survive that downscale; five thin ones did not. -->
+  <rect x="4" y="10" width="24" height="12" rx="2" fill="#ffffff" />
+  <g fill="#2563eb">
+    <rect x="10" y="10" width="2" height="6" />
+    <rect x="16" y="10" width="2" height="6" />
+    <rect x="22" y="10" width="2" height="6" />
+  </g>
+</svg>

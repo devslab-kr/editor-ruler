@@ -13,6 +13,8 @@ A **Word-like horizontal ruler** for web rich-text editors — left/right margin
 
 Every classic WYSIWYG editor (Froala, TinyMCE, CKEditor 5, Quill, …) ships without a ruler; only heavyweight document-model components (Syncfusion, DevExpress, ONLYOFFICE) have one. `editor-ruler` fills that gap with an **editor-agnostic core** plus thin **per-editor adapters**.
 
+📄 **Background reading:** [Every web rich-text editor is missing a ruler](https://medium.com/@sinny78/every-web-rich-text-editor-is-missing-a-ruler-bb749d9ee0d3) — why the gap exists, what a ruler can mean when there is no page model, and the gotchas found while building this.
+
 ## Packages
 
 | Package | Description |

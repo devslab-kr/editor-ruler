@@ -9,6 +9,8 @@
 
 A **Word-like horizontal ruler** for web rich-text editors — left/right margins and first-line indent with draggable handles, keyboard control, and cm/in/px scales.
 
+**Stable since 1.0.0** — see [Stability](#stability) for what that covers.
+
 Every classic WYSIWYG editor (Froala, TinyMCE, CKEditor 5, Quill, …) ships without a ruler; only heavyweight document-model components (Syncfusion, DevExpress, ONLYOFFICE) have one. `editor-ruler` fills that gap with an **editor-agnostic core** plus thin **per-editor adapters**.
 
 ## Packages
@@ -44,7 +46,7 @@ ruler.refresh(); // call whenever selection or content changes
 The iife build exposes an `EditorRuler` global:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@0.16/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@1.0/dist/index.global.js"></script>
 <script>
   const ruler = EditorRuler.createRuler(mountElement, { /* same options */ });
 </script>
@@ -56,8 +58,8 @@ Version pinning options:
 
 | URL | Meaning |
 |---|---|
-| `@0.16.0` | Exact version — never changes, cached longest |
-| `@0.16` | Latest `0.16.x` patch — bugfixes auto-applied, no breaking changes (recommended) |
+| `@1.0.0` | Exact version — never changes, cached longest |
+| `@1.0` | Latest `1.0.x` patch — bugfixes auto-applied, no breaking changes (recommended) |
 | `@latest` (or no version) | Always the newest release — majors included, so breaking changes can land without warning; jsDelivr caches the alias for up to 12h |
 
 ## Quick start (Froala)
@@ -157,9 +159,26 @@ pnpm install && pnpm build
 # open demo/index.html in a browser (plain contenteditable + the core ruler)
 ```
 
+## Stability
+
+Stable since **1.0.0**. Breaking changes to the documented API require a major release.
+
+Covered by that promise:
+
+- Every symbol exported from the four packages' entry points, and the options / config each adapter accepts
+- The `--edr-*` CSS custom properties used for theming
+- The output contract — indentation is written as plain inline CSS (`margin-left` / `margin-right` / `text-indent`, in px)
+
+Deliberately **not** covered, so they can keep improving:
+
+- The injected DOM structure and internal class names (`.edr-vwrap`, `.edr-froala-vmount`, …) — theme with the CSS variables rather than matching internals
+- Anything marked `@internal`
+
 ## Development
 
-pnpm monorepo. `pnpm build` / `pnpm test` / `pnpm typecheck` run across packages. Versioning via [changesets](https://github.com/changesets/changesets).
+pnpm monorepo. `pnpm build` / `pnpm test` / `pnpm typecheck` run across packages.
+
+`packages/editor-ruler/package.json` is the single source of truth for the version — bump it, then run `pnpm sync:versions` to propagate it to the sibling packages, the `examples/` pins, and the README CDN pins. `pnpm check:versions` reports drift instead of fixing it and runs in CI, so a stale reference fails the build rather than shipping.
 
 ## License
 

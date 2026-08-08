@@ -9,6 +9,45 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-08-08
+
+**Stable.** The API is now under semantic versioning: breaking changes to
+the documented public surface require a major release. Nothing about the
+ruler's behavior changed in this release — **upgrading from 0.16.0 needs no
+code changes.**
+
+What the commitment covers:
+
+- Every symbol exported from the four packages' entry points, and the
+  options/config each adapter accepts.
+- The `--edr-*` CSS custom properties used for theming.
+- The output contract: indentation is written as plain inline CSS
+  (`margin-left` / `margin-right` / `text-indent` in px), so exported HTML
+  stays portable.
+
+What it deliberately does **not** cover, so these can still improve:
+
+- The injected DOM structure and internal class names (`.edr-vwrap`,
+  `.edr-froala-vmount`, …). Theme with the CSS variables, not by
+  selector-matching internals.
+- Anything marked `@internal`.
+
+### Added
+
+- `@devslab/editor-ruler-tiptap` — `RulerStorage` is now **exported**. It is
+  the type of `editor.storage.editorRuler`, which the README documents as
+  public API, but consumers previously had no way to name it.
+- `@devslab/editor-ruler-froala` — `FroalaRulerApi` is now **exported**, for
+  the same reason: it types `editor.ruler`.
+
+### Changed
+
+- `@devslab/editor-ruler-tiptap` — the implementation-only fields
+  (`setVerticalVisible`, `cleanup`) were moved off the public `RulerStorage`
+  type. They were never meant to be called from outside, and freezing them
+  into a stable contract would have blocked internal refactors. Runtime
+  behavior is unchanged.
+
 ### Fixed
 
 - The `examples/` StackBlitz projects still pinned `@devslab/editor-ruler*`
@@ -310,7 +349,8 @@ with a shared version number.
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v0.16.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.16.0...v1.0.0
 [0.16.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.13.0...v0.14.0

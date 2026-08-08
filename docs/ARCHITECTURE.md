@@ -351,6 +351,13 @@ Copy an existing adapter's test file as your template.
    style) so toggling never moves the content. Field-reported twice before this was understood: once as
    "content shifts 820 → 800", once as the strip height bug (§ the wrapper,
    not the growing `.fr-element`, is the fixed viewport).
+8. **Hand-edited version strings rot silently.** The `examples/` pins sat at
+   `0.10.0` while the packages shipped `0.16.0`, so every StackBlitz demo
+   linked from the README installed a build without the features the docs
+   advertised — and nothing failed, because no test reads a demo's
+   `package.json`. Published READMEs had already rotted the same way once
+   (`@0.1` CDN pins, fixed in 0.12.2). Anything version-shaped must be
+   derived from the core package and guarded by `check:versions`; see §8.
 
 ## 8. File map & dev loop
 
@@ -369,6 +376,16 @@ examples/                                     one-click StackBlitz projects
 site/                                         landing page with per-editor demo tabs
 ```
 
-Dev loop: `pnpm verify` (build → typecheck → test) → `pnpm build:pages` →
-open `.pages/index.html` and try it in a real browser → PR → merging to
-`main` redeploys the site → pushing a `v*` tag publishes all packages to npm.
+Dev loop: `pnpm verify` (version check → build → typecheck → test) →
+`pnpm build:pages` → open `.pages/index.html` and try it in a real browser →
+PR → merging to `main` redeploys the site → pushing a `v*` tag publishes all
+packages to npm.
+
+**Releasing.** `packages/editor-ruler/package.json` is the single source of
+truth for the version; every other version string is derived. Bump it, then
+run `pnpm sync:versions`, which rewrites the sibling packages' versions, the
+`examples/` dependency pins, and the README CDN pins (URLs carry the minor,
+the pinning table carries both). `pnpm check:versions` is the same script in
+report-only mode; it runs inside `verify`, in CI on every PR, and therefore
+in `publish.yml` before anything reaches npm — so a stale derived reference
+fails the build instead of shipping.

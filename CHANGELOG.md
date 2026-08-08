@@ -9,6 +9,23 @@ with a shared version number.
 
 ## [Unreleased]
 
+### Fixed
+
+- The `examples/` StackBlitz projects still pinned `@devslab/editor-ruler*`
+  at `^0.10.0` / `^0.11.0`, so every one-click demo linked from the READMEs
+  and the landing page installed a build with no vertical ruler, no gutter,
+  and no CKEditor 5 toolbar dropdown. Pins now track the released version.
+  (No package changed, so no republish is needed — StackBlitz reads `main`.)
+
+### Changed
+
+- Versions are now **derived, not hand-edited**: `scripts/sync-versions.mjs`
+  propagates `packages/editor-ruler/package.json`'s version to the sibling
+  packages, the `examples/` pins, and the README CDN pins. `pnpm
+  sync:versions` writes, `pnpm check:versions` reports; the check runs inside
+  `verify`, on every CI run, and thus in `publish.yml` before anything is
+  published — stale references now fail the build instead of shipping.
+
 ## [0.16.0] - 2026-08-07
 
 ### Added

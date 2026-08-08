@@ -4,6 +4,8 @@
 
 **[문서 & 라이브 데모](https://devslab-kr.github.io/editor-ruler/)** · [English](README.md)
 
+**1.0.0부터 안정 버전** — export되는 API는 semver를 따릅니다. [안정성 범위](https://github.com/devslab-kr/editor-ruler#안정성) 참조.
+
 [`@devslab/editor-ruler`](https://github.com/devslab-kr/editor-ruler)의 [CKEditor 5](https://ckeditor.com/ckeditor-5/) 플러그인 — 에디터블 위에 Word 스타일 가로 줄자(여백·첫 줄 들여쓰기 드래그 핸들 + 가이드선)를 추가합니다.
 
 ```bash

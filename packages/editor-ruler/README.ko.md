@@ -4,6 +4,8 @@
 
 **[문서 & 라이브 데모](https://devslab-kr.github.io/editor-ruler/)** · [English](README.md)
 
+**1.0.0부터 안정 버전** — export되는 API는 semver를 따릅니다. [안정성 범위](https://github.com/devslab-kr/editor-ruler#안정성) 참조.
+
 [editor-ruler](https://github.com/devslab-kr/editor-ruler)의 에디터 불문 코어: contenteditable 기반 어느 에디터에나 붙는 Word 스타일 가로 줄자(여백 + 첫 줄 들여쓰기). 의존성 0.
 
 ```ts

@@ -9,6 +9,16 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-08-08
+
+### Fixed
+
+- The 1.0.0 stability statement only reached the root README, so the npm
+  pages — where people actually decide whether to adopt — announced 1.0.0
+  without saying what "stable" covers. Each package README now carries the
+  commitment up front and links to the full scope. Docs-only release
+  (republished because npm versions are immutable).
+
 ## [1.0.0] - 2026-08-08
 
 **Stable.** The API is now under semantic versioning: breaking changes to
@@ -349,7 +359,8 @@ What it deliberately does **not** cover, so these can still improve:
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/devslab-kr/editor-ruler/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.16.0...v1.0.0
 [0.16.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.14.0...v0.15.0

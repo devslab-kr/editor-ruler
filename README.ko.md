@@ -23,6 +23,7 @@ Froala·TinyMCE·CKEditor 5·Quill 등 범용 WYSIWYG 에디터에는 줄자가 
 | [`@devslab/editor-ruler-froala`](packages/editor-ruler-froala) | [Froala WYSIWYG 에디터](https://froala.com) 플러그인 어댑터. |
 | [`@devslab/editor-ruler-tiptap`](packages/editor-ruler-tiptap) | [Tiptap](https://tiptap.dev) 확장 (v2/v3). |
 | [`@devslab/editor-ruler-ckeditor5`](packages/editor-ruler-ckeditor5) | [CKEditor 5](https://ckeditor.com/ckeditor-5/) 플러그인 (`ckeditor5 >= 42`). |
+| [`@devslab/editor-ruler-summernote`](packages/editor-ruler-summernote) | [Summernote](https://summernote.org) 플러그인 (`summernote >= 0.8`). |
 
 ## 빠른 시작 (코어 — 아무 contenteditable)
 
@@ -48,7 +49,7 @@ ruler.refresh(); // 선택/내용이 바뀔 때마다 호출
 iife 빌드가 전역 `EditorRuler`를 노출합니다:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@1.0/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@1.1/dist/index.global.js"></script>
 <script>
   const ruler = EditorRuler.createRuler(mountElement, { /* 동일한 옵션 */ });
 </script>
@@ -60,8 +61,8 @@ Froala 어댑터도 동일합니다 — `@devslab/editor-ruler-froala/dist/index
 
 | URL | 의미 |
 |---|---|
-| `@1.0.1` | 정확한 버전 고정 — 절대 안 바뀜, 캐시 최장 |
-| `@1.0` | `1.0.x` 최신 패치 — 버그픽스 자동 반영, 브레이킹 없음 (권장) |
+| `@1.1.0` | 정확한 버전 고정 — 절대 안 바뀜, 캐시 최장 |
+| `@1.1` | `1.1.x` 최신 패치 — 버그픽스 자동 반영, 브레이킹 없음 (권장) |
 | `@latest` (또는 버전 생략) | 항상 최신 릴리스 — 메이저 포함이라 브레이킹 체인지가 예고 없이 들어올 수 있음; jsDelivr가 별칭을 최대 12시간 캐시 |
 
 ## 빠른 시작 (Froala)
@@ -118,6 +119,26 @@ ClassicEditor.create(element, {
 
 모델 속성이 순수 인라인 CSS로 다운캐스트되고, 드래그가 undo 1스텝입니다. [패키지 README](packages/editor-ruler-ckeditor5) 참조.
 
+## 빠른 시작 (Summernote)
+
+```bash
+npm install @devslab/editor-ruler-summernote summernote
+```
+
+```ts
+import $ from 'jquery';
+import 'summernote';
+import { defineRulerPlugin } from '@devslab/editor-ruler-summernote';
+
+defineRulerPlugin($); // 에디터 초기화 전에 1회
+$('#editor').summernote({
+  toolbar: [['misc', ['ruler']]],
+  ruler: { unit: 'cm' },
+});
+```
+
+Froala 어댑터와 같은 직접-DOM 방식이라 **테이블 통째 밀기와 컬럼 마커까지 동일하게** 동작합니다. 커밋이 Summernote의 `afterCommand`를 거쳐 드래그가 undo 1스텝입니다. [패키지 README](packages/editor-ruler-summernote) 참조.
+
 `defineRulerPlugin`은 `ruler` 플러그인과 **함께** 툴바 커맨드들을 등록합니다 — 필요한 것을 `toolbarButtons`에 추가하세요:
 
 - `rulerOptions` — **권장 단일 버튼**: 줄자 아이콘 드롭다운 하나에 보이기/숨기기 · 세로 줄자 · 가이드 잠금 · 가이드 지우기 + cm / inch / px (활성 상태 체크 표시)
@@ -125,7 +146,7 @@ ClassicEditor.create(element, {
 
 Froala 옵션: `rulerVisible: false`면 가로 줄자를 숨긴 채 시작(플러그인·툴바는 살아 있어 나중에 토글로 켬), `rulerVertical: true`면 초기화 시 세로 줄자 표시, `rulerVerticalGutter: true`면 세로 줄자의 23px 자리를 처음부터 예약해(`scrollbar-gutter: stable`과 같은 발상) 토글해도 본문이 리플로우되지 않음, `rulerGuides: false`면 가이드선 비활성.
 
-Tiptap·CKEditor 5도 같은 제어를 지원합니다: `visible: false`면 숨긴 채 시작(Tiptap은 `showRuler`/`hideRuler`/`toggleRuler` 커맨드, CKEditor 5는 플러그인의 `show()`/`toggle()`), 그리고 **세로 줄자는 세 어댑터 모두에서 동작합니다** — `vertical: true`면 초기 표시, `verticalGutter: true`면 23px 자리를 예약해 토글해도 본문이 리플로우되지 않음 (Tiptap: `showVerticalRuler`/`toggleVerticalRuler` 커맨드, CKEditor 5: `showVRuler()`/`toggleVRuler()` + 툴바 드롭다운의 세로 줄자 항목).
+Tiptap·CKEditor 5·Summernote는 각자의 설정 키 아래에서 같은 제어를 받습니다: `visible: false`면 숨긴 채 시작, `vertical: true`면 초기 세로 줄자 표시, `verticalGutter: true`면 23px 자리를 예약해 토글해도 본문이 리플로우되지 않습니다. **세로 줄자와 가이드선은 전 어댑터 공통**이고, 테이블 통째 밀기와 컬럼 마커는 직접-DOM 어댑터(Froala·Summernote)에 있습니다. 토글은 Tiptap이 커맨드(`toggleRuler`·`toggleVerticalRuler`), 나머지는 플러그인 메서드(`toggle()`·`toggleVRuler()`)입니다.
 
 ## 기능
 
@@ -153,6 +174,7 @@ Tiptap·CKEditor 5도 같은 제어를 지원합니다: `visible: false`면 숨�
 - [Froala — StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/froala)
 - [Tiptap — StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/tiptap)
 - [CKEditor 5 — StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/ckeditor5)
+- [Summernote — StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/summernote)
 
 로컬:
 
@@ -167,7 +189,7 @@ pnpm install && pnpm build
 
 약속에 포함되는 것:
 
-- 네 패키지 진입점에서 export하는 모든 심볼, 각 어댑터가 받는 옵션·설정
+- 각 패키지 진입점에서 export하는 모든 심볼, 각 어댑터가 받는 옵션·설정
 - 테마링에 쓰는 `--edr-*` CSS 커스텀 프로퍼티
 - 출력 계약 — 들여쓰기는 순수 인라인 CSS(`margin-left` / `margin-right` / `text-indent`, px)로 기록
 

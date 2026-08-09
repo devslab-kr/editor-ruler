@@ -23,6 +23,7 @@ Every classic WYSIWYG editor (Froala, TinyMCE, CKEditor 5, Quill, …) ships wit
 | [`@devslab/editor-ruler-froala`](packages/editor-ruler-froala) | [Froala WYSIWYG editor](https://froala.com) plugin adapter. |
 | [`@devslab/editor-ruler-tiptap`](packages/editor-ruler-tiptap) | [Tiptap](https://tiptap.dev) extension (v2/v3). |
 | [`@devslab/editor-ruler-ckeditor5`](packages/editor-ruler-ckeditor5) | [CKEditor 5](https://ckeditor.com/ckeditor-5/) plugin (`ckeditor5 >= 42`). |
+| [`@devslab/editor-ruler-summernote`](packages/editor-ruler-summernote) | [Summernote](https://summernote.org) plugin (`summernote >= 0.8`). |
 
 ## Quick start (core, any contenteditable)
 
@@ -48,7 +49,7 @@ ruler.refresh(); // call whenever selection or content changes
 The iife build exposes an `EditorRuler` global:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@1.0/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@1.1/dist/index.global.js"></script>
 <script>
   const ruler = EditorRuler.createRuler(mountElement, { /* same options */ });
 </script>
@@ -60,8 +61,8 @@ Version pinning options:
 
 | URL | Meaning |
 |---|---|
-| `@1.0.1` | Exact version — never changes, cached longest |
-| `@1.0` | Latest `1.0.x` patch — bugfixes auto-applied, no breaking changes (recommended) |
+| `@1.1.0` | Exact version — never changes, cached longest |
+| `@1.1` | Latest `1.1.x` patch — bugfixes auto-applied, no breaking changes (recommended) |
 | `@latest` (or no version) | Always the newest release — majors included, so breaking changes can land without warning; jsDelivr caches the alias for up to 12h |
 
 ## Quick start (Froala)
@@ -118,6 +119,26 @@ ClassicEditor.create(element, {
 
 Model attributes down-cast to plain inline CSS; one undo step per drag. See the [package README](packages/editor-ruler-ckeditor5).
 
+## Quick start (Summernote)
+
+```bash
+npm install @devslab/editor-ruler-summernote summernote
+```
+
+```ts
+import $ from 'jquery';
+import 'summernote';
+import { defineRulerPlugin } from '@devslab/editor-ruler-summernote';
+
+defineRulerPlugin($); // once, before initializing any editor
+$('#editor').summernote({
+  toolbar: [['misc', ['ruler']]],
+  ruler: { unit: 'cm' },
+});
+```
+
+Same direct-DOM behavior as the Froala adapter — including whole-table indent and column markers. Commits go through Summernote's `afterCommand`, so a drag is one undo step. See the [package README](packages/editor-ruler-summernote).
+
 `defineRulerPlugin` registers the `ruler` plugin **and** toolbar commands — add what you need to `toolbarButtons`:
 
 - `rulerOptions` — **recommended single button**: one ruler-icon dropdown holding Show/Hide, Vertical Ruler, Lock Guides, Clear Guides, plus cm / inch / px (active states checkmarked)
@@ -125,7 +146,7 @@ Model attributes down-cast to plain inline CSS; one undo step per drag. See the 
 
 Froala options: `rulerVisible: false` starts the horizontal ruler hidden (plugin and toolbar stay alive — toggle it on later); `rulerVertical: true` shows the vertical ruler on init; `rulerVerticalGutter: true` reserves the strip's 23px column from the start (like `scrollbar-gutter: stable`) so toggling the vertical ruler never reflows the content; `rulerGuides: false` disables guide lines.
 
-Tiptap and CKEditor 5 support the same controls: `visible: false` starts the ruler hidden (`showRuler`/`hideRuler`/`toggleRuler` commands on Tiptap, the plugin's `show()`/`toggle()` on CKEditor 5), and the **vertical ruler works on all three adapters** — `vertical: true` shows it on init, `verticalGutter: true` reserves its 23px column so toggling never reflows the content (Tiptap: `showVerticalRuler`/`toggleVerticalRuler` commands; CKEditor 5: `showVRuler()`/`toggleVRuler()` plus a Vertical Ruler entry in the toolbar dropdown).
+Tiptap, CKEditor 5, and Summernote take the same controls under their own config key: `visible: false` starts the ruler hidden, `vertical: true` shows the vertical ruler on init, and `verticalGutter: true` reserves its 23px column so toggling never reflows the content. **Every adapter has the vertical ruler and guides**; whole-table indent and column markers are on the direct-DOM adapters (Froala, Summernote). Toggling is via commands on Tiptap (`toggleRuler`, `toggleVerticalRuler`) and plugin methods elsewhere (`toggle()`, `toggleVRuler()`).
 
 ## Features
 
@@ -153,6 +174,7 @@ One-click sandboxes:
 - [Froala on StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/froala)
 - [Tiptap on StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/tiptap)
 - [CKEditor 5 on StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/ckeditor5)
+- [Summernote on StackBlitz](https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/summernote)
 
 Locally:
 
@@ -167,7 +189,7 @@ Stable since **1.0.0**. Breaking changes to the documented API require a major r
 
 Covered by that promise:
 
-- Every symbol exported from the four packages' entry points, and the options / config each adapter accepts
+- Every symbol exported from the packages' entry points, and the options / config each adapter accepts
 - The `--edr-*` CSS custom properties used for theming
 - The output contract — indentation is written as plain inline CSS (`margin-left` / `margin-right` / `text-indent`, in px)
 

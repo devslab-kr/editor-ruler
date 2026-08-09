@@ -45,6 +45,15 @@ importers:
         specifier: '>=4.0.0'
         version: 5.3.1
 
+  packages/editor-ruler-summernote:
+    dependencies:
+      '@devslab/editor-ruler':
+        specifier: workspace:^
+        version: link:../editor-ruler
+      summernote:
+        specifier: '>=0.8.0'
+        version: 0.9.1
+
   packages/editor-ruler-tiptap:
     dependencies:
       '@devslab/editor-ruler':
@@ -1927,6 +1936,10 @@ packages:
     resolution: {integrity: sha512-DhuTmvZWux4H1UOnWMB3sk0sbaCVOoQZjv8u1rDoTV0HTdGem9hkAZtl4JZy8P2z4Bg0nT+YMeOFyVr4zcG5Tw==}
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
+
+  summernote@0.9.1:
+    resolution: {integrity: sha512-5Hfuey6+N0XIbk8ZpkGEVDmrkRVRHZWKBhw/072i9/TJLaWUKboB+KOyyd6AzDP2CQs1O6or4zRTU8HY30kt4w==}
+    engines: {node: '>=17.0.0'}
 
   symbol-tree@3.2.4:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
@@ -4685,6 +4698,8 @@ snapshots:
       pirates: 4.0.7
       tinyglobby: 0.2.17
       ts-interface-checker: 0.1.13
+
+  summernote@0.9.1: {}
 
   symbol-tree@3.2.4: {}
 

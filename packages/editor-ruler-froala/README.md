@@ -40,7 +40,7 @@ If you configure `pluginsEnabled` explicitly, add `'ruler'` to the list.
 CDN usage — the iife build bundles the core into one file and exposes `EditorRulerFroala`:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler-froala@1.0/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler-froala@1.1/dist/index.global.js"></script>
 <script>
   EditorRulerFroala.defineRulerPlugin(FroalaEditor);
 </script>

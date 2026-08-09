@@ -1,5 +1,5 @@
 {
-  "name": "editor-ruler-example-tiptap",
+  "name": "editor-ruler-example-summernote",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,10 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@devslab/editor-ruler-tiptap": "^1.1.0",
-    "@tiptap/core": "^3.6.5",
-    "@tiptap/extension-image": "^3.6.5",
-    "@tiptap/starter-kit": "^3.6.5"
+    "@devslab/editor-ruler-summernote": "^1.1.0",
+    "jquery": "^3.7.1",
+    "summernote": "^0.9.1"
   },
   "devDependencies": {
     "vite": "^5.4.0"

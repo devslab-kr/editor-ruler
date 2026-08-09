@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@devslab/editor-ruler-froala": "^1.0.1",
+    "@devslab/editor-ruler-froala": "^1.1.0",
     "froala-editor": "^4.5.2"
   },
   "devDependencies": {

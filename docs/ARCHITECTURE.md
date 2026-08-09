@@ -324,6 +324,13 @@ Then wire the normalization from §3 (cells → table, img → parent block) and
 call `ruler.refresh()` on selection change, content change, and window resize.
 Copy an existing adapter's test file as your template.
 
+The Summernote adapter is the worked example of exactly this: it is direct-DOM
+like Froala, so it reuses the same table/image normalization and column-marker
+math, and only the four host-specific calls differ — `$.summernote.plugins` for
+registration, `context.layoutInfo.editable` for the DOM, `editor.getLastRange`
+for the selection, and `editor.afterCommand` for the undo boundary (that method
+is what calls `history.recordUndo()`).
+
 ## 7. Landmines we already stepped on (so you don't)
 
 1. **jsdom has no layout** — `clientWidth` is 0, which collapses clamp ranges.
@@ -372,6 +379,7 @@ packages/editor-ruler/src/
 packages/editor-ruler-froala/src/index.ts     direct-DOM adapter + toolbar dropdown
 packages/editor-ruler-tiptap/src/index.ts     model adapter (node attribute + transactions)
 packages/editor-ruler-ckeditor5/src/index.ts  model adapter (schema + up/downcast)
+packages/editor-ruler-summernote/src/index.ts direct-DOM adapter (jQuery plugin + toolbar dropdown)
 examples/                                     one-click StackBlitz projects
 site/                                         landing page with per-editor demo tabs
 ```

@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@devslab/editor-ruler-ckeditor5": "^1.0.1",
+    "@devslab/editor-ruler-ckeditor5": "^1.1.0",
     "ckeditor5": "^48.4.0"
   },
   "devDependencies": {

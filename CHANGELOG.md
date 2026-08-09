@@ -9,6 +9,36 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-08
+
+### Added
+
+- **`@devslab/editor-ruler-summernote`** — new package: a [Summernote](https://summernote.org)
+  plugin (`summernote >= 0.8`). Register with `defineRulerPlugin($)` and add
+  `'ruler'` to `toolbar` for the ruler-icon dropdown (Show/Hide, Vertical
+  Ruler, Lock/Clear Guides, cm/inch/px). Options live under the `ruler` key:
+  `enabled`, `visible`, `unit`, `vertical`, `verticalGutter`, `guides`,
+  `guideSnap`, `language`.
+
+  Summernote is direct-DOM like Froala, so this adapter reuses the same
+  behavior rather than approximating it: **whole-table indent and column-width
+  markers work here too** — the first adapter besides Froala to have them.
+  Commits go through Summernote's own `editor.afterCommand`, which is the
+  method that calls `history.recordUndo()`, so a whole drag gesture is exactly
+  one undo step.
+
+- Landing page gains a Summernote demo tab (jQuery and Summernote lazy-load
+  from a CDN only when the tab is opened) and a Summernote integration
+  section; `examples/summernote` added for one-click StackBlitz.
+
+### Changed
+
+- Docs that counted adapters ("all three", "the four packages") are now
+  count-free or corrected, and the feature split is stated where it matters:
+  the vertical ruler and guides are on every adapter, while whole-table indent
+  and column markers are on the direct-DOM adapters (Froala, Summernote).
+- README CDN pins bumped `@1.0` → `@1.1`.
+
 ## [1.0.1] - 2026-08-08
 
 ### Fixed
@@ -359,7 +389,8 @@ What it deliberately does **not** cover, so these can still improve:
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/devslab-kr/editor-ruler/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/devslab-kr/editor-ruler/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.16.0...v1.0.0
 [0.16.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.15.0...v0.16.0

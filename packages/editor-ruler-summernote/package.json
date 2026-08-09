@@ -1,28 +1,27 @@
 {
-  "name": "@devslab/editor-ruler-tiptap",
+  "name": "@devslab/editor-ruler-summernote",
   "version": "1.1.0",
-  "description": "Tiptap extension for @devslab/editor-ruler — a Word-like horizontal ruler with margins, first-line indent, and guide lines.",
+  "description": "Summernote adapter for @devslab/editor-ruler — a Word-like horizontal ruler plugin.",
   "license": "Apache-2.0",
   "author": "devslab",
   "homepage": "https://devslab-kr.github.io/editor-ruler/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/devslab-kr/editor-ruler.git",
-    "directory": "packages/editor-ruler-tiptap"
+    "directory": "packages/editor-ruler-summernote"
   },
   "bugs": "https://github.com/devslab-kr/editor-ruler/issues",
   "keywords": [
-    "tiptap",
-    "tiptap-extension",
-    "prosemirror",
+    "summernote",
+    "summernote-plugin",
+    "summernote-ruler",
     "ruler",
     "wysiwyg",
+    "plugin",
     "indent",
     "margin",
-    "tiptap-ruler",
     "horizontal-ruler",
-    "editor-ruler",
-    "tiptap-v3"
+    "editor-ruler"
   ],
   "type": "module",
   "main": "./dist/index.cjs",
@@ -51,11 +50,11 @@
     "@devslab/editor-ruler": "workspace:^"
   },
   "peerDependencies": {
-    "@tiptap/core": ">=2.0.0"
+    "summernote": ">=0.8.0"
   },
-  "devDependencies": {
-    "@tiptap/core": "^3.6.5",
-    "@tiptap/pm": "^3.6.5",
-    "@tiptap/starter-kit": "^3.6.5"
+  "peerDependenciesMeta": {
+    "summernote": {
+      "optional": true
+    }
   }
 }

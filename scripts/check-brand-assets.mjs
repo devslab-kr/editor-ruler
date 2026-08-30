@@ -42,6 +42,23 @@ async function sha256(relativePath) {
   return createHash('sha256').update(data).digest('hex');
 }
 
+try {
+  const packageJson = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
+  const verify = packageJson.scripts?.verify ?? '';
+  const checkBrand = packageJson.scripts?.['check:brand'] ?? '';
+  if (!verify.includes('pnpm check:brand')) {
+    fail('package.json verify must run pnpm check:brand as a standard quality gate');
+  }
+  if (!checkBrand.includes('scripts/check-brand-assets.mjs')) {
+    fail('package.json check:brand must run the brand checker directly');
+  }
+  if (checkBrand.includes('pnpm verify') || checkBrand.includes('npm run verify')) {
+    fail('package.json check:brand must not recurse into verify');
+  }
+} catch {
+  fail('missing or invalid package.json verification contract');
+}
+
 const manifestPath = 'docs/assets/brand/oss-brand.json';
 try {
   const manifest = JSON.parse(await readFile(path.join(root, manifestPath), 'utf8'));

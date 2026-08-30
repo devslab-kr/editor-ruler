@@ -16,9 +16,10 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "verify": "pnpm check:versions && pnpm build && pnpm typecheck && pnpm test",
+    "verify": "pnpm check:brand && pnpm check:versions && pnpm build && pnpm typecheck && pnpm test",
     "sync:versions": "node scripts/sync-versions.mjs",
     "check:versions": "node scripts/sync-versions.mjs --check",
+    "check:brand": "node scripts/check-brand-assets.mjs",
     "build:pages": "node scripts/build-pages.mjs",
     "changeset": "changeset"
   },

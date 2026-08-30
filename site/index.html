@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>editor-ruler — 웹 에디터를 위한 Word 스타일 줄자</title>
+    <meta name="theme-color" content="#0E7490" />
     <meta
       name="description"
       content="웹 리치텍스트 에디터를 위한 Word 스타일 가로 줄자. 여백·첫 줄 들여쓰기 드래그 핸들, 세로 줄자, 가이드선·스냅. Froala·Tiptap·CKEditor 5 어댑터, 의존성 0 코어. API 1.0 안정."
@@ -16,7 +17,7 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="devslab open source" />
+    <meta property="og:site_name" content="DevsLab Open Source" />
     <meta property="og:url" content="https://devslab-kr.github.io/editor-ruler/" />
     <meta property="og:title" content="editor-ruler — Word 스타일 줄자, 어느 웹 에디터에나" />
     <meta
@@ -26,7 +27,7 @@
     <meta property="og:image" content="https://devslab-kr.github.io/editor-ruler/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="editor-ruler: a Word-style ruler above an editor, with indented paragraphs" />
+    <meta property="og:image:alt" content="editor-ruler O01 — a measured rail with a movable stop. Open source by DevsLab." />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="editor-ruler — Word 스타일 줄자, 어느 웹 에디터에나" />
     <meta
@@ -34,6 +35,8 @@
       content="여백·첫 줄 들여쓰기 드래그 핸들, 세로 줄자, 가이드선·스냅. Froala·Tiptap·CKEditor 5 어댑터, 의존성 0 코어."
     />
     <meta name="twitter:image" content="https://devslab-kr.github.io/editor-ruler/og.png" />
+    <meta name="twitter:image:alt" content="editor-ruler O01 — a measured rail with a movable stop. Open source by DevsLab." />
+    <link rel="author" href="https://devslab.kr/brand/open-source/" />
     <meta name="google-site-verification" content="nIGsjwN9PU78ZpydYp5q4blPGCHBaZZRuvVI8wsJREg" />
     <script>
       // Decide the language before anything renders: an explicit choice wins,
@@ -53,7 +56,7 @@
     </script>
     <style>
       :root {
-        color-scheme: light;
+        color-scheme: light dark;
         --bg: #f6f7f9;
         --ink: #1f2328;
         --muted: #5f6570;
@@ -63,6 +66,13 @@
         --code-text: #e8edf4;
         --accent: #2563eb;
         --accent-soft: #dbe7fd;
+        --oss-accent: #0e7490;
+        --project-accent: #1d4ed8;
+        --action-accent: #2563eb;
+        --action-accent-hover: #1d4ed8;
+        --demo-surface: #f6f7f8;
+        --demo-toolbar: #fbfbfc;
+        --demo-toolbar-hover: #ffffff;
       }
       * { box-sizing: border-box; }
       body {
@@ -84,6 +94,12 @@
         display: flex; align-items: center; gap: 12px;
         padding: 12px 0; font-size: 14px;
       }
+      .brand-lockup {
+        color: var(--ink); display: inline-flex; align-items: center; gap: 8px;
+        min-width: 0; text-decoration: none;
+      }
+      .brand-lockup:hover { text-decoration: none; }
+      .brand-lockup img { width: 22px; height: 22px; flex: 0 0 auto; }
       .top-inner strong { font-size: 16px; }
       .version {
         background: var(--accent-soft); color: var(--accent);
@@ -101,7 +117,19 @@
       }
       .lang-toggle:hover { text-decoration: underline; }
       .lang-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
-      .hero { padding: 56px 0 32px; }
+      .hero { padding: 56px 0 32px; overflow: hidden; }
+      .hero-atmosphere { position: relative; isolation: isolate; }
+      .hero-atmosphere > [aria-hidden="true"].hero-atmosphere__glow {
+        position: absolute; inset: 0; z-index: 0; pointer-events: none;
+        background: radial-gradient(ellipse 46% 68% at 86% 22%, rgb(6 182 212 / .11), transparent 72%);
+      }
+      [data-atmosphere="project"] > [aria-hidden="true"].hero-atmosphere__glow::after {
+        content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .08;
+        background: radial-gradient(ellipse 30% 42% at 86% 22%, var(--project-accent), transparent 72%);
+      }
+      .hero-atmosphere > :not([aria-hidden="true"].hero-atmosphere__glow) { position: relative; z-index: 1; }
+      .oss-endorsement { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+      .oss-endorsement a { color: var(--oss-accent); font-weight: 650; }
       .hero h1 { font-size: clamp(24px, 4vw, 34px); line-height: 1.35; margin: 0 0 12px; }
       .hero p.lead { color: var(--muted); font-size: 16px; margin: 0 0 18px; max-width: 46em; }
       .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
@@ -116,8 +144,8 @@
         font-size: 14px; font-weight: 600; border: 1px solid var(--line);
         background: var(--panel); color: var(--ink); cursor: pointer;
       }
-      .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-      .btn.primary:hover { background: #1d4ed8; text-decoration: none; }
+      .btn.primary { background: var(--action-accent); border-color: var(--action-accent); color: #fff; }
+      .btn.primary:hover { background: var(--action-accent-hover); text-decoration: none; }
       .btn:hover { text-decoration: none; border-color: var(--accent); }
       section { padding: 30px 0; }
       section h2 { font-size: 21px; margin: 0 0 14px; }
@@ -138,7 +166,7 @@
       }
       .note { color: var(--muted); font-size: 13.5px; margin-top: 10px; }
       /* ---- demo tabs ---- */
-      .tabs { display: flex; gap: 6px; border-bottom: 2px solid var(--line); margin-bottom: 14px; }
+      .tabs { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 2px solid var(--line); margin-bottom: 14px; }
       .tabs button {
         appearance: none; border: 0; background: transparent; cursor: pointer;
         font: inherit; font-size: 14.5px; font-weight: 600; color: var(--muted);
@@ -165,7 +193,7 @@
       }
       .sb-link { font-size: 13px; white-space: nowrap; }
       /* ---- editors ---- */
-      #core-ruler-mount { padding: 0 44px; background: #f6f7f8; }
+      #core-ruler-mount { padding: 0 44px; background: var(--demo-surface); }
       #core-page {
         padding: 24px 44px 36px; min-height: 260px; outline: none; font-size: 15px;
       }
@@ -179,27 +207,27 @@
       #tiptap-editor .tiptap :is(p, h3) { margin-top: 0; }
       #tiptap-editor .tiptap img { max-width: 100%; }
       #tiptap-editor .tiptap img.ProseMirror-selectednode { outline: 2px solid var(--accent); }
-      #tiptap-panel .edr-tiptap-mount { background: #f6f7f8; }
+      #tiptap-panel .edr-tiptap-mount { background: var(--demo-surface); }
       .demo-loading { padding: 24px 44px; color: var(--muted); font-size: 14px; margin: 0; }
       .mini-toolbar {
         display: flex; align-items: center; gap: 4px;
-        padding: 8px 12px; border-bottom: 1px solid var(--line); background: #fbfbfc;
+        padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--demo-toolbar);
       }
       .mini-toolbar button {
         appearance: none; cursor: pointer; font: inherit; font-size: 13.5px;
         background: transparent; border: 1px solid transparent; border-radius: 6px;
         min-width: 32px; height: 30px; padding: 0 8px; color: var(--ink);
       }
-      .mini-toolbar button:hover { border-color: var(--line); background: #fff; }
+      .mini-toolbar button:hover { border-color: var(--line); background: var(--demo-toolbar-hover); }
       .mini-toolbar button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
       .mini-brand { margin-left: auto; font-size: 12px; color: var(--muted); }
-      #ckeditor-panel .edr-ck-mount { background: #f6f7f8; }
+      #ckeditor-panel .edr-ck-mount { background: var(--demo-surface); }
       #ckeditor-panel .ck-editor__editable { min-height: 220px; }
       #ckeditor-panel .ck.ck-editor__main > .ck-editor__editable { border-color: transparent; }
       #core-ruler-mount, #froala-panel, #tiptap-panel, #ckeditor-panel {
-        --edr-bg: #f6f7f8;
-        --edr-border: #d8dbe0;
-        --edr-fg: #5f6570;
+        --edr-bg: var(--demo-surface);
+        --edr-border: var(--line);
+        --edr-fg: var(--muted);
       }
       table.api { width: 100%; border-collapse: collapse; font-size: 14px; }
       table.api th, table.api td {
@@ -213,12 +241,59 @@
         padding: 26px 0 40px; color: var(--muted); font-size: 13.5px;
       }
       footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+      @media (forced-colors: active), print {
+        .hero-atmosphere > [aria-hidden="true"].hero-atmosphere__glow,
+        .hero-atmosphere > [aria-hidden="true"].hero-atmosphere__glow::after { display: none; }
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f1216;
+          --ink: #f4f7fb;
+          --muted: #b8c2d1;
+          --line: #415064;
+          --panel: #171d26;
+          --code: #090d12;
+          --code-text: #e8edf4;
+          /* O01's registry accent is brighter on dark surfaces. */
+          --accent: #8aacf8;
+          --accent-soft: #1e3a5f;
+          --oss-accent: #22d3ee;
+          --project-accent: #8aacf8;
+          /* Keep filled-action text above the WCAG AA contrast threshold. */
+          --action-accent: #1d4ed8;
+          --action-accent-hover: #2563eb;
+          --demo-surface: #111821;
+          --demo-toolbar: #1a222d;
+          --demo-toolbar-hover: #242f3d;
+        }
+        .hero-atmosphere > [aria-hidden="true"].hero-atmosphere__glow {
+          background-color: transparent;
+          background-image: radial-gradient(ellipse 46% 68% at 86% 22%, rgb(34 211 238 / .10), transparent 72%);
+        }
+      }
+      @media (max-width: 540px) {
+        .top-inner { gap: 8px; }
+        .top-links { gap: 10px; font-size: 13px; }
+        .version { padding-inline: 7px; }
+        .hero { padding-top: 42px; }
+      }
+      @media (max-width: 260px) {
+        /* Froala prepares off-canvas menus; do not let inactive menus widen the document. */
+        html, body { overflow-x: clip; }
+        .wrap { padding-inline: 12px; }
+        .top-inner { flex-wrap: wrap; }
+        .top-links { width: 100%; margin-left: 0; justify-content: space-between; }
+        .hero h1, .hero p { overflow-wrap: anywhere; }
+      }
     </style>
   </head>
   <body>
     <header class="top">
       <div class="wrap top-inner">
-        <strong>editor-ruler</strong>
+        <a class="brand-lockup" href="./" aria-label="editor-ruler home">
+          <img src="favicon.svg" alt="" />
+          <strong>editor-ruler</strong>
+        </a>
         <span class="version">v__PACKAGE_VERSION__</span>
         <nav class="top-links">
           <a href="https://github.com/devslab-kr/editor-ruler">GitHub</a>
@@ -228,32 +303,36 @@
       </div>
     </header>
 
-    <div class="wrap hero">
-      <h1 data-i18n="hero.h1">웹 에디터에는 줄자가 없었습니다.<br />이제 어디에나 달 수 있습니다.</h1>
-      <p class="lead" data-i18n="hero.lead">
-        Froala·TinyMCE·CKEditor 5·Quill — 어떤 범용 WYSIWYG 에디터도 Word처럼 여백과
-        들여쓰기를 끌어서 조절하는 줄자를 제공하지 않습니다. <strong>editor-ruler</strong>는
-        에디터에 종속되지 않는 코어와 얇은 어댑터로 그 공백을 채우는 오픈소스입니다.
-      </p>
-      <div class="badges">
-        <span class="badge" data-i18n="badge.zerodep">의존성 0</span>
-        <span class="badge">TypeScript</span>
-        <span class="badge">cm · in · px</span>
-        <span class="badge" data-i18n="badge.guides">가이드선 + 스냅</span>
-        <span class="badge" data-i18n="badge.vruler">세로 줄자</span>
-        <span class="badge">Froala · Tiptap · CKEditor 5</span>
-        <span class="badge">Apache-2.0</span>
+    <section class="hero hero-atmosphere" data-atmosphere="project">
+      <div class="hero-atmosphere__glow" aria-hidden="true"></div>
+      <div class="wrap">
+        <p class="oss-endorsement" data-i18n="brand.oss">DevsLab 오픈소스 · <a href="https://devslab.kr/brand/open-source/">OSS 브랜드 가이드</a> · Registry O01</p>
+        <h1 data-i18n="hero.h1">웹 에디터에는 줄자가 없었습니다.<br />이제 어디에나 달 수 있습니다.</h1>
+        <p class="lead" data-i18n="hero.lead">
+          Froala·TinyMCE·CKEditor 5·Quill — 어떤 범용 WYSIWYG 에디터도 Word처럼 여백과
+          들여쓰기를 끌어서 조절하는 줄자를 제공하지 않습니다. <strong>editor-ruler</strong>는
+          에디터에 종속되지 않는 코어와 얇은 어댑터로 그 공백을 채우는 오픈소스입니다.
+        </p>
+        <div class="badges">
+          <span class="badge" data-i18n="badge.zerodep">의존성 0</span>
+          <span class="badge">TypeScript</span>
+          <span class="badge">cm · in · px</span>
+          <span class="badge" data-i18n="badge.guides">가이드선 + 스냅</span>
+          <span class="badge" data-i18n="badge.vruler">세로 줄자</span>
+          <span class="badge">Froala · Tiptap · CKEditor 5</span>
+          <span class="badge">Apache-2.0</span>
+        </div>
+        <div class="hero-cta">
+          <a class="btn primary" href="#demo" data-i18n="cta.demo">라이브 데모 보기</a>
+          <a class="btn" href="#start" data-i18n="cta.start">시작하기</a>
+        </div>
+        <p class="hero-story" data-i18n="hero.story">
+          📄 왜 만들었나 —
+          <a href="https://medium.com/@sinny78/every-web-rich-text-editor-is-missing-a-ruler-bb749d9ee0d3" target="_blank" rel="noopener">Every web rich-text editor is missing a ruler</a>
+          (영문)
+        </p>
       </div>
-      <div class="hero-cta">
-        <a class="btn primary" href="#demo" data-i18n="cta.demo">라이브 데모 보기</a>
-        <a class="btn" href="#start" data-i18n="cta.start">시작하기</a>
-      </div>
-      <p class="hero-story" data-i18n="hero.story">
-        📄 왜 만들었나 —
-        <a href="https://medium.com/@sinny78/every-web-rich-text-editor-is-missing-a-ruler-bb749d9ee0d3" target="_blank" rel="noopener">Every web rich-text editor is missing a ruler</a>
-        (영문)
-      </p>
-    </div>
+    </section>
 
     <div class="wrap">
       <section id="demo">
@@ -512,6 +591,7 @@ $('#editor').summernote({
       // is the English overlay. A missing key falls back to the Korean, so an
       // incomplete translation degrades to readable rather than blank.
       const EN = {
+        'brand.oss': 'Open source by <a href="https://devslab.kr/brand/open-source/">DevsLab</a> · <a href="https://devslab.kr/brand/open-source/">OSS brand guide</a> · Registry O01',
         'hero.h1': 'Web editors never had a ruler.<br />Now any of them can.',
         'hero.lead':
           'Froala, TinyMCE, CKEditor 5, Quill — no general-purpose WYSIWYG editor gives you Word’s ruler for dragging margins and indents. <strong>editor-ruler</strong> is an open-source fix for that: an editor-agnostic core plus thin per-editor adapters.',

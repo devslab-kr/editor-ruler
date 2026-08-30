@@ -1,5 +1,11 @@
 # @devslab/editor-ruler-summernote
 
+<p align="center">
+  <a href="https://devslab.kr/brand/open-source/"><img src="../../docs/assets/brand/readme-header.png" alt="editor-ruler — DevsLab 오픈소스" width="100%" /></a>
+</p>
+
+**DevsLab 오픈소스** · [OSS 브랜드 가이드](https://devslab.kr/brand/open-source/) · Registry O01
+
 [![npm](https://img.shields.io/npm/v/%40devslab%2Feditor-ruler-summernote)](https://www.npmjs.com/package/@devslab/editor-ruler-summernote)
 
 **[문서 & 라이브 데모](https://devslab-kr.github.io/editor-ruler/)** · [English](README.md)

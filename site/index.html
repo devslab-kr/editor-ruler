@@ -56,7 +56,7 @@
     </script>
     <style>
       :root {
-        color-scheme: light;
+        color-scheme: light dark;
         --bg: #f6f7f9;
         --ink: #1f2328;
         --muted: #5f6570;
@@ -68,6 +68,11 @@
         --accent-soft: #dbe7fd;
         --oss-accent: #0e7490;
         --project-accent: #1d4ed8;
+        --action-accent: #2563eb;
+        --action-accent-hover: #1d4ed8;
+        --demo-surface: #f6f7f8;
+        --demo-toolbar: #fbfbfc;
+        --demo-toolbar-hover: #ffffff;
       }
       * { box-sizing: border-box; }
       body {
@@ -139,8 +144,8 @@
         font-size: 14px; font-weight: 600; border: 1px solid var(--line);
         background: var(--panel); color: var(--ink); cursor: pointer;
       }
-      .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-      .btn.primary:hover { background: #1d4ed8; text-decoration: none; }
+      .btn.primary { background: var(--action-accent); border-color: var(--action-accent); color: #fff; }
+      .btn.primary:hover { background: var(--action-accent-hover); text-decoration: none; }
       .btn:hover { text-decoration: none; border-color: var(--accent); }
       section { padding: 30px 0; }
       section h2 { font-size: 21px; margin: 0 0 14px; }
@@ -188,7 +193,7 @@
       }
       .sb-link { font-size: 13px; white-space: nowrap; }
       /* ---- editors ---- */
-      #core-ruler-mount { padding: 0 44px; background: #f6f7f8; }
+      #core-ruler-mount { padding: 0 44px; background: var(--demo-surface); }
       #core-page {
         padding: 24px 44px 36px; min-height: 260px; outline: none; font-size: 15px;
       }
@@ -202,27 +207,27 @@
       #tiptap-editor .tiptap :is(p, h3) { margin-top: 0; }
       #tiptap-editor .tiptap img { max-width: 100%; }
       #tiptap-editor .tiptap img.ProseMirror-selectednode { outline: 2px solid var(--accent); }
-      #tiptap-panel .edr-tiptap-mount { background: #f6f7f8; }
+      #tiptap-panel .edr-tiptap-mount { background: var(--demo-surface); }
       .demo-loading { padding: 24px 44px; color: var(--muted); font-size: 14px; margin: 0; }
       .mini-toolbar {
         display: flex; align-items: center; gap: 4px;
-        padding: 8px 12px; border-bottom: 1px solid var(--line); background: #fbfbfc;
+        padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--demo-toolbar);
       }
       .mini-toolbar button {
         appearance: none; cursor: pointer; font: inherit; font-size: 13.5px;
         background: transparent; border: 1px solid transparent; border-radius: 6px;
         min-width: 32px; height: 30px; padding: 0 8px; color: var(--ink);
       }
-      .mini-toolbar button:hover { border-color: var(--line); background: #fff; }
+      .mini-toolbar button:hover { border-color: var(--line); background: var(--demo-toolbar-hover); }
       .mini-toolbar button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
       .mini-brand { margin-left: auto; font-size: 12px; color: var(--muted); }
-      #ckeditor-panel .edr-ck-mount { background: #f6f7f8; }
+      #ckeditor-panel .edr-ck-mount { background: var(--demo-surface); }
       #ckeditor-panel .ck-editor__editable { min-height: 220px; }
       #ckeditor-panel .ck.ck-editor__main > .ck-editor__editable { border-color: transparent; }
       #core-ruler-mount, #froala-panel, #tiptap-panel, #ckeditor-panel {
-        --edr-bg: #f6f7f8;
-        --edr-border: #d8dbe0;
-        --edr-fg: #5f6570;
+        --edr-bg: var(--demo-surface);
+        --edr-border: var(--line);
+        --edr-fg: var(--muted);
       }
       table.api { width: 100%; border-collapse: collapse; font-size: 14px; }
       table.api th, table.api td {
@@ -240,6 +245,32 @@
         .hero-atmosphere > [aria-hidden="true"].hero-atmosphere__glow,
         .hero-atmosphere > [aria-hidden="true"].hero-atmosphere__glow::after { display: none; }
       }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f1216;
+          --ink: #f4f7fb;
+          --muted: #b8c2d1;
+          --line: #415064;
+          --panel: #171d26;
+          --code: #090d12;
+          --code-text: #e8edf4;
+          /* O01's registry accent is brighter on dark surfaces. */
+          --accent: #8aacf8;
+          --accent-soft: #1e3a5f;
+          --oss-accent: #22d3ee;
+          --project-accent: #8aacf8;
+          /* Keep filled-action text above the WCAG AA contrast threshold. */
+          --action-accent: #1d4ed8;
+          --action-accent-hover: #2563eb;
+          --demo-surface: #111821;
+          --demo-toolbar: #1a222d;
+          --demo-toolbar-hover: #242f3d;
+        }
+        .hero-atmosphere > [aria-hidden="true"].hero-atmosphere__glow {
+          background-color: transparent;
+          background-image: radial-gradient(ellipse 46% 68% at 86% 22%, rgb(34 211 238 / .10), transparent 72%);
+        }
+      }
       @media (max-width: 540px) {
         .top-inner { gap: 8px; }
         .top-links { gap: 10px; font-size: 13px; }
@@ -247,6 +278,8 @@
         .hero { padding-top: 42px; }
       }
       @media (max-width: 260px) {
+        /* Froala prepares off-canvas menus; do not let inactive menus widen the document. */
+        html, body { overflow-x: clip; }
         .wrap { padding-inline: 12px; }
         .top-inner { flex-wrap: wrap; }
         .top-links { width: 100%; margin-left: 0; justify-content: space-between; }

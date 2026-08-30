@@ -87,6 +87,49 @@ if (!/\.tabs\s*\{[^}]*flex-wrap:\s*wrap;/.test(html)) {
   fail('site/index.html must wrap demo tabs at narrow widths');
 }
 
+if (!html.includes('html, body { overflow-x: clip; }')) {
+  fail('site/index.html must clip off-canvas editor menus at 260px');
+}
+
+function mediaBlock(source, query) {
+  const start = source.indexOf(query);
+  if (start === -1) return '';
+  const braceStart = source.indexOf('{', start);
+  if (braceStart === -1) return '';
+  let depth = 0;
+  for (let index = braceStart; index < source.length; index += 1) {
+    if (source[index] === '{') depth += 1;
+    if (source[index] === '}') {
+      depth -= 1;
+      if (depth === 0) return source.slice(braceStart + 1, index);
+    }
+  }
+  return '';
+}
+
+const darkMode = mediaBlock(html, '@media (prefers-color-scheme: dark)');
+if (!darkMode) {
+  fail('site/index.html must provide a prefers-color-scheme: dark contract');
+} else {
+  for (const token of [
+    '--bg: #0f1216',
+    '--ink: #f4f7fb',
+    '--muted: #b8c2d1',
+    '--line: #415064',
+    '--panel: #171d26',
+    '--accent: #8aacf8',
+    '--oss-accent: #22d3ee',
+    '--project-accent: #8aacf8',
+    '--action-accent: #1d4ed8',
+    '--demo-surface: #111821',
+  ]) {
+    if (!darkMode.includes(token)) fail(`site/index.html dark contract is missing ${token}`);
+  }
+  if (!darkMode.includes('rgb(34 211 238 / .10)')) {
+    fail('site/index.html dark hero glow must be capped at 10% alpha');
+  }
+}
+
 for (const relativePath of readmes) {
   try {
     const readme = await readFile(path.join(root, relativePath), 'utf8');

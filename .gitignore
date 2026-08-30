@@ -2,6 +2,7 @@ node_modules/
 dist/
 coverage/
 .pages/
+.playwright-cli/
 *.log
 .DS_Store
 .idea/

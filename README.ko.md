@@ -1,5 +1,11 @@
 # editor-ruler
 
+<p align="center">
+  <a href="https://devslab.kr/brand/open-source/"><img src="docs/assets/brand/readme-header.png" alt="editor-ruler — DevsLab 오픈소스" width="100%" /></a>
+</p>
+
+**DevsLab 오픈소스** · [OSS 브랜드 가이드](https://devslab.kr/brand/open-source/) · Registry O01
+
 [![npm](https://img.shields.io/npm/v/%40devslab%2Feditor-ruler)](https://www.npmjs.com/package/@devslab/editor-ruler)
 [![CI](https://github.com/devslab-kr/editor-ruler/actions/workflows/ci.yml/badge.svg)](https://github.com/devslab-kr/editor-ruler/actions/workflows/ci.yml)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6?logo=typescript&logoColor=white)

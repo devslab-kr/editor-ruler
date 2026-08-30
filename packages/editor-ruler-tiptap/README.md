@@ -1,5 +1,11 @@
 # @devslab/editor-ruler-tiptap
 
+<p align="center">
+  <a href="https://devslab.kr/brand/open-source/"><img src="../../docs/assets/brand/readme-header.png" alt="editor-ruler — Open source by DevsLab" width="100%" /></a>
+</p>
+
+**Open source by [DevsLab](https://devslab.kr/)** · [OSS brand guide](https://devslab.kr/brand/open-source/) · Registry O01
+
 [![npm](https://img.shields.io/npm/v/%40devslab%2Feditor-ruler-tiptap)](https://www.npmjs.com/package/@devslab/editor-ruler-tiptap)
 
 **[Docs & live demo](https://devslab-kr.github.io/editor-ruler/)** · [한국어](README.ko.md)

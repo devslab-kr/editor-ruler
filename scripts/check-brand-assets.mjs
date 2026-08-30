@@ -20,16 +20,16 @@ const readmes = [
 ];
 
 const assets = {
-  'docs/assets/brand/readme-header.png': '4b419a0cb464d95071cccb27717bcadb52bf459408765a8f9c8a025c2b9f6eba',
-  'docs/assets/brand/project-mark.svg': 'eeb3d9429f8219263e3c0f7350cbf57600899e5fc43e6f1e2fb197613536fc00',
-  'docs/assets/brand/project-lockup.svg': 'd420a6505a8952a382089ff549cd2643420cf8bdaa277cd3d3d244f72df88d9b',
-  'site/favicon.svg': 'eeb3d9429f8219263e3c0f7350cbf57600899e5fc43e6f1e2fb197613536fc00',
-  'site/favicon.ico': '3cdcb500a12f6508cf9c6b7523e50f462247bac39403d2920d76ba12bd96fc17',
-  'site/apple-touch-icon.png': 'b5cd4f6bcbf19029e53f2482f2201bfc59fd9f1bbb3294b43be194f21ee43f31',
-  'site/og.png': '31ee7408b3db5ba4c89d1c53d0728c520b1f6f2faca46a1b43fa4b425e08e0da',
+  'docs/assets/brand/readme-header.png': '0370b5f1acab7bb653be5ebfd76daf33b2aac4dfd5f4a2b40a2df0d117647128',
+  'docs/assets/brand/project-mark.svg': 'f8093b935f64fb1abc42c0048e08a44229dd2b6603f159d9968fc9027a0bff3c',
+  'docs/assets/brand/project-lockup.svg': 'ce5df5367b8b90c2542f847b2a83694173e659dd2557cb543414d9ec525c22f3',
+  'site/favicon.svg': 'f8093b935f64fb1abc42c0048e08a44229dd2b6603f159d9968fc9027a0bff3c',
+  'site/favicon.ico': 'b0cbb97ba184aeaaed7590dd727e89f711355aa030a8ca5c169e025599ddc09b',
+  'site/apple-touch-icon.png': 'd01612b8259ea9201f8db887835067da7512f57292a7d0f7ba91194d97838c15',
+  'site/og.png': '603914387e62f8ef7fb98f7bedaecb8aeffbf743ac28c467759c5c601e2148f7',
 };
 
-const expectedSource = 'https://github.com/devslab-kr/oss-brand/releases/tag/v0.1.1';
+const expectedSource = 'https://github.com/devslab-kr/oss-brand/releases/tag/v0.2.0';
 const expectedGuide = 'https://devslab.kr/brand/open-source/';
 
 function fail(message) {
@@ -65,8 +65,8 @@ try {
   if (manifest.registryId !== 'O01' || manifest.project !== 'editor-ruler') {
     fail(`${manifestPath} must identify editor-ruler as O01`);
   }
-  if (manifest.release !== 'v0.1.1' || manifest.source !== expectedSource || manifest.guide !== expectedGuide) {
-    fail(`${manifestPath} must pin oss-brand v0.1.1 and the canonical guide`);
+  if (manifest.release !== 'v0.2.0' || manifest.source !== expectedSource || manifest.guide !== expectedGuide) {
+    fail(`${manifestPath} must pin oss-brand v0.2.0 and the canonical guide`);
   }
 } catch {
   fail(`missing or invalid ${manifestPath}`);
@@ -76,7 +76,7 @@ for (const [relativePath, expectedHash] of Object.entries(assets)) {
   try {
     await access(path.join(root, relativePath));
     const actualHash = await sha256(relativePath);
-    if (actualHash !== expectedHash) fail(`${relativePath} checksum does not match oss-brand v0.1.1`);
+    if (actualHash !== expectedHash) fail(`${relativePath} checksum does not match oss-brand v0.2.0`);
   } catch {
     fail(`missing ${relativePath}`);
   }
@@ -160,4 +160,4 @@ for (const relativePath of readmes) {
   }
 }
 
-if (!process.exitCode) console.log('Brand check passed: editor-ruler O01 assets and endorsements match oss-brand v0.1.1.');
+if (!process.exitCode) console.log('Brand check passed: editor-ruler O01 assets and endorsements match oss-brand v0.2.0.');

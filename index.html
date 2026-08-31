@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>editor-ruler — 웹 에디터를 위한 Word 스타일 줄자</title>
+    <meta name="theme-color" content="#0E7490" />
+    <meta
+      name="description"
+      content="웹 리치텍스트 에디터를 위한 Word 스타일 가로 줄자. 여백·첫 줄 들여쓰기 드래그 핸들, 세로 줄자, 가이드선·스냅. Froala·Tiptap·CKEditor 5 어댑터, 의존성 0 코어. API 1.0 안정."
+    />
+    <link rel="canonical" href="https://devslab-kr.github.io/editor-ruler/" />
+    <!-- Relative so these resolve under /editor-ruler/ on Pages and at the
+         root locally. Declaring them also stops the browser's blind request
+         for /favicon.ico, which on Pages would hit the org root, not us. -->
+    <link rel="icon" href="favicon.ico" sizes="32x32" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="DevsLab Open Source" />
+    <meta property="og:url" content="https://devslab-kr.github.io/editor-ruler/" />
+    <meta property="og:title" content="editor-ruler — Word 스타일 줄자, 어느 웹 에디터에나" />
+    <meta
+      property="og:description"
+      content="여백·첫 줄 들여쓰기 드래그 핸들, 세로 줄자, 가이드선·스냅. Froala·Tiptap·CKEditor 5 어댑터, 의존성 0 코어. API 1.0 안정."
+    />
+    <meta property="og:image" content="https://devslab-kr.github.io/editor-ruler/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="editor-ruler O01 — a measured rail with a movable stop. Open source by DevsLab." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="editor-ruler — Word 스타일 줄자, 어느 웹 에디터에나" />
+    <meta
+      name="twitter:description"
+      content="여백·첫 줄 들여쓰기 드래그 핸들, 세로 줄자, 가이드선·스냅. Froala·Tiptap·CKEditor 5 어댑터, 의존성 0 코어."
+    />
+    <meta name="twitter:image" content="https://devslab-kr.github.io/editor-ruler/og.png" />
+    <meta name="twitter:image:alt" content="editor-ruler O01 — a measured rail with a movable stop. Open source by DevsLab." />
+    <link rel="author" href="https://devslab.kr/brand/open-source/" />
+    <meta name="google-site-verification" content="nIGsjwN9PU78ZpydYp5q4blPGCHBaZZRuvVI8wsJREg" />
+    <script>
+      // Decide the language before anything renders: an explicit choice wins,
+      // then ?lang=, then the browser. Korean speakers get the source copy;
+      // everyone else gets English.
+      window.__EDR_LANG = (function () {
+        try {
+          var q = new URLSearchParams(location.search).get('lang');
+          if (q === 'ko' || q === 'en') return q;
+          var saved = localStorage.getItem('edr-lang');
+          if (saved === 'ko' || saved === 'en') return saved;
+        } catch (e) {}
+        var nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
+        return /^ko\b/i.test(nav) ? 'ko' : 'en';
+      })();
+      document.documentElement.lang = window.__EDR_LANG;
+    </script>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f6f7f9;
+        --ink: #1f2328;
+        --muted: #5f6570;
+        --line: #d8dbe0;
+        --panel: #ffffff;
+        --code: #0f1216;
+        --code-text: #e8edf4;
+        --accent: #2563eb;
+        --accent-soft: #dbe7fd;
+        --oss-accent: #0e7490;
+        --project-accent: #1d4ed8;
+        --action-accent: #2563eb;
+        --action-accent-hover: #1d4ed8;
+        --demo-surface: #f6f7f8;
+        --demo-toolbar: #fbfbfc;
+        --demo-toolbar-hover: #ffffff;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+        line-height: 1.65;
+      }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .wrap { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+      header.top {
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+        position: sticky; top: 0; z-index: 10;
+      }
+      .top-inner {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 0; font-size: 14px;
+      }
+      .brand-lockup {
+        color: var(--ink); display: inline-flex; align-items: center; gap: 8px;
+        min-width: 0; text-decoration: none;
+      }
+      .brand-lockup:hover { text-decoration: none; }
+      .brand-lockup img { width: 22px; height: 22px; flex: 0 0 auto; }
+      .top-inner strong { font-size: 16px; }
+      .version {
+        background: var(--accent-soft); color: var(--accent);
+        border-radius: 999px; padding: 1px 10px; font-size: 12px; font-weight: 600;
+      }
+      .top-links { margin-left: auto; display: flex; gap: 14px; align-items: center; }
+      /* Reads as one of the nav links, but it's a button — it changes state. */
+      .lang-toggle {
+        font: inherit;
+        color: var(--accent);
+        background: none;
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+      }
+      .lang-toggle:hover { text-decoration: underline; }
+      .lang-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+      .hero { padding: 56px 0 32px; overflow: hidden; }
+      .hero-atmosphere { position: relative; isolation: isolate; }
+      .hero-atmosphere > [aria-hidden="true"].hero-atmosphere__glow {
+        position: absolute; inset: 0; z-index: 0; pointer-events: none;
+        background: radial-gradient(ellipse 46% 68% at 86% 22%, rgb(6 182 212 / .11), transparent 72%);
+      }
+      [data-atmosphere="project"] > [aria-hidden="true"].hero-atmosphere__glow::after {
+        content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .08;
+        background: radial-gradient(ellipse 30% 42% at 86% 22%, var(--project-accent), transparent 72%);
+      }
+      .hero-atmosphere > :not([aria-hidden="true"].hero-atmosphere__glow) { position: relative; z-index: 1; }
+      .oss-endorsement { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+      .oss-endorsement a { color: var(--oss-accent); font-weight: 650; }
+      .hero h1 { font-size: clamp(24px, 4vw, 34px); line-height: 1.35; margin: 0 0 12px; }
+      .hero p.lead { color: var(--muted); font-size: 16px; margin: 0 0 18px; max-width: 46em; }
+      .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+      .badge {
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: 999px; padding: 3px 12px; font-size: 12.5px; color: var(--muted);
+      }
+      .hero-cta { display: flex; gap: 10px; flex-wrap: wrap; }
+      .hero-story { margin: 14px 0 0; font-size: 13.5px; color: var(--muted); }
+      .btn {
+        display: inline-block; padding: 8px 18px; border-radius: 8px;
+        font-size: 14px; font-weight: 600; border: 1px solid var(--line);
+        background: var(--panel); color: var(--ink); cursor: pointer;
+      }
+      .btn.primary { background: var(--action-accent); border-color: var(--action-accent); color: #fff; }
+      .btn.primary:hover { background: var(--action-accent-hover); text-decoration: none; }
+      .btn:hover { text-decoration: none; border-color: var(--accent); }
+      section { padding: 30px 0; }
+      section h2 { font-size: 21px; margin: 0 0 14px; }
+      .panel {
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: 10px; overflow: hidden;
+      }
+      pre {
+        margin: 0; padding: 16px 18px; overflow-x: auto;
+        background: var(--code); color: var(--code-text);
+        border-radius: 10px; font-size: 13.5px; line-height: 1.6;
+      }
+      pre + pre { margin-top: 10px; }
+      code { font-family: 'Cascadia Code', Consolas, 'SF Mono', Menlo, monospace; }
+      p code, li code, .note code {
+        background: var(--accent-soft); color: var(--ink);
+        padding: 0 5px; border-radius: 4px; font-size: 0.92em;
+      }
+      .note { color: var(--muted); font-size: 13.5px; margin-top: 10px; }
+      /* ---- demo tabs ---- */
+      .tabs { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 2px solid var(--line); margin-bottom: 14px; }
+      .tabs button {
+        appearance: none; border: 0; background: transparent; cursor: pointer;
+        font: inherit; font-size: 14.5px; font-weight: 600; color: var(--muted);
+        padding: 9px 16px; border-bottom: 2px solid transparent; margin-bottom: -2px;
+      }
+      .tabs button:hover { color: var(--ink); }
+      .tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
+      .tab-panel[hidden] { display: none; }
+      .demo-bar {
+        display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        margin-bottom: 10px; font-size: 13px;
+      }
+      .chip {
+        appearance: none; cursor: pointer; font: inherit; font-size: 13px;
+        background: var(--panel); border: 1px solid var(--line); color: var(--ink);
+        border-radius: 999px; padding: 4px 14px;
+      }
+      .chip:hover { border-color: var(--accent); color: var(--accent); }
+      .chip.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+      .demo-bar .spacer { margin-left: auto; }
+      .demo-bar select {
+        font: inherit; font-size: 13px; padding: 3px 8px; border: 1px solid var(--line);
+        border-radius: 6px; background: var(--panel); color: var(--ink);
+      }
+      .sb-link { font-size: 13px; white-space: nowrap; }
+      /* ---- editors ---- */
+      #core-ruler-mount { padding: 0 44px; background: var(--demo-surface); }
+      #core-page {
+        padding: 24px 44px 36px; min-height: 260px; outline: none; font-size: 15px;
+      }
+      #core-page :is(p, h3) { margin-top: 0; }
+      #core-page table, #froala-panel table { border-collapse: collapse; width: 100%; }
+      #core-page td, #core-page th { border: 1px solid var(--line); padding: 6px 10px; }
+      #core-page img { max-width: 100%; }
+      #tiptap-editor .tiptap {
+        padding: 24px 44px 32px; min-height: 220px; outline: none; font-size: 15px;
+      }
+      #tiptap-editor .tiptap :is(p, h3) { margin-top: 0; }
+      #tiptap-editor .tiptap img { max-width: 100%; }
+      #tiptap-editor .tiptap img.ProseMirror-selectednode { outline: 2px solid var(--accent); }
+      #tiptap-panel .edr-tiptap-mount { background: var(--demo-surface); }
+      .demo-loading { padding: 24px 44px; color: var(--muted); font-size: 14px; margin: 0; }
+      .mini-toolbar {
+        display: flex; align-items: center; gap: 4px;
+        padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--demo-toolbar);
+      }
+      .mini-toolbar button {
+        appearance: none; cursor: pointer; font: inherit; font-size: 13.5px;
+        background: transparent; border: 1px solid transparent; border-radius: 6px;
+        min-width: 32px; height: 30px; padding: 0 8px; color: var(--ink);
+      }
+      .mini-toolbar button:hover { border-color: var(--line); background: var(--demo-toolbar-hover); }
+      .mini-toolbar button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+      .mini-brand { margin-left: auto; font-size: 12px; color: var(--muted); }
+      #ckeditor-panel .edr-ck-mount { background: var(--demo-surface); }
+      #ckeditor-panel .ck-editor__editable { min-height: 220px; }
+      #ckeditor-panel .ck.ck-editor__main > .ck-editor__editable { border-color: transparent; }
+      #core-ruler-mount, #froala-panel, #tiptap-panel, #ckeditor-panel {
+        --edr-bg: var(--demo-surface);
+        --edr-border: var(--line);
+        --edr-fg: var(--muted);
+      }
+      table.api { width: 100%; border-collapse: collapse; font-size: 14px; }
+      table.api th, table.api td {
+        text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      table.api th { color: var(--muted); font-weight: 600; white-space: nowrap; }
+      .table-scroll { overflow-x: auto; }
+      footer {
+        border-top: 1px solid var(--line); margin-top: 30px;
+        padding: 26px 0 40px; color: var(--muted); font-size: 13.5px;
+      }
+      footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+      @media (forced-colors: active), print {
+        .hero-atmosphere > [aria-hidden="true"].hero-atmosphere__glow,
+        .hero-atmosphere > [aria-hidden="true"].hero-atmosphere__glow::after { display: none; }
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f1216;
+          --ink: #f4f7fb;
+          --muted: #b8c2d1;
+          --line: #415064;
+          --panel: #171d26;
+          --code: #090d12;
+          --code-text: #e8edf4;
+          /* O01's registry accent is brighter on dark surfaces. */
+          --accent: #8aacf8;
+          --accent-soft: #1e3a5f;
+          --oss-accent: #22d3ee;
+          --project-accent: #8aacf8;
+          /* Keep filled-action text above the WCAG AA contrast threshold. */
+          --action-accent: #1d4ed8;
+          --action-accent-hover: #2563eb;
+          --demo-surface: #111821;
+          --demo-toolbar: #1a222d;
+          --demo-toolbar-hover: #242f3d;
+        }
+        .hero-atmosphere > [aria-hidden="true"].hero-atmosphere__glow {
+          background-color: transparent;
+          background-image: radial-gradient(ellipse 46% 68% at 86% 22%, rgb(34 211 238 / .10), transparent 72%);
+        }
+      }
+      @media (max-width: 540px) {
+        .top-inner { gap: 8px; }
+        .top-links { gap: 10px; font-size: 13px; }
+        .version { padding-inline: 7px; }
+        .hero { padding-top: 42px; }
+      }
+      @media (max-width: 260px) {
+        /* Froala prepares off-canvas menus; do not let inactive menus widen the document. */
+        html, body { overflow-x: clip; }
+        .wrap { padding-inline: 12px; }
+        .top-inner { flex-wrap: wrap; }
+        .top-links { width: 100%; margin-left: 0; justify-content: space-between; }
+        .hero h1, .hero p { overflow-wrap: anywhere; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <div class="wrap top-inner">
+        <a class="brand-lockup" href="./" aria-label="editor-ruler home">
+          <img src="favicon.svg" alt="" />
+          <strong>editor-ruler</strong>
+        </a>
+        <span class="version">v1.1.0</span>
+        <nav class="top-links">
+          <a href="https://github.com/devslab-kr/editor-ruler">GitHub</a>
+          <a href="https://www.npmjs.com/package/@devslab/editor-ruler">npm</a>
+          <button type="button" id="lang-toggle" class="lang-toggle">English</button>
+        </nav>
+      </div>
+    </header>
+
+    <section class="hero hero-atmosphere" data-atmosphere="project">
+      <div class="hero-atmosphere__glow" aria-hidden="true"></div>
+      <div class="wrap">
+        <p class="oss-endorsement" data-i18n="brand.oss">DevsLab 오픈소스 · <a href="https://devslab.kr/brand/open-source/">OSS 브랜드 가이드</a> · Registry O01</p>
+        <h1 data-i18n="hero.h1">웹 에디터에는 줄자가 없었습니다.<br />이제 어디에나 달 수 있습니다.</h1>
+        <p class="lead" data-i18n="hero.lead">
+          Froala·TinyMCE·CKEditor 5·Quill — 어떤 범용 WYSIWYG 에디터도 Word처럼 여백과
+          들여쓰기를 끌어서 조절하는 줄자를 제공하지 않습니다. <strong>editor-ruler</strong>는
+          에디터에 종속되지 않는 코어와 얇은 어댑터로 그 공백을 채우는 오픈소스입니다.
+        </p>
+        <div class="badges">
+          <span class="badge" data-i18n="badge.zerodep">의존성 0</span>
+          <span class="badge">TypeScript</span>
+          <span class="badge">cm · in · px</span>
+          <span class="badge" data-i18n="badge.guides">가이드선 + 스냅</span>
+          <span class="badge" data-i18n="badge.vruler">세로 줄자</span>
+          <span class="badge">Froala · Tiptap · CKEditor 5</span>
+          <span class="badge">Apache-2.0</span>
+        </div>
+        <div class="hero-cta">
+          <a class="btn primary" href="#demo" data-i18n="cta.demo">라이브 데모 보기</a>
+          <a class="btn" href="#start" data-i18n="cta.start">시작하기</a>
+        </div>
+        <p class="hero-story" data-i18n="hero.story">
+          📄 왜 만들었나 —
+          <a href="https://medium.com/@sinny78/every-web-rich-text-editor-is-missing-a-ruler-bb749d9ee0d3" target="_blank" rel="noopener">Every web rich-text editor is missing a ruler</a>
+          (영문)
+        </p>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <section id="demo">
+        <h2 data-i18n="h2.demo">라이브 데모 — 에디터별로 보기</h2>
+        <div class="tabs" role="tablist">
+          <button type="button" data-tab="froala" class="active">Froala</button>
+          <button type="button" data-tab="tiptap">Tiptap</button>
+          <button type="button" data-tab="ckeditor">CKEditor 5</button>
+          <button type="button" data-tab="summernote">Summernote</button>
+          <button type="button" data-tab="core" data-i18n="tab.core">코어 (contenteditable)</button>
+        </div>
+
+        <div class="tab-panel" id="tab-froala">
+          <div class="demo-bar">
+            <button type="button" class="chip active" data-preset="paragraphs" data-i18n="chip.paragraphs">문단</button>
+            <button type="button" class="chip" data-preset="table" data-i18n="chip.table">테이블</button>
+            <button type="button" class="chip" data-preset="image" data-i18n="chip.image">이미지</button>
+            <button type="button" class="chip" data-preset="mixed" data-i18n="chip.mixed">복합</button>
+            <span class="spacer"></span>
+            <a class="sb-link" href="https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/froala" target="_blank" rel="noopener" data-i18n="link.stackblitz">StackBlitz에서 열기 ↗</a>
+          </div>
+          <div class="panel" id="froala-panel">
+            <div id="froala-editor"></div>
+          </div>
+          <p class="note" data-i18n="note.froala">문단을 클릭하면 그 문단의 여백, <strong>테이블 셀을 클릭하면 컬럼 마커 + 테이블 통째 이동</strong>, 이미지를 선택하면 소속 블록이 밀립니다. 줄자 빈 곳에서 아래로 끌면 가로 가이드, 툴바 드롭다운으로 세로 줄자·단위 전환. "Unlicensed" 표시는 Froala 트라이얼 워터마크로 이 플러그인과 무관합니다.</p>
+        </div>
+
+        <div class="tab-panel" id="tab-tiptap" hidden>
+          <div class="demo-bar">
+            <button type="button" class="chip active" data-preset="paragraphs" data-i18n="chip.paragraphs">문단</button>
+            <button type="button" class="chip" data-preset="image" data-i18n="chip.image">이미지</button>
+            <button type="button" class="chip" data-preset="mixed" data-i18n="chip.mixed">복합</button>
+            <span class="spacer"></span>
+            <a class="sb-link" href="https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/tiptap" target="_blank" rel="noopener" data-i18n="link.stackblitz">StackBlitz에서 열기 ↗</a>
+          </div>
+          <div class="panel" id="tiptap-panel">
+            <div class="mini-toolbar" id="tiptap-toolbar" hidden>
+              <button type="button" data-cmd="bold" title="굵게" data-i18n-title="title.bold"><b>B</b></button>
+              <button type="button" data-cmd="italic" title="기울임" data-i18n-title="title.italic"><i>I</i></button>
+              <button type="button" data-cmd="heading" title="제목" data-i18n-title="title.heading">H3</button>
+              <button type="button" data-cmd="bulletList" title="목록" data-i18n-title="title.bulletList">•≡</button>
+              <span class="mini-brand" data-i18n="tiptap.minibrand">Tiptap (headless) — 툴바는 데모용</span>
+            </div>
+            <div id="tiptap-editor"><p class="demo-loading" data-i18n="loading.tiptap">Tiptap 에디터 로딩 중…</p></div>
+          </div>
+          <p class="note" id="tiptap-note" data-i18n="note.tiptap">Tiptap은 <strong>헤드리스</strong> 에디터라 툴바가 원래 없습니다 — 위 미니 툴바는 데모용으로 직접 배선한 것이고, 코어 탭과의 차이는 문서 모델(노드 속성 저장·undo 통합·getHTML 직렬화)입니다. 모듈은 CDN(esm.sh)에서 불러오며 네트워크에 따라 잠시 걸릴 수 있습니다.</p>
+        </div>
+
+        <div class="tab-panel" id="tab-ckeditor" hidden>
+          <div class="demo-bar">
+            <button type="button" class="chip active" data-preset="paragraphs" data-i18n="chip.paragraphs">문단</button>
+            <button type="button" class="chip" data-preset="table" data-i18n="chip.table">테이블</button>
+            <button type="button" class="chip" data-preset="mixed" data-i18n="chip.mixed">복합</button>
+            <span class="spacer"></span>
+            <a class="sb-link" href="https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/ckeditor5" target="_blank" rel="noopener" data-i18n="link.stackblitz">StackBlitz에서 열기 ↗</a>
+          </div>
+          <div class="panel" id="ckeditor-panel">
+            <div id="ckeditor-editor"><p class="demo-loading" data-i18n="loading.ckeditor">CKEditor 5 로딩 중…</p></div>
+          </div>
+          <p class="note" id="ckeditor-note" data-i18n="note.ckeditor">CKEditor 5 모듈을 CDN에서 불러옵니다 — 네트워크에 따라 잠시 걸릴 수 있습니다. 이미지는 CKEditor 이미지 플러그인 구성에 따라 동일하게 동작합니다.</p>
+        </div>
+
+        <div class="tab-panel" id="tab-summernote" hidden>
+          <div class="demo-bar">
+            <button type="button" class="chip active" data-preset="paragraphs" data-i18n="chip.paragraphs">문단</button>
+            <button type="button" class="chip" data-preset="table" data-i18n="chip.table">테이블</button>
+            <button type="button" class="chip" data-preset="image" data-i18n="chip.image">이미지</button>
+            <button type="button" class="chip" data-preset="mixed" data-i18n="chip.mixed">복합</button>
+            <span class="spacer"></span>
+            <a class="sb-link" href="https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/summernote" target="_blank" rel="noopener" data-i18n="link.stackblitz">StackBlitz에서 열기 ↗</a>
+          </div>
+          <div class="panel" id="summernote-panel">
+            <div id="summernote-editor"><p class="demo-loading" data-i18n="loading.summernote">Summernote 로딩 중…</p></div>
+          </div>
+          <p class="note" id="summernote-note" data-i18n="note.summernote">Summernote는 jQuery 기반 직접-DOM 에디터라 Froala와 같은 경로로 동작합니다 — 테이블 셀에 커서를 두면 컬럼 마커가 뜨고 여백 핸들은 테이블 전체를 밉니다. undo는 Summernote의 afterCommand를 거쳐 드래그당 1스텝입니다. jQuery와 Summernote를 CDN에서 불러오므로 네트워크에 따라 잠시 걸릴 수 있습니다.</p>
+        </div>
+
+        <div class="tab-panel" id="tab-core" hidden>
+          <div class="demo-bar">
+            <button type="button" class="chip active" data-preset="paragraphs" data-i18n="chip.paragraphs">문단</button>
+            <button type="button" class="chip" data-preset="table" data-i18n="chip.table">테이블</button>
+            <button type="button" class="chip" data-preset="image" data-i18n="chip.image">이미지</button>
+            <button type="button" class="chip" data-preset="mixed" data-i18n="chip.mixed">복합</button>
+            <span class="spacer"></span>
+            <label for="core-unit" data-i18n="label.unit">단위</label>
+            <select id="core-unit" aria-label="눈금 단위" data-i18n-aria="aria.unit">
+              <option value="cm" selected>cm</option>
+              <option value="in">in</option>
+              <option value="px">px</option>
+            </select>
+            <a class="sb-link" href="https://stackblitz.com/github/devslab-kr/editor-ruler/tree/main/examples/vanilla" target="_blank" rel="noopener" data-i18n="link.stackblitz">StackBlitz에서 열기 ↗</a>
+          </div>
+          <div class="panel">
+            <div id="core-ruler-mount"></div>
+            <div id="core-page" contenteditable="true" spellcheck="false"></div>
+          </div>
+          <p class="note" data-i18n="note.core">프레임워크 없이 <code>createRuler</code> + <code>createGuides</code>만으로 만든 순수 contenteditable 데모 — 어댑터들이 쓰는 코어 그대로입니다.</p>
+        </div>
+      </section>
+
+      <section id="start">
+        <h2 data-i18n="h2.start">시작하기 — npm</h2>
+<pre><code>npm install @devslab/editor-ruler</code></pre>
+<pre><code data-i18n="code.coreQuickstart">import { createRuler } from '@devslab/editor-ruler';
+
+const ruler = createRuler(mountElement, {
+  unit: 'cm', // 'cm' | 'in' | 'px'
+  getMetrics: () =&gt; ({ contentWidth, leftMargin, rightMargin, firstLineIndent }), // px
+  onChange(change, phase) {
+    // px 값을 현재 문단(들)에 적용; 드래그를 놓는 순간 phase === 'commit'
+  },
+});
+
+ruler.refresh();      // 선택/내용이 바뀔 때 호출
+ruler.setUnit('in');  // 눈금 전환</code></pre>
+      </section>
+
+      <section id="cdn">
+        <h2 data-i18n="h2.cdn">시작하기 — CDN (빌드 도구 없이)</h2>
+        <p data-i18n="cdn.intro">번들러 없이 <code>&lt;script&gt;</code> 한 줄로 씁니다. 전역 <code>EditorRuler</code>가 노출됩니다.</p>
+<pre><code>&lt;script src="https://cdn.jsdelivr.net/npm/@devslab/editor-ruler@1.1.0/dist/index.global.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const ruler = EditorRuler.createRuler(document.getElementById('ruler-mount'), {
+    unit: 'cm',
+    getMetrics: () =&gt; ({ /* ... */ }),
+    onChange(change) { /* ... */ },
+  });
+&lt;/script&gt;</code></pre>
+        <p class="note" data-i18n="note.cdnFroala">Froala 어댑터도 동일합니다: <code>@devslab/editor-ruler-froala/dist/index.global.js</code>를 로드하면 전역 <code>EditorRulerFroala.defineRulerPlugin</code>이 노출됩니다 (코어 포함 단일 파일).</p>
+        <p class="note" data-i18n="note.cdnPin">버전 지정: <code>@1.1.0</code>(정확 고정) · <code>@1.1</code>(패치 자동 반영 — 권장) · <code>@latest</code>(항상 최신 — 메이저 포함이라 브레이킹 체인지 위험, jsDelivr가 별칭을 최대 12시간 캐시).</p>
+      </section>
+
+      <section id="froala">
+        <h2 data-i18n="h2.froala">Froala 연동</h2>
+<pre><code>npm install @devslab/editor-ruler-froala froala-editor</code></pre>
+<pre><code data-i18n="code.froala">import FroalaEditor from 'froala-editor';
+import { defineRulerPlugin } from '@devslab/editor-ruler-froala';
+
+defineRulerPlugin(FroalaEditor); // 인스턴스 생성 전에 1회
+
+new FroalaEditor('#editor', {
+  rulerEnabled: true, // 기본 true — false면 플러그인 자체 비활성
+  rulerVisible: true, // false면 숨긴 채 시작 — 툴바 토글로 켬 (기본 true)
+  rulerUnit: 'cm',
+  // 세로 줄자 23px 자리를 미리 예약 — 토글해도 본문 폭 불변 (기본 false):
+  rulerVerticalGutter: true,
+  // 줄자 옵션 통합 드롭다운 (보이기/숨기기 + 세로 줄자 + 가이드 + 단위):
+  toolbarButtons: ['bold', 'italic', '|', 'rulerOptions'],
+  // 따로 쓰고 싶으면 'toggleRuler', 'rulerUnit'도 각각 등록돼 있습니다
+});</code></pre>
+        <p class="note" data-i18n="note.froalaDocs">
+          <code>defineRulerPlugin</code>은 표준 Froala 플러그인(<code>ruler</code>)과 함께 줄자 아이콘 드롭다운
+          <code>rulerOptions</code>를 등록합니다 — 보이기/숨기기·세로 줄자·가이드 잠금/지우기·cm/inch/px가 한 버튼에 있고
+          활성 상태가 체크로 표시됩니다. <code>pluginsEnabled</code>를 직접 지정한다면 <code>'ruler'</code>를 포함하세요.
+          드래그는 선택 문단의 <code>margin-left/right</code>·<code>text-indent</code>를 갱신하고 제스처당 undo 스텝을 1회 기록합니다.
+        </p>
+      </section>
+
+      <section id="tiptap">
+        <h2 data-i18n="h2.tiptap">Tiptap 연동</h2>
+<pre><code>npm install @devslab/editor-ruler-tiptap @tiptap/core</code></pre>
+<pre><code>import { Editor } from '@tiptap/core';
+import StarterKit from '@tiptap/starter-kit';
+import { EditorRuler } from '@devslab/editor-ruler-tiptap';
+
+new Editor({
+  element,
+  extensions: [StarterKit, EditorRuler.configure({ unit: 'cm' })],
+  content: '&lt;p&gt;Hello&lt;/p&gt;',
+});</code></pre>
+        <p class="note">들여쓰기는 <code>rulerIndent</code data-i18n="note.tiptapDocs"> 노드 속성으로 저장되어 <code>getHTML()</code>에 순수 인라인 CSS로 나오고, 드래그 전체가 undo 한 단계입니다. Tiptap v2·v3 지원. <code>visible: false</code>면 숨긴 채 시작하고 <code>editor.commands.toggleRuler()</code>로 켭니다. 세로 줄자는 <code>vertical: true</code>(+<code>verticalGutter</code>로 자리 예약)와 <code>toggleVerticalRuler</code> 커맨드로 제어합니다.</p>
+      </section>
+
+      <section id="ckeditor5">
+        <h2 data-i18n="h2.ckeditor5">CKEditor 5 연동</h2>
+<pre><code>npm install @devslab/editor-ruler-ckeditor5 ckeditor5</code></pre>
+<pre><code data-i18n="code.ckeditor">import { ClassicEditor, Essentials, Paragraph, Heading } from 'ckeditor5';
+import { EditorRulerPlugin } from '@devslab/editor-ruler-ckeditor5';
+
+ClassicEditor.create(element, {
+  licenseKey: 'GPL',
+  plugins: [Essentials, Paragraph, Heading, EditorRulerPlugin],
+  toolbar: ['heading', '|', 'editorRuler'], // 줄자 아이콘 드롭다운
+  editorRuler: {
+    unit: 'cm',      // 'cm' | 'in' | 'px'
+    visible: true,   // false면 숨긴 채 시작 — 드롭다운/plugin.show()로 켬
+    vertical: false, // 세로 줄자 초기 표시 (verticalGutter로 자리 예약)
+    guides: true,
+  },
+});</code></pre>
+        <p class="note" data-i18n="note.ckeditorDocs">들여쓰기는 모델 속성으로 저장되어 <code>getData()</code>에 순수 인라인 CSS로 다운캐스트되고, 드래그 전체가 undo 한 단계입니다. <code>editorRuler</code> 툴바 드롭다운에 보이기/숨기기·세로 줄자·가이드 잠금/지우기·단위 전환이 들어 있습니다. <code>ckeditor5 &gt;= 42</code> 필요.</p>
+      </section>
+
+      <section id="summernote">
+        <h2 data-i18n="h2.summernote">Summernote 연동</h2>
+<pre><code>npm install @devslab/editor-ruler-summernote summernote</code></pre>
+<pre><code data-i18n="code.summernote">import $ from 'jquery';
+import 'summernote';
+import { defineRulerPlugin } from '@devslab/editor-ruler-summernote';
+
+defineRulerPlugin($); // 에디터 초기화 전에 1회
+
+$('#editor').summernote({
+  toolbar: [['misc', ['ruler']]], // 줄자 아이콘 드롭다운
+  ruler: {
+    unit: 'cm',            // 'cm' | 'in' | 'px'
+    visible: true,         // false면 숨긴 채 시작
+    vertical: false,       // 세로 줄자 초기 표시
+    verticalGutter: false, // 자리 예약 — 토글해도 본문 폭 불변
+    guides: true,
+  },
+});</code></pre>
+        <p class="note" data-i18n="note.summernoteDocs"><code>toolbar</code>에 <code>'ruler'</code>를 넣으면 줄자 아이콘 드롭다운이 생깁니다. Froala 어댑터와 같은 직접-DOM 방식이라 <strong>테이블 통째 밀기와 컬럼 마커까지 동일</strong>합니다. 커밋은 Summernote의 <code>afterCommand</code>를 거치고, 그 함수가 undo 스냅샷을 찍습니다. <code>summernote &gt;= 0.8</code>과 jQuery peer가 필요합니다.</p>
+      </section>
+
+      <section id="api">
+        <h2 data-i18n="h2.api">API 요약</h2>
+        <div class="panel table-scroll">
+          <table class="api">
+            <tr><th>createRuler(mount, options)</th><td data-i18n="api.createRuler">줄자를 마운트하고 <code>Ruler</code> 핸들을 반환 — <code>guides</code>·<code>columns</code>·<code>guideSnap</code> 옵션 포함</td></tr>
+            <tr><th>options.getMetrics()</th><td data-i18n="api.getMetrics"><code>{ contentWidth, leftMargin, rightMargin, firstLineIndent }</code> — 전부 px</td></tr>
+            <tr><th>options.onChange(change, phase)</th><td data-i18n="api.onChange">드래그 중 <code>'drag'</code>, 놓는 순간 <code>'commit'</code> (undo 경계)</td></tr>
+            <tr><th>createGuides(container, options)</th><td data-i18n="api.createGuides">가이드선 컨트롤러 — <code>list/set/clear/setLocked/setVisible</code></td></tr>
+            <tr><th>createVRuler(mount, options)</th><td data-i18n="api.createVRuler">세로 눈금 스트립 (가이드 생성 지원)</td></tr>
+            <tr><th>ruler.refresh() / setUnit(u) / destroy()</th><td data-i18n="api.rulerMethods">메트릭 갱신 · 눈금 전환 · 정리</td></tr>
+          </table>
+        </div>
+        <p class="note" data-i18n="note.apiKeys">핸들과 컬럼 마커는 ARIA 슬라이더입니다 — <code>←</code>/<code>→</code> 1px, <code>Shift</code> 10px, <code>Home</code>/<code>End</code>. 테마는 <code>--edr-*</code> CSS 변수, UI 언어는 브라우저를 따릅니다(ko/en 내장).</p>
+      </section>
+
+      <section id="faq">
+        <h2 data-i18n="h2.faq">자주 묻는 것</h2>
+        <p data-i18n="faq.html"><strong>결과물 HTML은 어떻게 나오나요?</strong> 순수 인라인 CSS입니다 — <code>&lt;p style="margin-left: 75px; text-indent: 38px"&gt;</code>. 어디로 내보내도(메일·다른 페이지·CMS) 레이아웃이 유지됩니다.</p>
+        <p data-i18n="faq.table"><strong>테이블·이미지는요?</strong> Word처럼 다 밀립니다 — 테이블 안에 커서를 두고 드래그하면 <strong>테이블 전체</strong>가 이동하고, 셀 안 문단은 개별 들여쓰기, 이미지는 소속 블록과 함께 움직입니다. 테이블 안에서는 줄자에 <strong>컬럼 경계 마커</strong>가 떠서 드래그로 컬럼 폭도 조절됩니다 (병합 셀 테이블 제외). <em>이 테이블·이미지 동작은 현재 Froala 어댑터 전용입니다 — Tiptap·CKEditor 5에서는 문단 들여쓰기·세로 줄자·가이드선까지 동일하게 동작합니다.</em></p>
+        <p data-i18n="faq.guides"><strong>가이드선은 문서에 남나요?</strong> 아니요 — 순수 시각 오버레이라 내보내는 HTML에 전혀 남지 않습니다. 정렬 참고용이며, 드롭다운에서 잠그거나 한 번에 지울 수 있고, <strong>드래그 중 핸들과 컬럼 마커가 가이드 근처에서 스냅</strong>됩니다.</p>
+        <p data-i18n="faq.tabstops"><strong>탭 스톱은요?</strong> HTML에는 탭 스톱 모델이 없어 의도적으로 범위 밖입니다. 여백·들여쓰기는 CSS와 1:1이라 어디서나 안전하게 동작합니다.</p>
+        <p data-i18n="faq.editors"><strong>다른 에디터는요?</strong> 코어가 에디터 불문이라 어댑터는 "선택 블록 읽기/스타일 쓰기/undo 연결"만 하면 됩니다 — <a href="https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-froala">Froala</a>·<a href="https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-tiptap">Tiptap</a>·<a href="https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-ckeditor5">CKEditor 5</a>·<a href="https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-summernote">Summernote</a> 어댑터가 이미 있고, 위 탭에서 넷 다 바로 써볼 수 있습니다. 다른 에디터가 필요하면 이슈로 알려주세요.</p>
+      </section>
+    </div>
+
+    <footer>
+      <div class="wrap">
+        <span>Apache-2.0 © <a href="https://github.com/devslab-kr">devslab</a></span>
+        <a href="https://github.com/devslab-kr/editor-ruler">GitHub</a>
+        <a href="https://www.npmjs.com/package/@devslab/editor-ruler">@devslab/editor-ruler</a>
+        <a href="https://www.npmjs.com/package/@devslab/editor-ruler-froala">-froala</a>
+        <a href="https://www.npmjs.com/package/@devslab/editor-ruler-tiptap">-tiptap</a>
+        <a href="https://www.npmjs.com/package/@devslab/editor-ruler-ckeditor5">-ckeditor5</a>
+        <a href="https://github.com/devslab-kr/editor-ruler/blob/main/CHANGELOG.md">CHANGELOG</a>
+      </div>
+    </footer>
+
+    <script>
+      // ---------- i18n ----------
+      // Korean lives in the markup (single source of truth); this dictionary
+      // is the English overlay. A missing key falls back to the Korean, so an
+      // incomplete translation degrades to readable rather than blank.
+      const EN = {
+        'brand.oss': 'Open source by <a href="https://devslab.kr/brand/open-source/">DevsLab</a> · <a href="https://devslab.kr/brand/open-source/">OSS brand guide</a> · Registry O01',
+        'hero.h1': 'Web editors never had a ruler.<br />Now any of them can.',
+        'hero.lead':
+          'Froala, TinyMCE, CKEditor 5, Quill — no general-purpose WYSIWYG editor gives you Word’s ruler for dragging margins and indents. <strong>editor-ruler</strong> is an open-source fix for that: an editor-agnostic core plus thin per-editor adapters.',
+        'badge.zerodep': 'Zero dependencies',
+        'badge.guides': 'Guides + snapping',
+        'badge.vruler': 'Vertical ruler',
+        'cta.demo': 'See the live demo',
+        'cta.start': 'Get started',
+        'hero.story':
+          '📄 Why this exists — <a href="https://medium.com/@sinny78/every-web-rich-text-editor-is-missing-a-ruler-bb749d9ee0d3" target="_blank" rel="noopener">Every web rich-text editor is missing a ruler</a>',
+        'h2.demo': 'Live demo — by editor',
+        'tab.core': 'Core (contenteditable)',
+        'chip.paragraphs': 'Paragraphs',
+        'chip.table': 'Table',
+        'chip.image': 'Image',
+        'chip.mixed': 'Mixed',
+        'link.stackblitz': 'Open in StackBlitz ↗',
+        'note.froala':
+          'Click a paragraph to control its margins; <strong>click a table cell for column markers plus whole-table indent</strong>; select an image and its block moves with it. Drag down from an empty spot on the ruler for a horizontal guide, and use the toolbar dropdown for the vertical ruler and units. The "Unlicensed" mark is Froala’s trial watermark and has nothing to do with this plugin.',
+        'tiptap.minibrand': 'Tiptap (headless) — toolbar is demo-only',
+        'loading.tiptap': 'Loading the Tiptap editor…',
+        'note.tiptap':
+          'Tiptap is <strong>headless</strong>, so it ships no toolbar — the mini toolbar above is hand-wired for this demo. What actually differs from the core tab is the document model (node attributes, undo integration, getHTML serialization). Modules load from a CDN (esm.sh), so this can take a moment.',
+        'loading.ckeditor': 'Loading CKEditor 5…',
+        'loading.summernote': 'Loading Summernote…',
+        'note.summernote':
+          "Summernote is a jQuery-based direct-DOM editor, so it takes the same path as Froala — put the caret in a table cell and column markers appear, and the margin handles push the whole table. Undo goes through Summernote's own afterCommand, one step per drag. jQuery and Summernote load from a CDN, so this can take a moment.",
+        'h2.summernote': 'Summernote integration',
+        'code.summernote':
+          "import $ from 'jquery';
+import 'summernote';
+import { defineRulerPlugin } from '@devslab/editor-ruler-summernote';
+
+defineRulerPlugin($); // once, before initializing any editor
+
+$('#editor').summernote({
+  toolbar: [['misc', ['ruler']]], // ruler-icon dropdown
+  ruler: {
+    unit: 'cm',            // 'cm' | 'in' | 'px'
+    visible: true,         // false starts it hidden
+    vertical: false,       // show the vertical ruler on init
+    verticalGutter: false, // reserve its column — toggling never reflows
+    guides: true,
+  },
+});",
+        'note.summernoteDocs':
+          'Adding <code>'ruler'</code> to <code>toolbar</code> gives you the ruler-icon dropdown. Same direct-DOM behavior as the Froala adapter, including whole-table indent and column markers. Commits go through Summernote's <code>afterCommand</code>, which is what records the undo snapshot. Requires <code>summernote &gt;= 0.8</code> and its jQuery peer.',
+        'note.ckeditor':
+          'CKEditor 5 modules load from a CDN, so this can take a moment. Images behave the same way, subject to how you configure CKEditor’s image plugin.',
+        'label.unit': 'Unit',
+        'aria.unit': 'Ruler unit',
+        'title.bold': 'Bold',
+        'title.italic': 'Italic',
+        'title.heading': 'Heading',
+        'title.bulletList': 'Bullet list',
+        'note.core':
+          'A plain contenteditable demo built with nothing but <code>createRuler</code> + <code>createGuides</code> — no framework, and the same core the adapters use.',
+        'h2.start': 'Get started — npm',
+        'code.coreQuickstart':
+          "import { createRuler } from '@devslab/editor-ruler';\n\nconst ruler = createRuler(mountElement, {\n  unit: 'cm', // 'cm' | 'in' | 'px'\n  getMetrics: () =&gt; ({ contentWidth, leftMargin, rightMargin, firstLineIndent }), // px\n  onChange(change, phase) {\n    // apply px values to the current paragraph(s); phase === 'commit' on release\n  },\n});\n\nruler.refresh();      // call when the selection or content changes\nruler.setUnit('in');  // switch the scale",
+        'h2.cdn': 'Get started — CDN (no build tools)',
+        'cdn.intro':
+          'One <code>&lt;script&gt;</code> tag, no bundler. It exposes a global <code>EditorRuler</code>.',
+        'note.cdnFroala':
+          'The Froala adapter works the same way: load <code>@devslab/editor-ruler-froala/dist/index.global.js</code> and you get a global <code>EditorRulerFroala.defineRulerPlugin</code> (core bundled, single file).',
+        'note.cdnPin':
+          'Version pinning: <code>@1.1.0</code> (exact) · <code>@1.1</code> (patches auto-applied — recommended) · <code>@latest</code> (always newest — majors included, so breaking changes can land without warning; jsDelivr caches the alias for up to 12h).',
+        'h2.froala': 'Froala integration',
+        'code.froala':
+          "import FroalaEditor from 'froala-editor';\nimport { defineRulerPlugin } from '@devslab/editor-ruler-froala';\n\ndefineRulerPlugin(FroalaEditor); // once, before creating instances\n\nnew FroalaEditor('#editor', {\n  rulerEnabled: true, // default true — false disables the plugin entirely\n  rulerVisible: true, // false starts it hidden — toggle it on later (default true)\n  rulerUnit: 'cm',\n  // reserve the vertical ruler's 23px column up front, so toggling it\n  // never reflows the content (default false):\n  rulerVerticalGutter: true,\n  // one ruler dropdown: show/hide + vertical ruler + guides + units\n  toolbarButtons: ['bold', 'italic', '|', 'rulerOptions'],\n  // 'toggleRuler' and 'rulerUnit' are also registered as separate buttons\n});",
+        'note.froalaDocs':
+          '<code>defineRulerPlugin</code> registers the standard Froala plugin (<code>ruler</code>) together with a ruler-icon dropdown, <code>rulerOptions</code> — show/hide, vertical ruler, lock/clear guides, and cm/inch/px in one button, with active states checkmarked. If you set <code>pluginsEnabled</code> yourself, include <code>&#39;ruler&#39;</code>. Dragging updates the selected paragraphs’ <code>margin-left/right</code> and <code>text-indent</code>, recording one undo step per gesture.',
+        'h2.tiptap': 'Tiptap integration',
+        'note.tiptapDocs':
+          'Indentation is stored in a <code>rulerIndent</code> node attribute and comes out of <code>getHTML()</code> as plain inline CSS; a whole drag is one undo step. Tiptap v2 and v3 supported. <code>visible: false</code> starts it hidden — bring it up with <code>editor.commands.toggleRuler()</code>. The vertical ruler is controlled with <code>vertical: true</code> (plus <code>verticalGutter</code> to reserve its column) and the <code>toggleVerticalRuler</code> command.',
+        'h2.ckeditor5': 'CKEditor 5 integration',
+        'code.ckeditor':
+          "import { ClassicEditor, Essentials, Paragraph, Heading } from 'ckeditor5';\nimport { EditorRulerPlugin } from '@devslab/editor-ruler-ckeditor5';\n\nClassicEditor.create(element, {\n  licenseKey: 'GPL',\n  plugins: [Essentials, Paragraph, Heading, EditorRulerPlugin],\n  toolbar: ['heading', '|', 'editorRuler'], // ruler-icon dropdown\n  editorRuler: {\n    unit: 'cm',      // 'cm' | 'in' | 'px'\n    visible: true,   // false starts it hidden — dropdown / plugin.show() opens it\n    vertical: false, // show the vertical ruler on init (verticalGutter reserves its column)\n    guides: true,\n  },\n});",
+        'note.ckeditorDocs':
+          'Indentation is stored as model attributes and down-cast into <code>getData()</code> as plain inline CSS; a whole drag is one undo step. The <code>editorRuler</code> toolbar dropdown holds show/hide, the vertical ruler, lock/clear guides, and unit switching. Requires <code>ckeditor5 &gt;= 42</code>.',
+        'h2.api': 'API at a glance',
+        'api.createRuler':
+          'Mounts the ruler and returns a <code>Ruler</code> handle — supports the <code>guides</code>, <code>columns</code>, and <code>guideSnap</code> options',
+        'api.getMetrics':
+          '<code>{ contentWidth, leftMargin, rightMargin, firstLineIndent }</code> — all in px',
+        'api.onChange':
+          "<code>&#39;drag&#39;</code> while dragging, <code>&#39;commit&#39;</code> on release (the undo boundary)",
+        'api.createGuides': 'Guide-line controller — <code>list/set/clear/setLocked/setVisible</code>',
+        'api.createVRuler': 'Vertical scale strip (can create guides)',
+        'api.rulerMethods': 'Refresh metrics · switch units · tear down',
+        'note.apiKeys':
+          'Handles and column markers are ARIA sliders — <code>←</code>/<code>→</code> 1px, <code>Shift</code> 10px, <code>Home</code>/<code>End</code>. Theme with the <code>--edr-*</code> CSS variables; the UI language follows the browser (ko/en built in).',
+        'h2.faq': 'FAQ',
+        'faq.html':
+          '<strong>What does the output HTML look like?</strong> Plain inline CSS — <code>&lt;p style="margin-left: 75px; text-indent: 38px"&gt;</code>. Export it anywhere (email, another page, a CMS) and the layout holds.',
+        'faq.table':
+          '<strong>What about tables and images?</strong> They push like Word — put the caret in a table and dragging moves the <strong>whole table</strong>, paragraphs inside cells indent individually, and images move with their block. Inside a table the ruler shows <strong>column boundary markers</strong> you can drag to resize columns (tables with merged cells excepted). <em>This table/image behavior is currently Froala-only — on Tiptap and CKEditor 5 you get the same paragraph indentation, vertical ruler, and guides.</em>',
+        'faq.guides':
+          '<strong>Do guides end up in the document?</strong> No — they are a purely visual overlay and never appear in exported HTML. They are alignment aids: lockable, clearable in one click, and <strong>handles and column markers snap to them while dragging</strong>.',
+        'faq.tabstops':
+          '<strong>What about tab stops?</strong> HTML has no tab-stop model, so they are deliberately out of scope. Margins and indents map 1:1 to CSS, which is why they work safely everywhere.',
+        'faq.editors':
+          '<strong>What about other editors?</strong> The core is editor-agnostic, so an adapter only has to read the selected blocks, write styles, and hook into undo — the <a href="https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-froala">Froala</a>, <a href="https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-tiptap">Tiptap</a>, <a href="https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-ckeditor5">CKEditor 5</a>, and <a href="https://github.com/devslab-kr/editor-ruler/tree/main/packages/editor-ruler-summernote">Summernote</a> adapters already exist, and you can try all four in the tabs above. Need a different editor? Open an issue.',
+      };
+
+      (function () {
+        const originals = new WeakMap();
+        const toggle = document.getElementById('lang-toggle');
+
+        function remember(el, kind, value) {
+          let rec = originals.get(el);
+          if (!rec) originals.set(el, (rec = {}));
+          if (!(kind in rec)) rec[kind] = value;
+          return rec[kind];
+        }
+
+        function applyLang(lang) {
+          const en = lang === 'en';
+          document.querySelectorAll('[data-i18n]').forEach((el) => {
+            const ko = remember(el, 'html', el.innerHTML);
+            const next = en ? EN[el.dataset.i18n] : undefined;
+            el.innerHTML = next === undefined ? ko : next;
+          });
+          document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+            const ko = remember(el, 'title', el.title);
+            const next = en ? EN[el.dataset.i18nTitle] : undefined;
+            el.title = next === undefined ? ko : next;
+          });
+          document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+            const ko = remember(el, 'aria', el.getAttribute('aria-label'));
+            const next = en ? EN[el.dataset.i18nAria] : undefined;
+            el.setAttribute('aria-label', next === undefined ? ko : next);
+          });
+          document.documentElement.lang = lang;
+          window.__EDR_LANG = lang;
+          if (toggle) toggle.textContent = en ? '한국어' : 'English';
+          // Demo content lives in the main script; let it swap and re-render.
+          if (window.__setDemoLang) window.__setDemoLang(lang);
+        }
+
+        window.__applyLang = applyLang;
+        applyLang(window.__EDR_LANG);
+
+        if (toggle) {
+          toggle.addEventListener('click', () => {
+            const next = window.__EDR_LANG === 'en' ? 'ko' : 'en';
+            try { localStorage.setItem('edr-lang', next); } catch (e) {}
+            applyLang(next);
+          });
+        }
+      })();
+    </script>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "@tiptap/core": "https://esm.sh/@tiptap/core@3.6.5",
+          "@tiptap/starter-kit": "https://esm.sh/@tiptap/starter-kit@3.6.5",
+          "@tiptap/extension-image": "https://esm.sh/@tiptap/extension-image@3.6.5",
+          "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/48.4.0/ckeditor5.js",
+          "@devslab/editor-ruler": "./vendor/editor-ruler.mjs",
+          "@devslab/editor-ruler-tiptap": "./vendor/editor-ruler-tiptap.mjs",
+          "@devslab/editor-ruler-ckeditor5": "./vendor/editor-ruler-ckeditor5.mjs",
+          "@devslab/editor-ruler-summernote": "./vendor/editor-ruler-summernote.mjs"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/48.4.0/ckeditor5.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@4.5.2/css/froala_editor.pkgd.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/froala-editor@4.5.2/js/froala_editor.pkgd.min.js"></script>
+    <script src="./vendor/editor-ruler-froala.global.js"></script>
+    <script src="./vendor/editor-ruler.global.js"></script>
+    <script>
+      // ---------- shared demo presets ----------
+      const DEMO_IMG =
+        'data:image/svg+xml;charset=utf-8,' +
+        encodeURIComponent(
+          '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="140">' +
+            '<rect width="240" height="140" rx="10" fill="#dbe7fd"/>' +
+            '<circle cx="70" cy="62" r="26" fill="#93b4f8"/>' +
+            '<path d="M40 112 L96 68 L140 104 L172 80 L208 112 Z" fill="#2563eb" opacity="0.8"/>' +
+            '<text x="120" y="130" font-family="sans-serif" font-size="12" fill="#2563eb" text-anchor="middle">240 × 140</text>' +
+          '</svg>',
+        );
+
+      const PRESET_SRC = {
+        ko: {
+          tableHtml:
+            '<table><tbody>' +
+            '<tr><th>제품</th><th>수량</th><th>가격</th></tr>' +
+            '<tr><td>editor-ruler</td><td>1</td><td>무료</td></tr>' +
+            '<tr><td>Word 줄자</td><td>1</td><td>구독</td></tr>' +
+            '</tbody></table>',
+          paragraphsHead: '<h3>문단 들여쓰기</h3>',
+          p1: '이 문단은 왼쪽 여백이 60px입니다 — 핸들을 잡고 바꿔 보세요.',
+          p2: '이 문단은 첫 줄만 40px 들여쓰기되어 있습니다. 위 삼각형 핸들이 담당합니다.',
+          p3: '내어쓰기(hanging indent) 문단 — 첫 줄이 나머지보다 왼쪽으로 나와 있습니다.',
+          p4: '기본 문단. 여러 문단을 걸쳐 선택하고 드래그하면 한꺼번에 이동합니다.',
+          tableHead: '<h3>테이블</h3>',
+          tableLead:
+            'Froala 탭에서 셀에 커서를 두면 줄자에 <strong>컬럼 경계 마커</strong>가 뜨고, 여백 핸들을 끌면 <strong>테이블 전체</strong>가 이동합니다.',
+          imageHead: '<h3>이미지</h3>',
+          imageLead: '이미지를 클릭해 선택한 뒤 핸들을 드래그하면 이미지가 담긴 블록이 통째로 밀립니다.',
+          imageAlt: '데모 이미지',
+          mixedHead: '<h3>복합 문서</h3>',
+          mixedLead: '들여쓰기된 문단, 테이블, 이미지가 한 문서에 —',
+          mixedTail: '커서를 옮겨 다니며 줄자가 어떤 대상이든 따라오는 것을 확인해 보세요.',
+        },
+        en: {
+          tableHtml:
+            '<table><tbody>' +
+            '<tr><th>Product</th><th>Qty</th><th>Price</th></tr>' +
+            '<tr><td>editor-ruler</td><td>1</td><td>Free</td></tr>' +
+            '<tr><td>Word ruler</td><td>1</td><td>Subscription</td></tr>' +
+            '</tbody></table>',
+          paragraphsHead: '<h3>Paragraph indentation</h3>',
+          p1: 'This paragraph has a 60px left margin — grab a handle and change it.',
+          p2: 'Only the first line of this paragraph is indented, by 40px. The top triangle handle controls that.',
+          p3: 'A hanging indent — the first line sticks out to the left of the rest.',
+          p4: 'A plain paragraph. Select across several and drag to move them all at once.',
+          tableHead: '<h3>Table</h3>',
+          tableLead:
+            'On the Froala tab, put the caret in a cell and the ruler shows <strong>column boundary markers</strong>; drag a margin handle and the <strong>whole table</strong> moves.',
+          imageHead: '<h3>Image</h3>',
+          imageLead: 'Click the image to select it, then drag a handle — the block containing it moves as a unit.',
+          imageAlt: 'Demo image',
+          mixedHead: '<h3>A mixed document</h3>',
+          mixedLead: 'Indented paragraphs, a table, and an image in one document —',
+          mixedTail: 'Move the caret around and watch the ruler follow whatever it lands on.',
+        },
+      };
+
+      function buildPresets(lang) {
+        const t = PRESET_SRC[lang] || PRESET_SRC.ko;
+        const img = '<p><img src="' + DEMO_IMG + '" width="240" height="140" alt="' + t.imageAlt + '"></p>';
+        return {
+          paragraphs:
+            t.paragraphsHead +
+            '<p style="margin-left: 60px;">' + t.p1 + '</p>' +
+            '<p style="text-indent: 40px;">' + t.p2 + '</p>' +
+            '<p style="margin-left: 80px; text-indent: -40px;">' + t.p3 + '</p>' +
+            '<p>' + t.p4 + '</p>',
+          table: t.tableHead + '<p>' + t.tableLead + '</p>' + t.tableHtml,
+          image: t.imageHead + '<p>' + t.imageLead + '</p>' + img,
+          mixed:
+            t.mixedHead +
+            '<p style="margin-left: 40px;">' + t.mixedLead + '</p>' +
+            t.tableHtml + img +
+            '<p>' + t.mixedTail + '</p>',
+        };
+      }
+
+      let PRESETS = buildPresets(window.__EDR_LANG);
+
+      // Called by the i18n script on a language switch: rebuild the demo copy
+      // and re-apply whichever preset the visible tab is showing, so the
+      // editors do not keep stale-language content.
+      window.__setDemoLang = function (lang) {
+        PRESETS = buildPresets(lang);
+        const panel = document.querySelector('.tab-panel:not([hidden])');
+        const chip = panel && panel.querySelector('.chip.active');
+        if (chip) chip.click();
+      };
+
+      // ---------- tabs ----------
+      const tabButtons = document.querySelectorAll('.tabs button');
+      const panels = { froala: document.getElementById('tab-froala'), tiptap: document.getElementById('tab-tiptap'), ckeditor: document.getElementById('tab-ckeditor'), summernote: document.getElementById('tab-summernote'), core: document.getElementById('tab-core') };
+      const activators = { froala: initFroala, tiptap: () => window.__initTiptap?.(), ckeditor: () => window.__initCk?.(), summernote: () => window.__initSummernote?.(), core: initCore };
+      const refreshers = { froala: () => window.__froalaRuler?.refresh(), tiptap: () => window.__tiptapRuler?.refresh(), ckeditor: () => window.__ckRuler?.refresh(), summernote: () => window.__snRuler?.refresh(), core: () => window.__coreRuler?.refresh() };
+      const started = {};
+
+      tabButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          tabButtons.forEach((b) => b.classList.toggle('active', b === btn));
+          const key = btn.dataset.tab;
+          for (const [k, panel] of Object.entries(panels)) panel.hidden = k !== key;
+          if (!started[key]) { started[key] = true; activators[key]?.(); }
+          requestAnimationFrame(() => refreshers[key]?.());
+        });
+      });
+
+      function wireChips(panel, apply) {
+        panel.querySelectorAll('.chip').forEach((chip) => {
+          chip.addEventListener('click', () => {
+            panel.querySelectorAll('.chip').forEach((c) => c.classList.toggle('active', c === chip));
+            apply(chip.dataset.preset);
+          });
+        });
+      }
+
+      // ---------- Froala tab (default) ----------
+      function initFroala() {
+        if (!window.FroalaEditor || !window.EditorRulerFroala) {
+          document.getElementById('froala-panel').innerHTML =
+            '<p style="padding:16px 18px;color:var(--muted)">Froala CDN을 불러오지 못했습니다 — 네트워크 상태를 확인한 뒤 새로고침해 주세요.</p>';
+          return;
+        }
+        EditorRulerFroala.defineRulerPlugin(FroalaEditor);
+        const ed = new FroalaEditor('#froala-editor', {
+          rulerEnabled: true,
+          rulerUnit: 'cm',
+          rulerVerticalGutter: true, // 세로 줄자 토글에도 본문 폭 불변
+
+          toolbarButtons: ['bold', 'italic', 'underline', '|', 'formatOL', 'formatUL', 'insertTable', '|', 'rulerOptions'],
+          heightMin: 220,
+          attribution: false,
+          events: {
+            initialized() {
+              this.html.set(PRESETS.paragraphs);
+              window.__froalaRuler = this.ruler;
+            },
+          },
+        });
+        wireChips(document.getElementById('tab-froala'), (key) => {
+          ed.html.set(PRESETS[key]);
+          ed.undo.saveStep();
+          ed.ruler?.refresh();
+        });
+      }
+
+      // ---------- core tab ----------
+      function initCore() {
+        const page = document.getElementById('core-page');
+        const mount = document.getElementById('core-ruler-mount');
+        page.innerHTML = PRESETS.paragraphs;
+
+        function currentBlocks() {
+          const sel = document.getSelection();
+          const blocks = [];
+          if (sel && sel.rangeCount > 0) {
+            let node = sel.getRangeAt(0).startContainer;
+            if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+            while (node && node !== page && node.parentElement !== page) node = node.parentElement;
+            if (node && node !== page) blocks.push(node);
+          }
+          if (blocks.length === 0 && page.firstElementChild) blocks.push(page.firstElementChild);
+          return blocks;
+        }
+
+        function getMetrics() {
+          const s = getComputedStyle(page);
+          const contentWidth = page.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight);
+          const block = currentBlocks()[0];
+          const style = block ? getComputedStyle(block) : null;
+          return {
+            contentWidth,
+            leftMargin: style ? parseFloat(style.marginLeft) || 0 : 0,
+            rightMargin: style ? parseFloat(style.marginRight) || 0 : 0,
+            firstLineIndent: style ? parseFloat(style.textIndent) || 0 : 0,
+          };
+        }
+
+        const guides = EditorRuler.createGuides(page, {
+          getOffsetLeft: () => parseFloat(getComputedStyle(page).paddingLeft) || 0,
+        });
+        const ruler = EditorRuler.createRuler(mount, {
+          unit: 'cm',
+          getMetrics,
+          guides,
+          onChange(change) {
+            for (const block of currentBlocks()) {
+              if (change.leftMargin !== undefined) block.style.marginLeft = change.leftMargin + 'px';
+              if (change.rightMargin !== undefined) block.style.marginRight = change.rightMargin + 'px';
+              if (change.firstLineIndent !== undefined) block.style.textIndent = change.firstLineIndent + 'px';
+            }
+          },
+        });
+        window.__coreRuler = ruler;
+
+        document.addEventListener('selectionchange', () => {
+          if (page.contains(document.getSelection()?.anchorNode ?? null)) ruler.refresh();
+        });
+        window.addEventListener('resize', () => ruler.refresh());
+        document.getElementById('core-unit').addEventListener('change', (e) => ruler.setUnit(e.target.value));
+        wireChips(document.getElementById('tab-core'), (key) => {
+          page.innerHTML = PRESETS[key];
+          ruler.refresh();
+        });
+      }
+
+      // start on the default tab
+      initFroala();
+      started.froala = true;
+    </script>
+    <script type="module">
+      const note = document.getElementById('tiptap-note');
+      let editor = null;
+      let modules = null;
+      async function load() {
+        if (modules) return modules;
+        modules = await Promise.all([
+          import('@tiptap/core'),
+          import('@tiptap/starter-kit'),
+          import('@tiptap/extension-image'),
+          import('@devslab/editor-ruler-tiptap'),
+        ]);
+        return modules;
+      }
+      window.__initTiptap = async () => {
+        try {
+          const [{ Editor }, { default: StarterKit }, { default: Image }, { EditorRuler }] = await load();
+          const tiptapHost = document.getElementById('tiptap-editor');
+          tiptapHost.innerHTML = '';
+          editor = new Editor({
+            element: tiptapHost,
+            extensions: [StarterKit, Image.configure({ inline: true, allowBase64: true }), EditorRuler.configure({ unit: 'cm' })],
+            content: PRESETS.paragraphs,
+          });
+          // demo mini toolbar — Tiptap is headless, so this is wired by hand
+          const tb = document.getElementById('tiptap-toolbar');
+          tb.hidden = false;
+          const runCmd = {
+            bold: () => editor.chain().focus().toggleBold().run(),
+            italic: () => editor.chain().focus().toggleItalic().run(),
+            heading: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+            bulletList: () => editor.chain().focus().toggleBulletList().run(),
+          };
+          const isActive = {
+            bold: () => editor.isActive('bold'),
+            italic: () => editor.isActive('italic'),
+            heading: () => editor.isActive('heading', { level: 3 }),
+            bulletList: () => editor.isActive('bulletList'),
+          };
+          const syncToolbar = () => {
+            tb.querySelectorAll('button').forEach((b) => b.classList.toggle('active', isActive[b.dataset.cmd]?.() === true));
+          };
+          tb.querySelectorAll('button').forEach((b) =>
+            b.addEventListener('click', () => { runCmd[b.dataset.cmd]?.(); syncToolbar(); }),
+          );
+          editor.on('selectionUpdate', syncToolbar);
+          editor.on('transaction', syncToolbar);
+          editor.on('create', () => {
+            window.__tiptapRuler = editor.storage.editorRuler.ruler;
+          });
+          note.textContent =
+            '들여쓰기는 getHTML()에 순수 인라인 CSS로 담기고, 드래그가 undo 한 단계입니다 (Ctrl+Z). 테이블은 Tiptap table 확장을 설치하면 동일하게 동작합니다.';
+          const panel = document.getElementById('tab-tiptap');
+          panel.querySelectorAll('.chip').forEach((chip) => {
+            chip.addEventListener('click', () => {
+              panel.querySelectorAll('.chip').forEach((c) => c.classList.toggle('active', c === chip));
+              editor?.commands.setContent(PRESETS[chip.dataset.preset]);
+              window.__tiptapRuler?.refresh();
+            });
+          });
+        } catch (e) {
+          note.textContent = 'Tiptap CDN 모듈을 불러오지 못했습니다 — 네트워크 상태를 확인한 뒤 새로고침해 주세요.';
+        }
+      };
+
+      // ---------- CKEditor 5 tab ----------
+      const ckNote = document.getElementById('ckeditor-note');
+      window.__initCk = async () => {
+        try {
+          const [ck, { EditorRulerPlugin }] = await Promise.all([
+            import('ckeditor5'),
+            import('@devslab/editor-ruler-ckeditor5'),
+          ]);
+          const { ClassicEditor, Essentials, Paragraph, Heading, Bold, Italic, Table, TableToolbar } = ck;
+          const ckHost = document.getElementById('ckeditor-editor');
+          ckHost.innerHTML = '';
+          const editor = await ClassicEditor.create(ckHost, {
+            licenseKey: 'GPL',
+            plugins: [Essentials, Paragraph, Heading, Bold, Italic, Table, TableToolbar, EditorRulerPlugin],
+            toolbar: ['heading', '|', 'bold', 'italic', 'insertTable', '|', 'editorRuler'],
+            editorRuler: { unit: 'cm' },
+            initialData: PRESETS.paragraphs,
+          });
+          window.__ckRuler = editor.plugins.get('EditorRuler').ruler;
+          ckNote.textContent =
+            '들여쓰기는 모델 속성으로 저장되어 getData()에 순수 인라인 CSS로 나오고, 드래그가 undo 한 단계입니다 (Ctrl+Z). 이미지는 CKEditor 이미지 플러그인 구성에 따라 동일하게 동작합니다.';
+          const panel = document.getElementById('tab-ckeditor');
+          panel.querySelectorAll('.chip').forEach((chip) => {
+            chip.addEventListener('click', () => {
+              panel.querySelectorAll('.chip').forEach((c) => c.classList.toggle('active', c === chip));
+              editor.setData(PRESETS[chip.dataset.preset]);
+              window.__ckRuler?.refresh();
+            });
+          });
+        } catch (e) {
+          ckNote.textContent = 'CKEditor CDN 모듈을 불러오지 못했습니다 — 네트워크 상태를 확인한 뒤 새로고침해 주세요.';
+        }
+      };
+
+      // ---------- Summernote tab ----------
+      // jQuery + Summernote are UMD, so they load as plain tags rather than
+      // through the import map. Lazy, so the other tabs don't pay for them.
+      function loadTag(tag, attrs) {
+        return new Promise((resolve, reject) => {
+          const el = Object.assign(document.createElement(tag), attrs);
+          el.onload = resolve;
+          el.onerror = () => reject(new Error(attrs.src || attrs.href));
+          document.head.appendChild(el);
+        });
+      }
+
+      window.__initSummernote = async () => {
+        const snNote = document.getElementById('summernote-note');
+        try {
+          await loadTag('link', {
+            rel: 'stylesheet',
+            href: 'https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.css',
+          });
+          await loadTag('script', { src: 'https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js' });
+          await loadTag('script', {
+            src: 'https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js',
+          });
+          const { defineRulerPlugin } = await import('@devslab/editor-ruler-summernote');
+          const $ = window.jQuery;
+          defineRulerPlugin($);
+
+          const host = document.getElementById('summernote-editor');
+          host.innerHTML = '';
+          $(host).summernote({
+            height: 220,
+            toolbar: [['style', ['bold', 'italic']], ['table', ['table']], ['misc', ['ruler']]],
+            ruler: { unit: 'cm', verticalGutter: true },
+            callbacks: {
+              onInit() {
+                const ctx = $(host).data('summernote');
+                window.__snRuler = ctx && ctx.modules && ctx.modules.ruler;
+                $(host).summernote('code', PRESETS.paragraphs);
+                window.__snRuler?.refresh();
+              },
+            },
+          });
+
+          const panel = document.getElementById('tab-summernote');
+          panel.querySelectorAll('.chip').forEach((chip) => {
+            chip.addEventListener('click', () => {
+              panel.querySelectorAll('.chip').forEach((c) => c.classList.toggle('active', c === chip));
+              $(host).summernote('code', PRESETS[chip.dataset.preset]);
+              window.__snRuler?.refresh();
+            });
+          });
+        } catch (e) {
+          snNote.textContent =
+            'jQuery / Summernote CDN을 불러오지 못했습니다 — 네트워크 상태를 확인한 뒤 새로고침해 주세요.';
+        }
+      };
+    </script>
+  </body>
+</html>

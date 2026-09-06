@@ -11,6 +11,9 @@ importers:
       '@changesets/cli':
         specifier: ^2.27.10
         version: 2.31.1
+      '@devslab/site-kit':
+        specifier: 0.8.0
+        version: 0.8.0(solid-js@1.9.15)
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
@@ -341,6 +344,32 @@ packages:
   '@csstools/css-tokenizer@3.0.4':
     resolution: {integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==}
     engines: {node: '>=18'}
+
+  '@devslab/dds-css@0.8.0':
+    resolution: {integrity: sha512-PxibTv92uMzU3rKtOesFUOSR5x3RWp3JHoO9LBidlqwFOjg37+Wd/Y7prLA8mw7USJ1FnF/R5Q4xHDJHk3iCAQ==}
+
+  '@devslab/dds-icons@0.8.0':
+    resolution: {integrity: sha512-kspidNuH1A1E9euuVYlsw5D+vLsPZf01+lGShyB186ru7UEsLkz3epdNH9ry+OPx4lloGYzigyyqq1jwBK8Ofg==}
+
+  '@devslab/dds-solid@0.8.0':
+    resolution: {integrity: sha512-Q05I3QeiaIJga1ixgw+usw3U9Oc4V8tps8mv/Jylu1B0uip4IiAILIM2sePaeJe/ciGfRTxJRsAtprqfyk9I/w==}
+    peerDependencies:
+      solid-js: 1.9.15
+
+  '@devslab/dds-tokens@0.8.0':
+    resolution: {integrity: sha512-lI/K50/jbKFWjlnTIBce23xry7JbJ1Io461VwUjpLvTAxTrZ5vee9ybosSMSTIs/BDWQidt6V80ghZxsGjX5yg==}
+
+  '@devslab/site-kit@0.8.0':
+    resolution: {integrity: sha512-m2J6/GH7zid3db+BhoN/2GGUg4tlOsDamXBLFjJg+r8JqDgUv5QyocM5tPgqhW6G/jwKIxS0cZo8RcJJAvU7gQ==}
+    peerDependencies:
+      '@tanstack/solid-router': 1.170.30
+      '@tanstack/solid-start': 1.168.47
+      solid-js: 1.9.15
+    peerDependenciesMeta:
+      '@tanstack/solid-router':
+        optional: true
+      '@tanstack/solid-start':
+        optional: true
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -1125,6 +1154,9 @@ packages:
     resolution: {integrity: sha512-2z+rWdzbbSZv6/rhtvzvqeZQHrBaqgogqt85sqFNbabZOuFbCVFb8kPeEtZjiKkbrm395irpNKiYeFeLiQnFPg==}
     engines: {node: '>=18'}
 
+  csstype@3.2.3:
+    resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
+
   data-urls@5.0.0:
     resolution: {integrity: sha512-ZYP5VBHshaDAiVZxjbRVcFJpc+4xGgT0bK3vzy1HLN8jTO975HEbuYzZJcHoQEY5K1a0z8YayJkyVETa08eNTg==}
     engines: {node: '>=18'}
@@ -1879,6 +1911,16 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  seroval-plugins@1.5.6:
+    resolution: {integrity: sha512-HXuLAX2pu/UByPpaeo/TaMfvMIi+1QqIoPJYCcAtU8QkVNwgR6MPlGuCQTErV1JwraaMbYaWVIBX7mppzGLATQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      seroval: ^1.0
+
+  seroval@1.5.6:
+    resolution: {integrity: sha512-rVQVWjjSvlINzaQPZH5JFqsqEsIWdTxY3iJZCnTL/5gQbXIRooVZKI60tVCkOVfzcRPejboxO2t0P89dg5mQaA==}
+    engines: {node: '>=10'}
+
   shebang-command@2.0.0:
     resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
     engines: {node: '>=8'}
@@ -1897,6 +1939,9 @@ packages:
   slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
+
+  solid-js@1.9.15:
+    resolution: {integrity: sha512-EeiY2xfpZJqPLjXspVEKjAII4yv8NyG//NxZ3IpOFHdUNnnTyL0uJOeS9LWGvA7cFCz5y94cjFwYlmw5Luncsg==}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -2914,6 +2959,24 @@ snapshots:
 
   '@csstools/css-tokenizer@3.0.4': {}
 
+  '@devslab/dds-css@0.8.0': {}
+
+  '@devslab/dds-icons@0.8.0': {}
+
+  '@devslab/dds-solid@0.8.0(solid-js@1.9.15)':
+    dependencies:
+      '@devslab/dds-css': 0.8.0
+      '@devslab/dds-icons': 0.8.0
+      '@devslab/dds-tokens': 0.8.0
+      solid-js: 1.9.15
+
+  '@devslab/dds-tokens@0.8.0': {}
+
+  '@devslab/site-kit@0.8.0(solid-js@1.9.15)':
+    dependencies:
+      '@devslab/dds-solid': 0.8.0(solid-js@1.9.15)
+      solid-js: 1.9.15
+
   '@esbuild/aix-ppc64@0.21.5':
     optional: true
 
@@ -3563,6 +3626,8 @@ snapshots:
     dependencies:
       '@asamuzakjp/css-color': 3.2.0
       rrweb-cssom: 0.8.0
+
+  csstype@3.2.3: {}
 
   data-urls@5.0.0:
     dependencies:
@@ -4649,6 +4714,12 @@ snapshots:
 
   semver@7.8.5: {}
 
+  seroval-plugins@1.5.6(seroval@1.5.6):
+    dependencies:
+      seroval: 1.5.6
+
+  seroval@1.5.6: {}
+
   shebang-command@2.0.0:
     dependencies:
       shebang-regex: 3.0.0
@@ -4660,6 +4731,12 @@ snapshots:
   signal-exit@4.1.0: {}
 
   slash@3.0.0: {}
+
+  solid-js@1.9.15:
+    dependencies:
+      csstype: 3.2.3
+      seroval: 1.5.6
+      seroval-plugins: 1.5.6(seroval@1.5.6)
 
   source-map-js@1.2.1: {}
 

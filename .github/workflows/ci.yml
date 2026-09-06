@@ -16,6 +16,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm check:publisher
       # Fails if any derived version reference (examples pins, README CDN
       # pins, sibling package versions) lags the core package version.
       - run: pnpm check:versions

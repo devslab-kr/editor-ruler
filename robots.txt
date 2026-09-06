@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://devslab-kr.github.io/editor-ruler/sitemap.xml

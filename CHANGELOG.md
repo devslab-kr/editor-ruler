@@ -9,6 +9,17 @@ with a shared version number.
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-09
+
+### Changed
+
+- Republish — no code changes. npm releases now go through Trusted
+  Publishing (OIDC from `publish.yml`, Node 24 / npm 11) instead of a
+  long-lived token; this version validates the connection for every
+  package in the group.
+  / 재배포 — 코드 무변경. npm 발행이 토큰 대신 Trusted Publishing(OIDC)으로
+  전환되었고, 이 버전이 전 패키지의 연결을 검증합니다.
+
 ## [1.1.0] - 2026-08-08
 
 ### Added
@@ -389,7 +400,8 @@ What it deliberately does **not** cover, so these can still improve:
   records one Froala undo step per gesture. iife build exposes the
   `EditorRulerFroala` global (core bundled) for CDN use.
 
-[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/devslab-kr/editor-ruler/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/devslab-kr/editor-ruler/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/devslab-kr/editor-ruler/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/devslab-kr/editor-ruler/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/devslab-kr/editor-ruler/compare/v0.16.0...v1.0.0

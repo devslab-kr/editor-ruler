@@ -20,7 +20,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24 # npm >= 11.5.1 is required for OIDC trusted publishing; Node 22 bundles npm 10
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
@@ -41,10 +41,13 @@ jobs:
             if (actual !== expected) { console.error('Tag ' + actual + ' does not match package version ' + expected); process.exit(1); }
           "
 
+      # Auth is npm Trusted Publishing (OIDC): each package has a trusted
+      # publisher for this repo + workflow file, so no NPM_TOKEN. pnpm
+      # publish delegates to npm publish, which exchanges the OIDC token
+      # granted by `id-token: write` above.
       - name: Publish packages
         run: pnpm -r publish --access public --no-git-checks
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: 'true'
 
       - name: Extract changelog section

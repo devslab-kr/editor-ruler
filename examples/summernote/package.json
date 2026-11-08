@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@devslab/editor-ruler-summernote": "^1.1.0",
+    "@devslab/editor-ruler-summernote": "^1.1.1",
     "jquery": "^3.7.1",
     "summernote": "^0.9.1"
   },

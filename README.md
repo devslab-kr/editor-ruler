@@ -67,7 +67,7 @@ Version pinning options:
 
 | URL | Meaning |
 |---|---|
-| `@1.1.0` | Exact version — never changes, cached longest |
+| `@1.1.1` | Exact version — never changes, cached longest |
 | `@1.1` | Latest `1.1.x` patch — bugfixes auto-applied, no breaking changes (recommended) |
 | `@latest` (or no version) | Always the newest release — majors included, so breaking changes can land without warning; jsDelivr caches the alias for up to 12h |
 
